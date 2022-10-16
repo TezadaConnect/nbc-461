@@ -119,6 +119,8 @@ class AwardController extends Controller
             return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
         }
 
+        $document = $this->commonService->fileUploadHandlerForExternal($request, 'document');
+
         $value = [
             0, //EmployeeOutstandingAchievementID
             $emp_code, //EmpCode
