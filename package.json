@@ -31,6 +31,7 @@
         "datatables.net": "^1.11.3",
         "datatables.net-bs4": "^3.2.2",
         "file-upload-with-preview": "^5.0.8",
-        "jquery-validation": "^1.19.5"
+        "jquery-validation": "^1.19.5",
+        "sweetalert2": "^11.6.1"
     }
 }
