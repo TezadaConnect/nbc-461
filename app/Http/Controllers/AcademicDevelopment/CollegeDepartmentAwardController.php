@@ -137,7 +137,7 @@ class CollegeDepartmentAwardController extends Controller
             }
         }
 
-        return redirect()->route('college-department-award.index')->with('award_success', 'Awards and recognition received by the college and department has been added.');
+        return redirect()->route('college-department-award.index')->with('success', 'Awards and recognition received by the college and department has been added.');
 
         // if($request->has('document')){
         //     try {
@@ -304,7 +304,7 @@ class CollegeDepartmentAwardController extends Controller
             }
         }
 
-        return redirect()->route('college-department-award.index')->with('award_success', 'Awards and recognition received by the college and department has been updated.');
+        return redirect()->route('college-department-award.index')->with('success', 'Awards and recognition received by the college and department has been updated.');
 
         // if($request->has('document')){
         //     try {
@@ -355,7 +355,7 @@ class CollegeDepartmentAwardController extends Controller
 
         LogActivity::addToLog('Had deleted an award and recognition received by the college and dept.');
 
-        return redirect()->route('college-department-award.index')->with('award_success', 'Awards and recognition received by the college and department has been deleted.');
+        return redirect()->route('college-department-award.index')->with('success', 'Awards and recognition received by the college and department has been deleted.');
     }
 
     public function removeDoc($filename){

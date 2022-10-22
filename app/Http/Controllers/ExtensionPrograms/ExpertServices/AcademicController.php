@@ -148,7 +148,7 @@ class AcademicController extends Controller
             }
         }
 
-        return redirect()->route('expert-service-in-academic.index')->with('edit_esacademic_success', 'Expert service rendered in academic '.strtolower($classification[0]->name).' has been added.');
+        return redirect()->route('expert-service-in-academic.index')->with('success', 'Expert service rendered in academic '.strtolower($classification[0]->name).' has been added.');
 
         // if($request->has('document')){
         //     $documents = $request->input('document');
@@ -332,7 +332,7 @@ class AcademicController extends Controller
             }
         }
 
-        return redirect()->route('expert-service-in-academic.index')->with('edit_esacademic_success', 'Expert service rendered in academic '.strtolower($classification[0]->name).' has been updated.');
+        return redirect()->route('expert-service-in-academic.index')->with('success', 'Expert service rendered in academic '.strtolower($classification[0]->name).' has been updated.');
 
                 // if($request->has('document')){
         //     $documents = $request->input('document');
@@ -387,7 +387,7 @@ class AcademicController extends Controller
 
         LogActivity::addToLog('Had deleted the expert service rendered in academic '.strtolower($classification[0]->name).'.');
 
-        return redirect()->route('expert-service-in-academic.index')->with('edit_esacademic_success', 'Expert service rendered in academic '.strtolower($classification[0]->name).' has been deleted.');
+        return redirect()->route('expert-service-in-academic.index')->with('success', 'Expert service rendered in academic '.strtolower($classification[0]->name).' has been deleted.');
     }
 
     public function removeDoc($filename){

@@ -186,7 +186,7 @@ class IntraMobilityController extends Controller
             }
         }
 
-        return redirect()->route('intra-mobility.index')->with('mobility_success', 'Intra-Country mobility has been added.');
+        return redirect()->route('intra-mobility.index')->with('success', 'Intra-Country mobility has been added.');
 
         // if($request->has('document')){
         //     try {
@@ -387,7 +387,7 @@ class IntraMobilityController extends Controller
 
         LogActivity::addToLog('Had updated an intra-country mobility.');
 
-        return redirect()->route('intra-mobility.index')->with('mobility_success', 'Intra-Country mobility has been updated.');
+        return redirect()->route('intra-mobility.index')->with('success', 'Intra-Country mobility has been updated.');
 
 
         // if($request->has('document')){
@@ -437,7 +437,7 @@ class IntraMobilityController extends Controller
 
         LogActivity::addToLog('Had deleted an intra-country mobility.');
 
-        return redirect()->route('intra-mobility.index')->with('mobility_success', 'Intra-Country mobility has been deleted.');
+        return redirect()->route('intra-mobility.index')->with('success', 'Intra-Country mobility has been deleted.');
     }
 
     public function removeDoc($filename){

@@ -144,7 +144,7 @@ class OtherDeptAccomplishmentController extends Controller
             }
         }
 
-        return redirect()->route('other-dept-accomplishment.index')->with('other_dept_success', 'Other department/college accomplishment has been added.');
+        return redirect()->route('other-dept-accomplishment.index')->with('success', 'Other department/college accomplishment has been added.');
 
         // if($request->has('document')){
         //     try {
@@ -311,7 +311,7 @@ class OtherDeptAccomplishmentController extends Controller
         }
 
         LogActivity::addToLog('Had updated other department/college accomplishment.');
-        return redirect()->route('other-dept-accomplishment.index')->with('other_dept_success', 'Other department/college accomplishment has been updated.');
+        return redirect()->route('other-dept-accomplishment.index')->with('success', 'Other department/college accomplishment has been updated.');
 
         // if($request->has('document')){
         //     try {
@@ -360,7 +360,7 @@ class OtherDeptAccomplishmentController extends Controller
         $otherDeptAccomplishment->delete();
         LogActivity::addToLog('Had deleted other department/college accomplishment.');
 
-        return redirect()->route('other-dept-accomplishment.index')->with('other_dept_success', 'Other department/college accomplishment has been deleted.');
+        return redirect()->route('other-dept-accomplishment.index')->with('success', 'Other department/college accomplishment has been deleted.');
     }
 
     public function removeDoc($filename){

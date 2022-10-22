@@ -431,7 +431,7 @@ class InventionController extends Controller
 
         LogActivity::addToLog("Had deleted ".ucfirst($classification[0]->name).' entitled "'.$invention_innovation_creative->title.'".');
 
-        return redirect()->route('invention-innovation-creative.index')->with('edit_iicw_success', ucfirst($classification[0]->name).' has been deleted.');
+        return redirect()->route('invention-innovation-creative.index')->with('success', ucfirst($classification[0]->name).' has been deleted.');
     }
 
     public function removeDoc($filename){

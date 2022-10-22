@@ -144,7 +144,7 @@ class RequestController extends Controller
             }
         }
 
-        return redirect()->route('request.index')->with('request_success', 'Your Accomplishment in Request & Queries Acted Upon has been saved.');
+        return redirect()->route('request.index')->with('success', 'Your Accomplishment in Request & Queries Acted Upon has been saved.');
 
         // if($request->has('document')){
         //     $documents = $request->input('document');
@@ -322,7 +322,7 @@ class RequestController extends Controller
             }
         }
 
-        return redirect()->route('request.index')->with('request_success', 'Your accomplishment in Request & Queries Acted Upon has been updated.');
+        return redirect()->route('request.index')->with('success', 'Your accomplishment in Request & Queries Acted Upon has been updated.');
 
         // if($request->has('document')){
         //     $documents = $request->input('document');
@@ -382,7 +382,7 @@ class RequestController extends Controller
 
         LogActivity::addToLog('Had deleted a Request & Queries Acted Upon.');
 
-        return redirect()->route('request.index')->with('request_success', 'Your accomplishment in Request & Queries Acted Upon has been deleted.');
+        return redirect()->route('request.index')->with('success', 'Your accomplishment in Request & Queries Acted Upon has been deleted.');
     }
 
     public function removeDoc($filename){

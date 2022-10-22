@@ -18,6 +18,7 @@
         <link href="https://unpkg.com/filepond/dist/filepond.min.css" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css"> <!--added-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css"/>
+  
         <!-- Scripts -->
         <script src="https://kit.fontawesome.com/b22b0c1d67.js" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -28,7 +29,7 @@
         <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.min.js"></script>
         <script src="https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.min.js"></script>
         <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
-         <!-- JavaScript Bundle with Popper -->
+        <!-- JavaScript Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
         <!-- Bootstrap Datepicker Resources -->
@@ -48,6 +49,7 @@
         <script src="{{ asset('js/app.js') }}"></script>
         <script src="{{ asset('lightbox2/dist/js/lightbox.js') }}"></script>
         <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+
 
     </head>
     <body class="font-sans antialiased bg-light" style="background-image: {{ URL('storage/cover2.png') }}">
@@ -133,6 +135,24 @@
 {{-- Sweet Alerts --}}
 <script>
 
+    if("{{ Session::has('success'); }}"){
+        Swal.fire({
+            title: "Action Succeeded",
+            text: "{{ Session::get('success'); }}",
+            confirmButtonColor: '#38c172',
+            icon: "success"
+        });
+    }
+
+    // if("{{ Session::has('success_partnership'); }}"){
+    //     Swal.fire({
+    //         title: "Action Succeeded",
+    //         text: "{{ Session::get('success'); }}",
+    //         confirmButtonColor: '#38c172',
+    //         icon: "success"
+    //     });
+    // }
+
     if("{{ Session::has('error'); }}"){
         Swal.fire({
             title: "Action Failed",
@@ -152,18 +172,9 @@
         });
     }
 
-    if("{{ Session::has('success'); }}"){
-        Swal.fire({
-            title: "Action Succeeded",
-            text: "{{ Session::get('success'); }}",
-            confirmButtonColor: '#38c172',
-            icon: "success"
-        });
-    }
-
     if("{{ Session::has('warning'); }}"){
         Swal.fire({
-            title: "Waarning!",
+            title: "Warning!",
             text: "{{ Session::get('warning'); }}",
             confirmButtonColor: '#38c172',
             icon: "warning"

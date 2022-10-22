@@ -292,11 +292,11 @@ class ExtensionServiceController extends Controller
                 }
                 $count++;
             }
-            \LogActivity::addToLog('Had added '.$count.' extension partners in an extension program/project/activity.');
+            LogActivity::addToLog('Had added '.$count.' extension partners in an extension program/project/activity.');
         }
         LogActivity::addToLog('Had added an extension program/project/activity.');
 
-        return redirect()->route('extension-service.index')->with('edit_eservice_success', 'Extension program/project/activity has been added.');
+        return redirect()->route('extension-service.index')->with('success', 'Extension program/project/activity has been added.');
 
         // if($request->has('document')){
         //     try {
@@ -496,7 +496,7 @@ class ExtensionServiceController extends Controller
         }
 
         LogActivity::addToLog('Had updated an extension program/project/activity.');
-        return redirect()->route('extension-service.index')->with('edit_eservice_success', 'Extension program/project/activity has been updated.');
+        return redirect()->route('extension-service.index')->with('success', 'Extension program/project/activity has been updated.');
 
         // if($request->has('document')){
         //     try {
@@ -554,7 +554,7 @@ class ExtensionServiceController extends Controller
 
         LogActivity::addToLog('Had deleted an extension program/project/activity.');
 
-        return redirect()->route('extension-service.index')->with('edit_eservice_success', 'Extension program/project/activity has been deleted.');
+        return redirect()->route('extension-service.index')->with('success', 'Extension program/project/activity has been deleted.');
     }
 
     public function removeDoc($filename){
@@ -684,6 +684,6 @@ class ExtensionServiceController extends Controller
 
         LogActivity::addToLog('Extension program/project/activity was added.');
 
-        return redirect()->route('extension-service.index')->with('edit_eservice_success', 'Extension program/project/activity has been added.');
+        return redirect()->route('extension-service.index')->with('success', 'Extension program/project/activity has been added.');
     }
 }
