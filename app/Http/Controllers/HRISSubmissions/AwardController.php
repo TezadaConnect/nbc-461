@@ -141,7 +141,7 @@ class AwardController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description ?? "", //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -221,7 +221,7 @@ class AwardController extends Controller
             'from' => date('m/d/Y', strtotime($awardData[0]->IncDateFrom)),
             'to' => date('m/d/Y', strtotime($awardData[0]->IncDateTo)),
             'document' => $awardData[0]->Attachment,
-            'description' => $awardData[0]->Description,
+            'description' => $awardData[0]->Description ?? "N/A",
             'mimetype' => $awardData[0]->MimeType,
         ];
 
@@ -268,7 +268,7 @@ class AwardController extends Controller
             $hrisDocuments = HRISDocument::where('hris_form_id', 2)->where('reference_id', $id)->get()->toArray();
             $report = Report::where('report_reference_id',$id)->where('report_category_id', 27)->first();
             $report_details = json_decode($report->report_details, true);
-            $description;
+            $description = "";
 
             foreach($awardFields as $row){
                 if($row->name == 'description')
@@ -291,7 +291,7 @@ class AwardController extends Controller
                 'from' => date('m/d/Y', strtotime($awardData[0]->IncDateFrom)),
                 'to' => date('m/d/Y', strtotime($awardData[0]->IncDateTo)),
                 'document' => $awardData[0]->Attachment,
-                'description' => $awardData[0]->Description,
+                'description' => $awardData[0]->Description ?? "N/A",
                 'mimetype' => $awardData[0]->MimeType,
             ];
          }
@@ -330,7 +330,7 @@ class AwardController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -410,7 +410,7 @@ class AwardController extends Controller
             'from' => date('m/d/Y', strtotime($awardData[0]->IncDateFrom)),
             'to' => date('m/d/Y', strtotime($awardData[0]->IncDateTo)),
             'document' => $awardData[0]->Attachment,
-            'description' => $awardData[0]->Description,
+            'description' => $awardData[0]->Description ?? "N/A",
             'department_id' => Department::where('id', $department_id)->pluck('name')->first(),
             'college_id' => College::where('id', Department::where('id', $department_id)->pluck('college_id')->first())->pluck('name')->first(),
             'mimetype' => $awardData[0]->MimeType,
@@ -458,7 +458,7 @@ class AwardController extends Controller
             'from' => date('m/d/Y', strtotime($awardData[0]->IncDateFrom)),
             'to' => date('m/d/Y', strtotime($awardData[0]->IncDateTo)),
             'document' => $awardData[0]->Attachment,
-            'description' => $awardData[0]->Description,
+            'description' => $awardData[0]->Description ?? "N/A",
             'department_id' => $department_id,
             'mimetype' => $awardData[0]->MimeType,
         ];
@@ -529,7 +529,7 @@ class AwardController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -692,7 +692,7 @@ class AwardController extends Controller
             'from' => date('m/d/Y', strtotime($awardData[0]->IncDateFrom)),
             'to' => date('m/d/Y', strtotime($awardData[0]->IncDateTo)),
             // 'document' => $awardData[0]->Attachment,
-            'description' => $awardData[0]->Description,
+            'description' => $awardData[0]->Description ?? "N/A",
             'department_id' => $department_name,
             'college_id' => $college_name,
         ];
