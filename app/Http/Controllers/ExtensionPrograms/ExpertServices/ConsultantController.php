@@ -152,7 +152,7 @@ class ConsultantController extends Controller
             }
         }
 
-        return redirect()->route('expert-service-as-consultant.index')->with('edit_esconsultant_success', 'Expert service rendered as consultant has been added.');
+        return redirect()->route('expert-service-as-consultant.index')->with('success', 'Expert service rendered as consultant has been added.');
 
         // if($request->has('document')){
         //     $documents = $request->input('document');
@@ -315,7 +315,7 @@ class ConsultantController extends Controller
             }
         }
 
-        return redirect()->route('expert-service-as-consultant.index')->with('edit_esconsultant_success', 'Expert service rendered as consultant has been updated.');
+        return redirect()->route('expert-service-as-consultant.index')->with('success', 'Expert service rendered as consultant has been updated.');
     }
 
     /**
@@ -339,7 +339,7 @@ class ConsultantController extends Controller
 
         LogActivity::addToLog('Had deleted the expert service rendered as consultant "'.$expert_service_as_consultant->title.'".');
 
-        return redirect()->route('expert-service-as-consultant.index')->with('edit_esconsultant_success', 'Expert service rendered as consultant has been deleted.');
+        return redirect()->route('expert-service-as-consultant.index')->with('success', 'Expert service rendered as consultant has been deleted.');
     }
 
     public function removeDoc($filename){

@@ -187,7 +187,7 @@ class MobilityController extends Controller
             }
         }
 
-        return redirect()->route('mobility.index')->with('mobility_success', 'Inter-Country mobility has been added.');
+        return redirect()->route('mobility.index')->with('success', 'Inter-Country mobility has been added.');
 
         // if($request->has('document')){
         //     try {
@@ -389,7 +389,7 @@ class MobilityController extends Controller
             }
         }
 
-        return redirect()->route('mobility.index')->with('mobility_success', 'Inter-Country mobility has been updated.');
+        return redirect()->route('mobility.index')->with('success', 'Inter-Country mobility has been updated.');
 
         // if($request->has('document')){
         //     try {
@@ -438,7 +438,7 @@ class MobilityController extends Controller
         $mobility->delete();
         LogActivity::addToLog('Had deleted an inter-country mobility.');
 
-        return redirect()->route('mobility.index')->with('mobility_success', 'Inter-Country mobility has been deleted.');
+        return redirect()->route('mobility.index')->with('success', 'Inter-Country mobility has been deleted.');
     }
 
     public function removeDoc($filename){

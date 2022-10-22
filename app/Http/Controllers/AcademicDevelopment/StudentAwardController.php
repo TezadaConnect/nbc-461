@@ -140,7 +140,7 @@ class StudentAwardController extends Controller
             }
         }
 
-        return redirect()->route('student-award.index')->with('student_success', 'Student award and recognition has been added.');
+        return redirect()->route('student-award.index')->with('success', 'Student award and recognition has been added.');
 
         // if($request->has('document')){
         //     try {
@@ -307,7 +307,7 @@ class StudentAwardController extends Controller
                 else return $fileName;
             }
         }
-        return redirect()->route('student-award.index')->with('student_success', 'Student award and recognition has been saved.');
+        return redirect()->route('student-award.index')->with('success', 'Student award and recognition has been saved.');
 
         // if($request->has('document')){
         //     try {
@@ -355,7 +355,7 @@ class StudentAwardController extends Controller
 
         LogActivity::addToLog('Had deleted the student award and recognition "'.$student_award->name_of_award.'".');
 
-        return redirect()->route('student-award.index')->with('student_success', 'Student award and recognition has been saved.');
+        return redirect()->route('student-award.index')->with('success', 'Student award and recognition has been saved.');
     }
 
     public function removeDoc($filename){

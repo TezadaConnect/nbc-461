@@ -162,7 +162,7 @@ class ConferenceController extends Controller
             }
         }
 
-        return redirect()->route('expert-service-in-conference.index')->with('edit_esconference_success', 'Expert service rendered in conference, workshop, or training course has been added.');
+        return redirect()->route('expert-service-in-conference.index')->with('success', 'Expert service rendered in conference, workshop, or training course has been added.');
     }
 
     /**
@@ -314,7 +314,7 @@ class ConferenceController extends Controller
             }
         }
 
-        return redirect()->route('expert-service-in-conference.index')->with('edit_esconference_success', 'Expert service rendered in conference, workshop, or training course has been updated.');
+        return redirect()->route('expert-service-in-conference.index')->with('success', 'Expert service rendered in conference, workshop, or training course has been updated.');
         
         // if(file_exists($request->file(['document']))){
         //     $documents = $request->file(['document']);
@@ -370,7 +370,7 @@ class ConferenceController extends Controller
 
         LogActivity::addToLog('Had deleted the expert service rendered in conference "'.$expert_service_in_conference->title.'".');
 
-        return redirect()->route('expert-service-in-conference.index')->with('edit_esconference_success', 'Expert service rendered in conference, workshop, or training course has been deleted.');
+        return redirect()->route('expert-service-in-conference.index')->with('success', 'Expert service rendered in conference, workshop, or training course has been deleted.');
     }
 
     public function removeDoc($filename){

@@ -144,7 +144,7 @@ class OtherAccomplishmentController extends Controller
             }
         }
 
-        return redirect()->route('other-accomplishment.index')->with('other_success', 'Other accomplishment has been added.');
+        return redirect()->route('other-accomplishment.index')->with('success', 'Other accomplishment has been added.');
 
         // if($request->has('document')){
         //     $documents = $request->input('document');
@@ -329,7 +329,7 @@ class OtherAccomplishmentController extends Controller
                 else return $fileName;
             }
         }
-        return redirect()->route('other-accomplishment.index')->with('other_success', 'Other accomplishment has been updated.');
+        return redirect()->route('other-accomplishment.index')->with('success', 'Other accomplishment has been updated.');
 
         // if($request->has('document')){
         //     $documents = $request->input('document');
@@ -390,7 +390,7 @@ class OtherAccomplishmentController extends Controller
         $otherAccomplishment->delete();
         LogActivity::addToLog('Had deleted other accomplishment.');
 
-        return redirect()->route('other-accomplishment.index')->with('other_success', 'Other accomplishment has been deleted.');
+        return redirect()->route('other-accomplishment.index')->with('success', 'Other accomplishment has been deleted.');
     }
 
     public function removeDoc($filename){

@@ -168,7 +168,7 @@ class CommunityEngagementController extends Controller
 
         LogActivity::addToLog('Had added a community engagement conducted by college/department.');
 
-        return redirect()->route('community-engagement.index')->with('community_success', 'Community engagement conducted by college/department has been added.');
+        return redirect()->route('community-engagement.index')->with('success', 'Community engagement conducted by college/department has been added.');
     }
 
     /**
@@ -315,7 +315,7 @@ class CommunityEngagementController extends Controller
             }
         }
 
-        return redirect()->route('community-engagement.index')->with('community_success', 'Community engagement conducted by college/department has been updated.');
+        return redirect()->route('community-engagement.index')->with('success', 'Community engagement conducted by college/department has been updated.');
 
                 // if($request->has('document')){
         //     try {
@@ -366,7 +366,7 @@ class CommunityEngagementController extends Controller
 
         LogActivity::addToLog('Had deleted a community engagement conducted by college/department.');
 
-        return redirect()->route('community-engagement.index')->with('community_success', 'Community engagement conducted by college/department has been deleted.');
+        return redirect()->route('community-engagement.index')->with('success', 'Community engagement conducted by college/department has been deleted.');
     }
 
     public function removeDoc($filename){

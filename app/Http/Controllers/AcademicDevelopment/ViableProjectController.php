@@ -154,7 +154,7 @@ class ViableProjectController extends Controller
             }
         }
 
-        return redirect()->route('viable-project.index')->with('project_success', 'Viable demonstration project has been added.');
+        return redirect()->route('viable-project.index')->with('success', 'Viable demonstration project has been added.');
 
         // if($request->has('document')){
         //     try {
@@ -331,7 +331,7 @@ class ViableProjectController extends Controller
             }
         }
 
-        return redirect()->route('viable-project.index')->with('project_success', 'Viable demonstration project has been updated.');
+        return redirect()->route('viable-project.index')->with('success', 'Viable demonstration project has been updated.');
 
         // if($request->has('document')){
 
@@ -382,7 +382,7 @@ class ViableProjectController extends Controller
 
         LogActivity::addToLog('Had deleted the viable demo project "'.$viable_project->name.'".');
 
-        return redirect()->route('viable-project.index')->with('project_success', 'Viable demonstration project has been deleted.');
+        return redirect()->route('viable-project.index')->with('success', 'Viable demonstration project has been deleted.');
     }
 
     public function removeDoc($filename){

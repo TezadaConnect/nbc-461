@@ -147,7 +147,7 @@ class StudentTrainingController extends Controller
             }
         }
 
-        return redirect()->route('student-training.index')->with('student_success', 'Student attended seminar and training has been added.');
+        return redirect()->route('student-training.index')->with('success', 'Student attended seminar and training has been added.');
 
         // if($request->has('document')){
         //     try {
@@ -321,7 +321,7 @@ class StudentTrainingController extends Controller
             }
         }
 
-        return redirect()->route('student-training.index')->with('student_success', 'Student attended seminar and training has been updated.');
+        return redirect()->route('student-training.index')->with('success', 'Student attended seminar and training has been updated.');
 
         // if($request->has('document')){
         //     try {
@@ -371,7 +371,7 @@ class StudentTrainingController extends Controller
 
         LogActivity::addToLog('Had deleted the student attended seminar and training "'.$student_training->title.'".');
 
-        return redirect()->route('student-training.index')->with('student_success', 'Student attended seminar and training has been deleted.');
+        return redirect()->route('student-training.index')->with('success', 'Student attended seminar and training has been deleted.');
     }
 
     public function removeDoc($filename){

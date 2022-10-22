@@ -8,10 +8,10 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
-                @if ($message = Session::get('partnership_success'))
-                <div class="alert alert-success alert-index">
-                    <i class="bi bi-check-circle"></i>  {{ $message }}
-                </div>
+                {{-- @if ($message = Session::get('partnership_success'))
+                    <div class="alert alert-success alert-index">
+                        <i class="bi bi-check-circle"></i>  {{ $message }}
+                    </div>
                 @endif
                 @if ($message = Session::get('cannot_access'))
                 <div class="alert alert-danger alert-index">
@@ -22,7 +22,8 @@
                 <div class="alert alert-success alert-index">
                     {{ $message }}
                 </div>
-                @endif
+                @endif --}}
+  
                 <div class="card">
                     <div class="card-body">
                         <div class="mb-3 ml-1">

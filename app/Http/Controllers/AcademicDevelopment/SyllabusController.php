@@ -147,7 +147,7 @@ class SyllabusController extends Controller
             }
         }
 
-        return redirect()->route('syllabus.index')->with('edit_syllabus_success', 'Course syllabus')
+        return redirect()->route('syllabus.index')->with('success', 'Course syllabus')
                                 ->with('action', 'added.');
 
         // if($request->has('document')){
@@ -317,7 +317,7 @@ class SyllabusController extends Controller
             }
         }
 
-        return redirect()->route('syllabus.index')->with('edit_syllabus_success', 'Course syllabus')
+        return redirect()->route('syllabus.index')->with('success', 'Course syllabus')
                                     ->with('action', 'updated.');
 
         // if($request->has('document')){
@@ -366,7 +366,7 @@ class SyllabusController extends Controller
         $syllabu->delete();
         SyllabusDocument::where('syllabus_id', $syllabu->id)->delete();
 
-        return redirect()->route('syllabus.index')->with('edit_syllabus_success', 'Course syllabus')
+        return redirect()->route('syllabus.index')->with('success', 'Course syllabus')
                                 ->with('action', 'deleted.');
 
         LogActivity::addToLog('Had deleted the course syllabus "'.$syllabu->course_title.'".');

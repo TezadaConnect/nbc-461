@@ -4,9 +4,9 @@
         <div class="row justify-content-center">
             <div class="col-md-9">
                 @if ($message = Session::get('cannot_access'))
-                <div class="alert alert-danger alert-index">
-                    {{ $message }}
-                </div>
+                    <div class="alert alert-danger alert-index">
+                        {{ $message }}
+                    </div>
                 @endif
                 <div>
                     <h3 class="font-weight-bold mr-2">Partnership, Linkage & Network</h3>
