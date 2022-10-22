@@ -43,9 +43,8 @@ class CommonService {
             $fileName = $additiveName . $fileDesc . '-' . now()->timestamp.uniqid() . '.' .  $file->extension();
             $file->storeAs('documents', $fileName, 'local');
             return $fileName;
-
         } catch (\Throwable $error) {
-            return redirect()->route($route)->with( 'error', 'Request timeout, Unable to upload documents, Please try again later! : '. $error->getMessage());  
+            return redirect()->route($route)->with( 'warning', 'Unable to upload the file/s, please try again later.');  
         }
     }
 

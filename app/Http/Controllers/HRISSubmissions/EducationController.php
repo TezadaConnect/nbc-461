@@ -214,7 +214,7 @@ class EducationController extends Controller
             $request->sponsor_name ?? '',             //Scholarship
             $request->amount ?? 0,                   //Amount
             'image/pdf/files', //Remarks
-            $request->description ?? '', //AttachmentDescription
+            $request->description ?? 'N/A', //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email                        //TransAccount
@@ -317,7 +317,7 @@ class EducationController extends Controller
             'amount' => $educationData[0]->Amount,
             'remarks' => $educationData[0]->Remarks,
             'document' => $educationData[0]->Attachment,
-            'description' => $educationData[0]->Description,
+            'description' => $educationData[0]->Description ?? "N/A",
             'mimetype' => $educationData[0]->MimeType,
         ];
 
@@ -392,7 +392,7 @@ class EducationController extends Controller
             $hrisDocuments = HRISDocument::where('hris_form_id', 1)->where('reference_id', $id)->get()->toArray();
             $report = Report::where('report_reference_id',$id)->where('report_category_id', 24)->first();
             $report_details = json_decode($report->report_details, true);
-            $description;
+            $description = "";
 
             foreach($educFields as $row){
                 if($row->name == 'description')
@@ -418,7 +418,7 @@ class EducationController extends Controller
                 'status' => $educationData[0]->EnrollmentStatus,
                 'units_earned' => $educationData[0]->UnitsEarned,
                 'units_enrolled' =>$educationData[0]->UnitsEnrolled,
-                'description' => $educationData[0]->Description,
+                'description' => $educationData[0]->Description ?? "N/A",
                 'document' => $educationData[0]->Attachment,
                 'mimetype' => $educationData[0]->MimeType,
             ];
@@ -486,7 +486,7 @@ class EducationController extends Controller
             $request->sponsor_name ?? '',             //Scholarship
             $request->amount ?? 0,                   //Amount
             'image/pdf/files', //Remarks
-            $request->description ?? '', //AttachmentDescription
+            $request->description ?? 'N/A', //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email                              //TransAccount
@@ -585,7 +585,7 @@ class EducationController extends Controller
             'support_type' => $educationData[0]->TypeOfSupport,
             'sponsor_name' => $educationData[0]->Scholarship,
             'amount' => $educationData[0]->Amount,
-            'description' => $educationData[0]->Description,
+            'description' => $educationData[0]->Description ?? "N/A",
             'document' => $educationData[0]->Attachment,
             'department_id' => Department::where('id', $department_id)->pluck('name')->first(),
             'college_id' => College::where('id', Department::where('id', $department_id)->pluck('college_id')->first())->pluck('name')->first(),
@@ -647,7 +647,7 @@ class EducationController extends Controller
             'sponsor_name' => $educationData[0]->Scholarship,
             'amount' => $educationData[0]->Amount,
             'remarks' => $educationData[0]->Remarks,
-            'description' => $educationData[0]->Description,
+            'description' => $educationData[0]->Description ?? "N/A",
             'department_id' => $department_id,
             'document' => $educationData[0]->Attachment,
             'mimetype' => $educationData[0]->MimeType,
@@ -777,7 +777,7 @@ class EducationController extends Controller
             $request->sponsor_name ?? '',             //Scholarship
             $request->amount ?? 0,                   //Amount
             'image/pdf/files', //Remarks
-            $request->description ?? '', //AttachmentDescription
+            $request->description ?? 'N/A', //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email                                 //TransAccount
@@ -957,7 +957,7 @@ class EducationController extends Controller
             'support_type' => $educationData[0]->TypeOfSupport,
             'sponsor_name' => $educationData[0]->Scholarship,
             'amount' => $educationData[0]->Amount,
-            'description' => $educationData[0]->Description,
+            'description' => $educationData[0]->Description ?? "N/A",
             'department_id' => $department_name,
             'college_id' => $college_name,
         ];

@@ -21,6 +21,7 @@ use App\Models\FormBuilder\DropdownOption;
 use App\Http\Controllers\StorageFileController;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
+use App\Models\Maintenance\Currency;
 use App\Models\TemporaryFile;
 use App\Services\CommonService;
 use Exception;
@@ -144,7 +145,7 @@ class OfficershipController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description ?? "", //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -234,7 +235,7 @@ class OfficershipController extends Controller
             'current_member' => $current,
             'to' => $to,
             'document' => $officeData[0]->Attachment,
-            'description' => $officeData[0]->Description,
+            'description' => $officeData[0]->Description ?? "N/A",
             'mimetype' => $officeData[0]->MimeType,
         ];
 
@@ -281,7 +282,7 @@ class OfficershipController extends Controller
             $hrisDocuments = HRISDocument::where('hris_form_id', 3)->where('reference_id', $id)->get()->toArray();
             $report = Report::where('report_reference_id',$id)->where('report_category_id', 28)->first();
             $report_details = json_decode($report->report_details, true);
-            $description;
+            $description = "";
 
             foreach($officeFields as $row){
                 if($row->name == 'description')
@@ -304,7 +305,7 @@ class OfficershipController extends Controller
                 'from' => date('m/d/Y', strtotime($officeData[0]->IncDateFrom)),
                 'to' => date('m/d/Y', strtotime($officeData[0]->IncDateTo)),
                 'document' => $officeData[0]->Attachment,
-                'description' => $officeData[0]->Description,
+                'description' => $officeData[0]->Description ?? "N/A",
                 'mimetype' => $officeData[0]->MimeType,
             ];
         }
@@ -335,7 +336,7 @@ class OfficershipController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -423,7 +424,7 @@ class OfficershipController extends Controller
             'current_member' => 0,
             'to' => $to,
             'document' => $officeData[0]->Attachment,
-            'description' => $officeData[0]->Description,
+            'description' => $officeData[0]->Description ?? "N/A",
             'department_id' => Department::where('id', $department_id)->pluck('name')->first(),
             'college_id' => College::where('id', Department::where('id', $department_id)->pluck('college_id')->first())->pluck('name')->first(),
             'mimetype' => $officeData[0]->MimeType,
@@ -481,7 +482,7 @@ class OfficershipController extends Controller
             'current_member' => $current,
             'to' => $to,
             'document' => $officeData[0]->Attachment,
-            'description' => $officeData[0]->Description,
+            'description' => $officeData[0]->Description ?? "N/A",
             'department_id' => $department_id,
             'mimetype' => $officeData[0]->MimeType,
         ];
@@ -543,7 +544,7 @@ class OfficershipController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -707,7 +708,7 @@ class OfficershipController extends Controller
             'from' => date('m/d/Y', strtotime($officeData[0]->IncDateFrom)),
             'to' => $to,
             // 'document' => $officeData[0]->Attachment,
-            'description' => $officeData[0]->Description,
+            'description' => $officeData[0]->Description ?? "N/A",
             'department_id' => $department_name,
             'college_id' => $college_name
         ];
@@ -865,26 +866,6 @@ class OfficershipController extends Controller
 
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
         $sector_id = College::where('id', $college_id)->pluck('sector_id')->first();
-
-        // if($request->has('document')){
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //         if($temporaryFile){
-        //             $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //             $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //             $ext = $info['extension'];
-        //             $fileName = 'HRIS-OM-'.now()->timestamp.uniqid().'.'.$ext;
-        //             $newPath = "documents/".$fileName;
-        //             Storage::move($temporaryPath, $newPath);
-        //             Storage::deleteDirectory("documents/tmp/".$document);
-        //             $temporaryFile->delete();
-
-        //             HRISDocument::create(['hris_form_id' => 3, 'reference_id' => $id, 'filename' => $fileName]);
-        //             array_push($filenames, $fileName);
-        //         }
-        //     }
-        // }
 
         $currentQuarterYear = Quarter::find(1);
 
