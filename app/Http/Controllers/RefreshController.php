@@ -16,6 +16,7 @@ class RefreshController extends Controller
         \Artisan::call('view:clear');
         \Artisan::call('optimize:clear');
         // This is a comment
+        // Thisi is another comment
         return redirect()->route('home');
     }
 
