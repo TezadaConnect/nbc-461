@@ -148,33 +148,12 @@ class ReferenceController extends Controller
             }
         }
 
-        return redirect()->route('rtmmi.index')->with(['edit_rtmmi_success' => ucfirst($accomplishment[0]), 'action' => 'added.' ]);
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+        if($imageChecker){
+            return redirect()->route('rtmmi.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        }
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'RTMMI-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-
-        //                 ReferenceDocument::create([
-        //                     'reference_id' => $rtmmi->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        return redirect()->route('rtmmi.index')->with(['save_success' => ucfirst($accomplishment[0]), 'action' => 'added.' ]);
     }
 
     /**
@@ -335,34 +314,16 @@ class ReferenceController extends Controller
             }
         }
 
-        return redirect()->route('rtmmi.index')->with('edit_rtmmi_success', ucfirst($accomplishment[0]))
-                                ->with('action', 'updated.');
+        $imageRecord = ReferenceDocument::where('reference_id', $rtmmi->id)->get();
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'RTMMI-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 ReferenceDocument::create([
-        //                     'reference_id' => $rtmmi->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
-                        
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+        if($imageChecker){
+            return redirect()->route('rtmmi.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        }
+        
+
+        return redirect()->route('rtmmi.index')->with('save_success', ucfirst($accomplishment[0]))->with('action', 'updated.');
+
     }
 
     /**
@@ -392,7 +353,7 @@ class ReferenceController extends Controller
 
         LogActivity::addToLog('Had deleted the '.$rtmmi->category.' entitled "'.$rtmmi->title.'".');
 
-        return redirect()->route('rtmmi.index')->with('edit_rtmmi_success', ucfirst($accomplishment[0]))
+        return redirect()->route('rtmmi.index')->with('success', ucfirst($accomplishment[0]))
                             ->with('action', 'deleted.');
     }
 

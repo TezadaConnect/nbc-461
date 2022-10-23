@@ -127,37 +127,6 @@ class UtilizationController extends Controller
         $string = str_replace(' ', '-', $request->input('description')); // Replaces all spaces with hyphens.
         $description =  preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'RU-'.$request->input('research_code').'-'.$description.'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-
-        //                 ResearchDocument::create([
-        //                     'research_code' => $request->input('research_code'),
-        //                     'research_id' => $research->id,
-        //                     'research_form_id' => 6,
-        //                     'research_utilization_id' => $utilization->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     }  catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-    
-            
-        // }
-
         LogActivity::addToLog('Had added a research utilization for "'.$research->title.'".');
 
         if(!empty($request->file(['document']))){      
@@ -174,7 +143,12 @@ class UtilizationController extends Controller
                 } else return $fileName;
             }
         }
-        return redirect()->route('research.utilization.index', $research->id)->with('success', 'Research utilization has been added.');
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+
+        if($imageChecker) return redirect()->route('research.utilization.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('research.utilization.index', $research->id)->with('save_success', 'Research utilization has been added.');
     }
 
     /**
@@ -305,36 +279,6 @@ class UtilizationController extends Controller
         $string = str_replace(' ', '-', $utilization->description); // Replaces all spaces with hyphens.
         $description =  preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
 
-        // if($request->has('document')){
-
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'RU-'.$request->input('research_code').'-'.$description.'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-
-        //                 ResearchDocument::create([
-        //                     'research_code' => $request->input('research_code'),
-        //                     'research_id' => $research->id,
-        //                     'research_form_id' => 6,
-        //                     'research_utilization_id' => $utilization->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     }  catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }     
-        // }
-
         LogActivity::addToLog('Had updated a research utilization of "'.$research->title.'".');
 
         if(!empty($request->file(['document']))){      
@@ -352,7 +296,13 @@ class UtilizationController extends Controller
             }
         }
 
-        return redirect()->route('research.utilization.show', [$research->id, $utilization->id])->with('success', 'Research Utilization has been updated.');
+        $imageRecord = ResearchDocument::where('research_utilization_id', $utilization->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('research.utilization.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('research.utilization.index', [$research->id, $utilization->id])->with('save_success', 'Research Utilization has been updated.');
     }
 
     /**

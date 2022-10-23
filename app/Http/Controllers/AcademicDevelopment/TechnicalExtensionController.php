@@ -138,32 +138,10 @@ class TechnicalExtensionController extends Controller
             }
         }
 
-        return redirect()->route('technical-extension.index')->with('extension_success', 'Technical extension program, project, or activity has been added.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+        if($imageChecker) return redirect()->route('technical-extension.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'TEPPA-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 TechnicalExtensionDocument::create([
-        //                     'technical_extension_id' => $technical_extension->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        return redirect()->route('technical-extension.index')->with('save_success', 'Technical extension program, project, or activity has been added.');
     }
 
     /**
@@ -302,7 +280,13 @@ class TechnicalExtensionController extends Controller
             }
         }
 
-        return redirect()->route('technical-extension.index')->with('extension_success', 'Technical extension program, project, or activity has been updated.');
+        $imageRecord = TechnicalExtensionDocument::where('technical_extension_id', $technical_extension->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('technical-extension.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('technical-extension.index')->with('save_success', 'Technical extension program, project, or activity has been updated.');
 
         // if($request->has('document')){
         //     try {
@@ -351,7 +335,7 @@ class TechnicalExtensionController extends Controller
 
         LogActivity::addToLog('Had deleted a technical extension program, project, or activity.');
 
-        return redirect()->route('technical-extension.index')->with('extension_success', 'Technical extension program, project, or activity has been deleted.');
+        return redirect()->route('technical-extension.index')->with('success', 'Technical extension program, project, or activity has been deleted.');
     }
 
     public function removeDoc($filename){

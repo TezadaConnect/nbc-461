@@ -241,16 +241,28 @@ class RegistrationController extends Controller
     }
 
     public function alternateLog(Request $request){
-        $userLocal = User::where('user_account_id', $request->email)->first();
 
-        if($userLocal == null){
-            if($this->scheduleCheck($userLocal->id)){
-                return redirect()->back()->with('error', 'The college you are in is not scheduled to login today');
+        try {
+            $userLocal = User::where('user_account_id', $request->email)->first();
+
+            if($userLocal == null){
+                if($this->scheduleCheck($userLocal->id)){
+                    return redirect()->back()->with('error', 'The college you are in is not scheduled to login today');
+                }
+                $user = $this->db_ext->select(" EXEC GetUserAccount '$request->email' ");
+    
+                if($this->save($user)){
+                    $userLocal = User::where('user_account_id', $request->email)->first();
+                    Auth::login($userLocal);
+                    $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1,3])->first();
+                    session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
+                    if(Employee::where('user_id', $userLocal->id)->exists()){
+                        return redirect()->route('home');
+                    }
+                    return redirect()->route('account')->with('incomplete_account', 'incomplete_account');
+                }
             }
-            $user = $this->db_ext->select(" EXEC GetUserAccount '$request->email' ");
-
-            if($this->save($user)){
-                $userLocal = User::where('user_account_id', $request->email)->first();
+            else{
                 Auth::login($userLocal);
                 $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1,3])->first();
                 session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
@@ -259,17 +271,11 @@ class RegistrationController extends Controller
                 }
                 return redirect()->route('account')->with('incomplete_account', 'incomplete_account');
             }
+
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Failed to login, pleasse try again later');
         }
-        else{
-            Auth::login($userLocal);
-            $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1,3])->first();
-            session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
-            if(Employee::where('user_id', $userLocal->id)->exists()){
-                return redirect()->route('home');
-            }
-            return redirect()->route('account')->with('incomplete_account', 'incomplete_account');
-        }
-        dd($userLocal);
+
     }
 
     public function switch_type(){

@@ -145,7 +145,11 @@ class AdminSpecialTaskController extends Controller
             }
         }
 
-        return redirect()->route('admin-special-tasks.index')->with('success', 'Your Accomplishment in Special Tasks has been saved.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+
+        if($imageChecker) return redirect()->route('admin-special-tasks.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('admin-special-tasks.index')->with('save_success', 'Your Accomplishment in Special Tasks has been saved.');
 
         
         // if($request->has('document')){
@@ -328,7 +332,13 @@ class AdminSpecialTaskController extends Controller
             }
         }
 
-        return redirect()->route('admin-special-tasks.index')->with('success', 'Your accomplishment in Special Task has been updated.');
+        $imageRecord = AdminSpecialTaskDocument::where('special_task_id', $admin_special_task->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('admin-special-tasks.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('admin-special-tasks.index')->with('save_success', 'Your accomplishment in Special Task has been updated.');
         // if($request->has('document')){
         //     $documents = $request->input('document');
         //     foreach($documents as $document){

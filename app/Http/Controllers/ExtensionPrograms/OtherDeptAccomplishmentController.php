@@ -144,33 +144,11 @@ class OtherDeptAccomplishmentController extends Controller
             }
         }
 
-        return redirect()->route('other-dept-accomplishment.index')->with('other_dept_success', 'Other department/college accomplishment has been added.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'OA-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-    
-        //                 OtherDeptAccomplishmentDocument::create([
-        //                     'other_dept_accomplishment_id' => $otherDeptAccomplishment->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        if($imageChecker) return redirect()->route('other-dept-accomplishment.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('other-dept-accomplishment.index')->with('save_success', 'Other department/college accomplishment has been added.');
     }
 
     /**
@@ -311,7 +289,14 @@ class OtherDeptAccomplishmentController extends Controller
         }
 
         LogActivity::addToLog('Had updated other department/college accomplishment.');
-        return redirect()->route('other-dept-accomplishment.index')->with('other_dept_success', 'Other department/college accomplishment has been updated.');
+
+        $imageRecord = OtherDeptAccomplishmentDocument::where('other_dept_accomplishment_id', $otherDeptAccomplishment->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('other-dept-accomplishment.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('other-dept-accomplishment.index')->with('save_success', 'Other department/college accomplishment has been updated.');
 
         // if($request->has('document')){
         //     try {
@@ -360,7 +345,7 @@ class OtherDeptAccomplishmentController extends Controller
         $otherDeptAccomplishment->delete();
         LogActivity::addToLog('Had deleted other department/college accomplishment.');
 
-        return redirect()->route('other-dept-accomplishment.index')->with('other_dept_success', 'Other department/college accomplishment has been deleted.');
+        return redirect()->route('other-dept-accomplishment.index')->with('success', 'Other department/college accomplishment has been deleted.');
     }
 
     public function removeDoc($filename){

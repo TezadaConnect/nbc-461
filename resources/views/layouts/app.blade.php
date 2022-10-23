@@ -18,6 +18,7 @@
         <link href="https://unpkg.com/filepond/dist/filepond.min.css" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css"> <!--added-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css"/>
+  
         <!-- Scripts -->
         <script src="https://kit.fontawesome.com/b22b0c1d67.js" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -28,7 +29,7 @@
         <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.min.js"></script>
         <script src="https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.min.js"></script>
         <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
-         <!-- JavaScript Bundle with Popper -->
+        <!-- JavaScript Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
         <!-- Bootstrap Datepicker Resources -->
@@ -48,6 +49,7 @@
         <script src="{{ asset('js/app.js') }}"></script>
         <script src="{{ asset('lightbox2/dist/js/lightbox.js') }}"></script>
         <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+
 
     </head>
     <body class="font-sans antialiased bg-light" style="background-image: {{ URL('storage/cover2.png') }}">
@@ -71,6 +73,7 @@
         @endif
         <!-- Page Content -->
         <main class="container my-5">
+
             {{ $slot }}
         </main>
 
@@ -133,9 +136,20 @@
 {{-- Sweet Alerts --}}
 <script>
 
+    // STANDARD POPUP ALERTS
+
+    if("{{ Session::has('success'); }}"){
+        Swal.fire({
+            title: "Success!",
+            text: "{{ Session::get('success'); }}",
+            confirmButtonColor: '#38c172',
+            icon: "success"
+        });
+    }
+
     if("{{ Session::has('error'); }}"){
         Swal.fire({
-            title: "Action Failed",
+            title: "Failed!",
             text: "{{ Session::get('error'); }}",
             confirmButton: false,
             confirmButtonColor: '#38c172',
@@ -143,30 +157,50 @@
         });
     }
 
+    if("{{ Session::has('warning'); }}"){
+        Swal.fire({
+            title: "Warning!",
+            text: "{{ Session::get('warning'); }}",
+            confirmButtonColor: '#38c172',
+            icon: "warning"
+        });
+    }
+
+    if("{{ Session::has('info'); }}"){
+        Swal.fire({
+            title: "Information!",
+            text: "{{ Session::get('info'); }}",
+            confirmButtonColor: '#38c172',
+            icon: "info"
+        });
+    }
+
+    // PUT YOUR CUSTOM POPUP ALERT BELLOW
+
     if("{{ Session::has('success_switch'); }}"){
         Swal.fire({
-            title: "Action Succeeded",
+            title: "Switched Successful",
             text: "{{ Session::get('success_switch'); }}",
             confirmButtonColor: '#38c172',
             icon: "success"
         });
     }
 
-    if("{{ Session::has('success'); }}"){
+    if("{{ Session::has('submit_success'); }}"){
         Swal.fire({
-            title: "Action Succeeded",
-            text: "{{ Session::get('success'); }}",
+            title: "Submitted Successfully",
+            text: "{{ Session::get('submit_success'); }}",
             confirmButtonColor: '#38c172',
             icon: "success"
         });
     }
-
-    if("{{ Session::has('warning'); }}"){
+    
+    if("{{ Session::has('save_success'); }}"){
         Swal.fire({
-            title: "Waarning!",
-            text: "{{ Session::get('warning'); }}",
+            title: "Successfully Saved!",
+            text: "Accomplishment is ready for submission!",
             confirmButtonColor: '#38c172',
-            icon: "warning"
+            icon: "success"
         });
     }
   

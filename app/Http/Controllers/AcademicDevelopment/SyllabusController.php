@@ -147,34 +147,11 @@ class SyllabusController extends Controller
             }
         }
 
-        return redirect()->route('syllabus.index')->with('edit_syllabus_success', 'Course syllabus')
-                                ->with('action', 'added.');
+        $imageChecker = $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             dd($temporaryFile);
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'S-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 SyllabusDocument::create([
-        //                     'syllabus_id' => $syllabus->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        if($imageChecker) return redirect()->route('syllabus.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('syllabus.index')->with('edit_syllabus_success', 'Course syllabus')->with('action', 'added.')->with("save_success", "success");
     }
 
     /**
@@ -317,33 +294,13 @@ class SyllabusController extends Controller
             }
         }
 
-        return redirect()->route('syllabus.index')->with('edit_syllabus_success', 'Course syllabus')
-                                    ->with('action', 'updated.');
+        $imageRecord = SyllabusDocument::where('syllabus_id', $syllabu->id)->get();
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'S-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 SyllabusDocument::create([
-        //                     'syllabus_id' => $syllabu->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('syllabus.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('syllabus.index')->with('edit_syllabus_success', 'Course syllabus')->with('action', 'updated.')->with("save_success", "success");
     }
 
     /**
@@ -366,10 +323,11 @@ class SyllabusController extends Controller
         $syllabu->delete();
         SyllabusDocument::where('syllabus_id', $syllabu->id)->delete();
 
-        return redirect()->route('syllabus.index')->with('edit_syllabus_success', 'Course syllabus')
-                                ->with('action', 'deleted.');
-
         LogActivity::addToLog('Had deleted the course syllabus "'.$syllabu->course_title.'".');
+
+        return redirect()->route('syllabus.index')->with('edit_syllabus_success', 'Course syllabus')->with('action', 'deleted.');
+
+
 
     }
 

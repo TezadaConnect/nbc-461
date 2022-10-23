@@ -1155,6 +1155,12 @@ class EducationController extends Controller
         $FORFILESTORE->report_documents = json_encode(collect($filenames));
         $FORFILESTORE->save();
 
+        $imageRecord = HRISDocument::where('reference_id', $educID)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('submissions.award.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
         return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been submitted.');
 
         // if($request->has('document')){

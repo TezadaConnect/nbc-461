@@ -132,31 +132,8 @@ class CommunityEngagementController extends Controller
         $communityEngagement = CommunityEngagement::create($input);
         $communityEngagement->update(['user_id' => auth()->id()]);
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'CEC-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-
-        //                 CommunityEngagementDocument::create([
-        //                     'community_engagement_id' => $communityEngagement->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        
+        LogActivity::addToLog('Had added a community engagement conducted by college/department.');
 
         if(!empty($request->file(['document']))){      
             foreach($request->file(['document']) as $document){
@@ -166,9 +143,12 @@ class CommunityEngagementController extends Controller
             }
         }
 
-        LogActivity::addToLog('Had added a community engagement conducted by college/department.');
 
-        return redirect()->route('community-engagement.index')->with('community_success', 'Community engagement conducted by college/department has been added.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+
+        if($imageChecker) return redirect()->route('community-engagement.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('community-engagement.index')->with('save_success', 'Community engagement conducted by college/department has been added.');
     }
 
     /**
@@ -315,7 +295,14 @@ class CommunityEngagementController extends Controller
             }
         }
 
-        return redirect()->route('community-engagement.index')->with('community_success', 'Community engagement conducted by college/department has been updated.');
+        
+        $imageRecord = CommunityEngagementDocument::where('community_engagement_id', $communityEngagement->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('community-engagement.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('community-engagement.index')->with('save_success', 'Community engagement conducted by college/department has been updated.');
 
                 // if($request->has('document')){
         //     try {
@@ -366,7 +353,7 @@ class CommunityEngagementController extends Controller
 
         LogActivity::addToLog('Had deleted a community engagement conducted by college/department.');
 
-        return redirect()->route('community-engagement.index')->with('community_success', 'Community engagement conducted by college/department has been deleted.');
+        return redirect()->route('community-engagement.index')->with('success', 'Community engagement conducted by college/department has been deleted.');
     }
 
     public function removeDoc($filename){

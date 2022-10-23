@@ -187,33 +187,12 @@ class MobilityController extends Controller
             }
         }
 
-        return redirect()->route('mobility.index')->with('mobility_success', 'Inter-Country mobility has been added.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'InterM-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
+        if($imageChecker) return redirect()->route('mobility.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        //                 MobilityDocument::create([
-        //                     'mobility_id' => $mobility->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        return redirect()->route('mobility.index')->with('save_success', 'Inter-Country mobility has been added.');
+
     }
 
     /**
@@ -389,7 +368,13 @@ class MobilityController extends Controller
             }
         }
 
-        return redirect()->route('mobility.index')->with('mobility_success', 'Inter-Country mobility has been updated.');
+        $imageRecord = MobilityDocument::where('mobility_id', $mobility->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('mobility.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('mobility.index')->with('save_success', 'Inter-Country mobility has been updated.');
 
         // if($request->has('document')){
         //     try {
@@ -438,7 +423,7 @@ class MobilityController extends Controller
         $mobility->delete();
         LogActivity::addToLog('Had deleted an inter-country mobility.');
 
-        return redirect()->route('mobility.index')->with('mobility_success', 'Inter-Country mobility has been deleted.');
+        return redirect()->route('mobility.index')->with('success', 'Inter-Country mobility has been deleted.');
     }
 
     public function removeDoc($filename){

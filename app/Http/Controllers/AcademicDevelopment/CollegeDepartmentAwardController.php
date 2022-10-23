@@ -137,33 +137,16 @@ class CollegeDepartmentAwardController extends Controller
             }
         }
 
-        return redirect()->route('college-department-award.index')->with('award_success', 'Awards and recognition received by the college and department has been added.');
+        if (!$request->has('document')) {
+            return redirect()->route('college-department-award.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        }
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'CDA-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-
-        //                 CollegeDepartmentAwardDocument::create([
-        //                     'college_department_award_id' => $college_department_award->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+        if($imageChecker){
+            return redirect()->route('college-department-award.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        }
+       
+        return redirect()->route('college-department-award.index')->with('save_success', 'Awards and recognition received by the college and department has been added.');
     }
 
     /**
@@ -304,33 +287,14 @@ class CollegeDepartmentAwardController extends Controller
             }
         }
 
-        return redirect()->route('college-department-award.index')->with('award_success', 'Awards and recognition received by the college and department has been updated.');
+        $imageRecord = CollegeDepartmentAwardDocument::where('college_department_award_id', $college_department_award->id)->get();
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'CDAward-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-    
-        //                 CollegeDepartmentAwardDocument::create([
-        //                     'college_department_award_id' => $college_department_award->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('college-department-award.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        
+        return redirect()->route('college-department-award.index')->with('save_success', 'Awards and recognition received by the college and department has been updated.');
+
     }
 
     /**
@@ -355,7 +319,7 @@ class CollegeDepartmentAwardController extends Controller
 
         LogActivity::addToLog('Had deleted an award and recognition received by the college and dept.');
 
-        return redirect()->route('college-department-award.index')->with('award_success', 'Awards and recognition received by the college and department has been deleted.');
+        return redirect()->route('college-department-award.index')->with('success', 'Awards and recognition received by the college and department has been deleted.');
     }
 
     public function removeDoc($filename){
