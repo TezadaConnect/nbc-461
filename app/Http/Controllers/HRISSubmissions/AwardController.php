@@ -893,33 +893,14 @@ class AwardController extends Controller
 
         $FORFILESTORE->report_documents =  json_encode(collect($filenames));
         $FORFILESTORE->save();
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'HRIS-OAA-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-    
-        //                 HRISDocument::create([
-        //                     'hris_form_id' => 2,
-        //                     'reference_id' => $id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //                 array_push($filenames, $fileName);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+
+        
+        $imageRecord = HRISDocument::where('reference_id', $id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('submissions.award.index')->with('warning', 'Need to attach supporting documents to enable submission');
+     
 
         return redirect()->route('submissions.award.index')->with('success','The accomplishment has been submitted.');
     }

@@ -204,35 +204,7 @@ class PresentationController extends Controller
             'status' => $researchStatus
         ]);
 
-
         $presentation = ResearchPresentation::create($input);
-
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'RPRE-'.$request->input('research_code').'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 ResearchDocument::create([
-        //                     'research_code' => $request->input('research_code'),
-        //                     'research_id' => $research->id,
-        //                     'research_form_id' => 4,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     } 
-        // }
 
         LogActivity::addToLog('Had marked the research "'.$research->title.'" as presented.');
 
@@ -249,7 +221,12 @@ class PresentationController extends Controller
                 } else return $fileName;
             }
         }
-        return redirect()->route('research.presentation.index', $research->id)->with('success', 'Research presentation has been added.');
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+
+        if($imageChecker) return redirect()->route('research.presentation.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('research.presentation.index', $research->id)->with('save_success', 'Research presentation has been added.');
     }
 
     /**
@@ -390,7 +367,13 @@ class PresentationController extends Controller
             }
         }
 
-        return redirect()->route('research.presentation.index', $research->id)->with('success', 'Research presentation has been updated.');
+        $imageRecord = ResearchDocument::where('research_id', $research->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('research.presentation.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('research.presentation.index', $research->id)->with('save_success', 'Research presentation has been updated.');
     }
 
     /**

@@ -162,7 +162,11 @@ class ConferenceController extends Controller
             }
         }
 
-        return redirect()->route('expert-service-in-conference.index')->with('success', 'Expert service rendered in conference, workshop, or training course has been added.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+
+        if($imageChecker) return redirect()->route('expert-service-in-conference.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('expert-service-in-conference.index')->with('save_success', 'Expert service rendered in conference, workshop, or training course has been added.');
     }
 
     /**
@@ -314,38 +318,17 @@ class ConferenceController extends Controller
             }
         }
 
-        return redirect()->route('expert-service-in-conference.index')->with('success', 'Expert service rendered in conference, workshop, or training course has been updated.');
-        
-        // if(file_exists($request->file(['document']))){
-        //     $documents = $request->file(['document']);
-        //     foreach($documents as $document){
-        //         $fileName = $this->commonService->fileUploadHandler($document, $request->input('description'), 'ESCF-', 'expert-service-in-conference.index');
-        //         if(is_string($fileName)) ExpertServiceConferenceDocument::create(['expert_service_conference_id' => $expert_service_in_conference->id, 'filename' => $fileName]);
-        //         else return $fileName;
-        //     }
-        // }
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+        if($imageChecker) return redirect()->route('viable-project.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        // return $request->file('document')
-        // if($request->has('document')){
-        //     foreach($request->input('document') as $file){
-        //         return $file;
-        //     }
-        // }
+        $imageRecord = ExpertServiceConferenceDocument::where('expert_service_conference_id', $expert_service_in_conference->id)->get();
 
-        // return $request->input('document');
-        // // return $request->file(['document']);
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
 
-        // if(file_exists($request->file(['document']))){
-        //     $documents = $request->file(['document']);
-        //     foreach($documents as $file){
-        //         return $file->getClientOriginalName();
-        //         // $fileName = $this->commonService->fileUploadHandler($document, $request->input('description'), 'ESCF-', 'expert-service-in-conference.index');
-        //         // if(is_string($fileName)) ExpertServiceConferenceDocument::create(['expert_service_conference_id' => $expert_service_in_conference->id, 'filename' => $fileName]);
-        //         // else return $fileName;
-        //     }
-        // }
+        if($imageChecker) return redirect()->route('expert-service-in-conference.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        
+        return redirect()->route('expert-service-in-conference.index')->with('save_success', 'Expert service rendered in conference, workshop, or training course has been updated.');
+              
     }
 
     /**

@@ -296,33 +296,12 @@ class ExtensionServiceController extends Controller
         }
         LogActivity::addToLog('Had added an extension program/project/activity.');
 
-        return redirect()->route('extension-service.index')->with('success', 'Extension program/project/activity has been added.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'ES-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 ExtensionServiceDocument::create([
-        //                     'extension_service_id' => $eService->id,
-        //                     'ext_code' => $eService->ext_code,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        if($imageChecker) return redirect()->route('extension-service.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('extension-service.index')->with('save_success', 'Extension program/project/activity has been added.');
+
     }
 
     /**
@@ -487,6 +466,8 @@ class ExtensionServiceController extends Controller
             ExtensionService::where('ext_code', $extension_service->ext_code)->update($details);
         }
 
+        LogActivity::addToLog('Had updated an extension program/project/activity.');
+
         if(!empty($request->file(['document']))){      
             foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'ES-', 'extension-service.index');
@@ -495,34 +476,13 @@ class ExtensionServiceController extends Controller
             }
         }
 
-        LogActivity::addToLog('Had updated an extension program/project/activity.');
-        return redirect()->route('extension-service.index')->with('success', 'Extension program/project/activity has been updated.');
+        $imageRecord = ExtensionServiceDocument::where('extension_service_id', $extension_service->id)->get();
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'ES-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 ExtensionServiceDocument::create([
-        //                     'extension_service_id' => $extension_service->id,
-        //                     'ext_code' => $extension_service->ext_code,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('extension-service.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('extension-service.index')->with('save_success', 'Extension program/project/activity has been updated.');
 
     }
 

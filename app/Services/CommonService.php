@@ -44,7 +44,7 @@ class CommonService {
             $file->storeAs('documents', $fileName, 'local');
             return $fileName;
         } catch (\Throwable $error) {
-            return redirect()->route($route)->with( 'warning', 'Unable to upload the file/s, please try again later.');  
+            return redirect()->route($route)->with('error', 'Unable to upload the file/s, please try again later.');  
         }
     }
 
@@ -86,7 +86,6 @@ class CommonService {
             }
             
         } catch (Exception $error) {
-            echo("<script>console.log('PHP: ". $error->getMessage() ."');</script>");
             return [
                 'isError' => true,
                 'image' => null,
@@ -95,6 +94,20 @@ class CommonService {
                 'message' => $error->getMessage()
             ];
         }
+    }
+
+    public function imageCheckerWithResponseMsg($type, $imagesRecord = [], $request){
+        if($type == 0){
+            if (!$request->has('document')) return true;
+        }
+
+        if($type == 1){
+            if(!$request->has('document')){
+                if(count($imagesRecord) == 0) return true;
+            }
+        }
+
+        return false;
     }
 }
 

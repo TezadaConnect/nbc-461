@@ -18,6 +18,11 @@ Route::get('/', function () {
     return view('hris-regi.check');
 })->name('home')->middleware('guest');
 
+
+Route::get('/back-up', function () {
+    return view('maintenances.back-up-function.backup-function');
+});
+
 //For maintenance mode
 // Route::get('/', function() {
 //     return view('maintenance');

@@ -73,6 +73,7 @@
         @endif
         <!-- Page Content -->
         <main class="container my-5">
+
             {{ $slot }}
         </main>
 
@@ -135,40 +136,24 @@
 {{-- Sweet Alerts --}}
 <script>
 
+    // STANDARD POPUP ALERTS
+
     if("{{ Session::has('success'); }}"){
         Swal.fire({
-            title: "Action Succeeded",
+            title: "Success!",
             text: "{{ Session::get('success'); }}",
             confirmButtonColor: '#38c172',
             icon: "success"
         });
     }
 
-    // if("{{ Session::has('success_partnership'); }}"){
-    //     Swal.fire({
-    //         title: "Action Succeeded",
-    //         text: "{{ Session::get('success'); }}",
-    //         confirmButtonColor: '#38c172',
-    //         icon: "success"
-    //     });
-    // }
-
     if("{{ Session::has('error'); }}"){
         Swal.fire({
-            title: "Action Failed",
+            title: "Failed!",
             text: "{{ Session::get('error'); }}",
             confirmButton: false,
             confirmButtonColor: '#38c172',
             icon: "error"
-        });
-    }
-
-    if("{{ Session::has('success_switch'); }}"){
-        Swal.fire({
-            title: "Action Succeeded",
-            text: "{{ Session::get('success_switch'); }}",
-            confirmButtonColor: '#38c172',
-            icon: "success"
         });
     }
 
@@ -178,6 +163,44 @@
             text: "{{ Session::get('warning'); }}",
             confirmButtonColor: '#38c172',
             icon: "warning"
+        });
+    }
+
+    if("{{ Session::has('info'); }}"){
+        Swal.fire({
+            title: "Information!",
+            text: "{{ Session::get('info'); }}",
+            confirmButtonColor: '#38c172',
+            icon: "info"
+        });
+    }
+
+    // PUT YOUR CUSTOM POPUP ALERT BELLOW
+
+    if("{{ Session::has('success_switch'); }}"){
+        Swal.fire({
+            title: "Switched Successful",
+            text: "{{ Session::get('success_switch'); }}",
+            confirmButtonColor: '#38c172',
+            icon: "success"
+        });
+    }
+
+    if("{{ Session::has('submit_success'); }}"){
+        Swal.fire({
+            title: "Submitted Successfully",
+            text: "{{ Session::get('submit_success'); }}",
+            confirmButtonColor: '#38c172',
+            icon: "success"
+        });
+    }
+    
+    if("{{ Session::has('save_success'); }}"){
+        Swal.fire({
+            title: "Successfully Saved!",
+            text: "Accomplishment is ready for submission!",
+            confirmButtonColor: '#38c172',
+            icon: "success"
         });
     }
   

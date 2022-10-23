@@ -152,36 +152,11 @@ class CitationController extends Controller
             }
         }
 
-        return redirect()->route('research.citation.index', $research->id)->with('success', 'Research citation has been added.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'RCT-'.$request->input('research_code').'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
+        if($imageChecker) return redirect()->route('research.citation.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        //                 ResearchDocument::create([
-        //                     'research_code' => $request->input('research_code'),
-        //                     'research_id' => $research->id,
-        //                     'research_form_id' => 5,
-        //                     'research_citation_id' => $citation->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->route('research.citation.index')->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        return redirect()->route('research.citation.index', $research->id)->with('save_success', 'Research citation has been added.');
     }
 
     /**
@@ -338,7 +313,13 @@ class CitationController extends Controller
             }
         }
 
-        return redirect()->route('research.citation.show', [$research->id, $citation->id])->with('success', 'Research Citation Updated Successfully');
+        $imageRecord = ResearchDocument::where('research_citation_id', $citation->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('research.citation.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('research.citation.index', [$research->id, $citation->id])->with('save_success', 'Research Citation Updated Successfully');
 
                 // if($request->has('document')){
         //     try {

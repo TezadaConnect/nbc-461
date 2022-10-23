@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ExtensionPrograms;
 
+use App\Helpers\LogActivity;
 use App\Models\User;
 use App\Models\Report;
 use Illuminate\Http\Request;
@@ -78,7 +79,7 @@ class InviteController extends Controller
             Notification::send($user, new ExtensionInviteNotification($notificationData));
             $count++;
         }
-        \LogActivity::addToLog('Had added '.$count.' extension partners in an extension program/project/activity.');
+        LogActivity::addToLog('Had added '.$count.' extension partners in an extension program/project/activity.');
 
         return redirect()->route('extension.invite.index', $id)->with('success', count($request->input('employees')).' people invited as extension partner/s.');
     }
@@ -87,7 +88,7 @@ class InviteController extends Controller
 
         $user = User::find(auth()->id());
 
-        \LogActivity::addToLog('Had confirmed as an extension partner in an extension program/project/activity.');
+        LogActivity::addToLog('Had confirmed as an extension partner in an extension program/project/activity.');
 
         $user->notifications->where('id', $request->get('id'))->markAsRead();
         
@@ -106,7 +107,7 @@ class InviteController extends Controller
             ->where('id', $request->get('id'))
             ->delete();
         
-        \LogActivity::addToLog('Had denied as an extension partner in an extension program/project/activity.');
+        LogActivity::addToLog('Had denied as an extension partner in an extension program/project/activity.');
 
         return redirect()->route('extension-service.index')->with('success', 'Invitation cancelled.');
     }
@@ -130,7 +131,7 @@ class InviteController extends Controller
         
         ExtensionInvite::where('extension_service_id', $id)->where('user_id', $request->input('user_id'))->delete();
 
-        \LogActivity::addToLog('Extensionists removed.');
+        LogActivity::addToLog('Extensionists removed.');
 
         
         return redirect()->route('extension.invite.index', $id)->with('success', 'Sending confirmation for extension partner has been cancelled.');
