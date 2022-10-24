@@ -32,9 +32,9 @@ Route::get('/back-up', function () {
 //   ->where('query', '.*');
 
 //Redirect to research.pup.edu.ph
-// Route::get('/', function () {
-//     return Redirect::to('https://research.pup.edu.ph/qar/');
-// })->name('home')->middleware('guest');
+ Route::get('/redirecting', function () {
+     return Redirect::to('https://research.pup.edu.ph/qar/');
+ })->name('researchredirect');//->middleware('guest');
 // Route::any('{query}',
 //   function() { return redirect('/'); })
 //   ->where('query', '.*');
