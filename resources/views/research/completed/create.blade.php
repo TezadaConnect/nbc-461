@@ -15,7 +15,7 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('research.completed.store', $research->id) }}" method="post" class="needs-validation" novalidate>
+                        <form action="{{ route('research.completed.store', $research->id) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
                             @csrf
                             @include('quarter-field')
                             @include('form', ['formFields' => $researchFields, 'value' => $value])

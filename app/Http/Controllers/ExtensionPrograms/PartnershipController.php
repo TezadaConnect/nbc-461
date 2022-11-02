@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ExtensionPrograms;
 
+use App\Helpers\LogActivity;
 use App\Http\Controllers\{
     Controller,
     Maintenances\LockController,
@@ -25,14 +26,17 @@ use App\Models\{
     Maintenance\Department,
     Maintenance\Quarter,
 };
+use App\Services\CommonService;
 use App\Services\DateContentService;
 
 class PartnershipController extends Controller
 {
     protected $storageFileController;
+    private $commonService;
 
-    public function __construct(StorageFileController $storageFileController){
+    public function __construct(StorageFileController $storageFileController, CommonService $commonService){
         $this->storageFileController = $storageFileController;
+        $this->commonService = $commonService;
     }
 
     /**
@@ -51,8 +55,8 @@ class PartnershipController extends Controller
                             ->select(DB::raw('partnerships.*, colleges.name as college_name'))
                             ->orderBy('partnerships.updated_at', 'desc')->get();
 
-        $submissionStatus = [];
-        $submitRole = "";
+        $submissionStatus = array();
+        $submitRole = array();
         $reportdata = new ReportDataController;
         foreach ($partnerships as $partnership) {
             if (LockController::isLocked($partnership->id, 13)) {
@@ -88,7 +92,6 @@ class PartnershipController extends Controller
             if($field->field_type_name == "dropdown" || $field->field_type_name == "text"){
                 $dropdownOptions = DropdownOption::where('dropdown_id', $field->dropdown_id)->where('is_active', 1)->get();
                 $dropdown_options[$field->name] = $dropdownOptions;
-
             }
         }
 
@@ -109,7 +112,7 @@ class PartnershipController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    {        
         $this->authorize('create', Partnership::class);
 
         $start_date = (new DateContentService())->checkDateContent($request, "start_date");
@@ -132,35 +135,17 @@ class PartnershipController extends Controller
         $partnership = Partnership::create($input);
         $partnership->update(['user_id' => auth()->id()]);
 
-        if($request->has('document')){
-            try {
-                $documents = $request->input('document');
-                foreach($documents as $document){
-                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                    if($temporaryFile){
-                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                        $ext = $info['extension'];
-                        $fileName = 'P-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                        $newPath = "documents/".$fileName;
-                        Storage::move($temporaryPath, $newPath);
-                        Storage::deleteDirectory("documents/tmp/".$document);
-                        $temporaryFile->delete();
+        LogActivity::addToLog('Had added a partnership/linkage/network "'.$request->input('title_of_partnership').'".');
 
-                        PartnershipDocument::create([
-                            'partnership_id' => $partnership->id,
-                            'filename' => $fileName,
-                        ]);
-                    }
-                }
-            } catch (Exception $th) {
-                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'P-', 'partnership.index');
+                if(is_string($fileName)) PartnershipDocument::create(['partnership_id' => $partnership->id, 'filename' => $fileName]);
+                else return $fileName;
             }
         }
-        \LogActivity::addToLog('Had added a partnership/linkage/network "'.$request->input('title_of_partnership').'".');
+        return redirect()->route('partnership.index')->with('success', 'Partnership, linkages, and network has been added.');
 
-
-        return redirect()->route('partnership.index')->with('partnership_success', 'Partnership, linkages, and network has been added.');
     }
 
     /**
@@ -273,56 +258,45 @@ class PartnershipController extends Controller
      */
     public function update(Request $request, Partnership $partnership)
     {
-        $this->authorize('update', Partnership::class);
-        $currentQuarterYear = Quarter::find(1);
+        try {
+            $this->authorize('update', Partnership::class);
+            $currentQuarterYear = Quarter::find(1);
+    
+            $start_date = (new DateContentService())->checkDateContent($request, "start_date");
+            $end_date = (new DateContentService())->checkDateContent($request, "end_date");
+    
+            $request->merge([
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'college_id' => Department::where('id', $request->input('department_id'))->pluck('college_id')->first(),
+                'report_quarter' => $currentQuarterYear->current_quarter,
+                'report_year' => $currentQuarterYear->current_year,
+            ]);
+    
+            if(ExtensionProgramForm::where('id', 5)->pluck('is_active')->first() == 0)
+                return view('inactive');
+    
+            $input = $request->except(['_token', '_method', 'document']);
+    
+            $partnership->update(['description' => '-clear']);
+    
+            $partnership->update($input);
+    
+            LogActivity::addToLog('Had updated the partnership/linkage/network "'.$partnership->title_of_partnership.'".');
+        } catch (\Throwable $th) {
+            redirect()->route('partnership.index')->with('error', $th->getMessage());
+        }
 
-        $start_date = (new DateContentService())->checkDateContent($request, "start_date");
-        $end_date = (new DateContentService())->checkDateContent($request, "end_date");
 
-        $request->merge([
-            'start_date' => $start_date,
-            'end_date' => $end_date,
-            'college_id' => Department::where('id', $request->input('department_id'))->pluck('college_id')->first(),
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-        ]);
-
-        if(ExtensionProgramForm::where('id', 5)->pluck('is_active')->first() == 0)
-            return view('inactive');
-
-        $input = $request->except(['_token', '_method', 'document']);
-
-        $partnership->update(['description' => '-clear']);
-
-        $partnership->update($input);
-
-        if($request->has('document')){
-
-            $documents = $request->input('document');
-            foreach($documents as $document){
-                $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                if($temporaryFile){
-                    $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                    $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                    $ext = $info['extension'];
-                    $fileName = 'P-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                    $newPath = "documents/".$fileName;
-                    Storage::move($temporaryPath, $newPath);
-                    Storage::deleteDirectory("documents/tmp/".$document);
-                    $temporaryFile->delete();
-
-                    PartnershipDocument::create([
-                        'partnership_id' => $partnership->id,
-                        'filename' => $fileName,
-                    ]);
-                }
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'P-', 'partnership.index');
+                if(is_string($fileName)) PartnershipDocument::create(['partnership_id' => $partnership->id, 'filename' => $fileName]);
+                else return $fileName;
             }
         }
 
-        \LogActivity::addToLog('Had updated the partnership/linkage/network "'.$partnership->title_of_partnership.'".');
-
-
-        return redirect()->route('partnership.index')->with('partnership_success', 'Partnership, linkages, and network has been updated.');
+        return redirect()->route('partnership.index')->with('success', 'Partnership, linkages, and network has been updated.');
 
     }
 
@@ -345,9 +319,9 @@ class PartnershipController extends Controller
         PartnershipDocument::where('partnership_id', $partnership->id)->delete();
         $partnership->delete();
 
-        \LogActivity::addToLog('Had deleted the partnership/linkage/network "'.$partnership->title_of_partnership.'".');
+        LogActivity::addToLog('Had deleted the partnership/linkage/network "'.$partnership->title_of_partnership.'".');
 
-        return redirect()->route('partnership.index')->with('partnership_success', 'Partnership, linkages, and network has been deleted.');
+        return redirect()->route('partnership.index')->with('success', 'Partnership, linkages, and network has been deleted.');
     }
 
     public function removeDoc($filename){
@@ -357,7 +331,7 @@ class PartnershipController extends Controller
             return view('inactive');
         PartnershipDocument::where('filename', $filename)->delete();
 
-        \LogActivity::addToLog('Had deleted a document of a partnership/linkage/network.');
+        LogActivity::addToLog('Had deleted a document of a partnership/linkage/network.');
 
         return true;
     }

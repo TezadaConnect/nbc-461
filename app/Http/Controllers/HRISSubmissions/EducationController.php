@@ -60,8 +60,8 @@ class EducationController extends Controller
 
         $savedReports = HRIS::where('hris_type', '1')->where('user_id', $user->id)->pluck('hris_id')->all();
 
-        $submissionStatus = [];
-        $submitRole = "";
+        $submissionStatus = array();
+        $submitRole = array();
         foreach ($educationFinal as $education) {
             $id = HRIS::where('hris_id', $education->EmployeeEducationBackgroundID)->where('hris_type', 1)->where('user_id', $user->id)->pluck('hris_id')->first();
             $educationData = $db_ext->select("SET NOCOUNT ON; EXEC GetEmployeeEducationBackgroundByEmpCodeAndID N'$user->emp_code', '$education->EmployeeEducationBackgroundID'");
@@ -195,11 +195,11 @@ class EducationController extends Controller
             0,                                  //EmployeeEducationBackgroundID
             $emp_code,                          //EmpCode
             $request->level,                    //EducationLevelID
-            $request->degree,                   //Degree
+            $request->degree ?? '',                   //Degree
             $request->major ?? '',                    //Major
             $request->minor ?? '',                    //Minor
             $request->education_discipline,     //EducationDisciplineID
-            $request->school_name,              //SchoolName
+            $request->school_name ?? '',              //SchoolName
             $request->program_level,            //AccreditationLevelID
             $is_graduated,                      //IsGraduated
             $is_enrolled,                       //IsCurrentlyEnrolled
@@ -207,14 +207,14 @@ class EducationController extends Controller
             $request->units_earned ?? '',             //UnitsEarned
             $request->units_enrolled ?? '',           //UnitsEnrolled
             $request->from,                     //IncYearFrom
-            $request->to,                       //IncYearTo
+            $request->to ?? '',                       //IncYearTo
             $year_graduated ?? 0,            //YearGraduated
             $request->honors ?? '',                   //HonorsReceived
             $request->support_type,             //TypeOfSupportID
             $request->sponsor_name ?? '',             //Scholarship
             $request->amount ?? 0,                   //Amount
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? 'N/A', //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email                        //TransAccount
@@ -273,7 +273,10 @@ class EducationController extends Controller
         if($document['isError'] == false){
             return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.educ.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.educ.index')->with('error', 
+                $document['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
     }
 
@@ -314,7 +317,7 @@ class EducationController extends Controller
             'amount' => $educationData[0]->Amount,
             'remarks' => $educationData[0]->Remarks,
             'document' => $educationData[0]->Attachment,
-            'description' => $educationData[0]->Description,
+            'description' => $educationData[0]->Description ?? "N/A",
             'mimetype' => $educationData[0]->MimeType,
         ];
 
@@ -389,7 +392,7 @@ class EducationController extends Controller
             $hrisDocuments = HRISDocument::where('hris_form_id', 1)->where('reference_id', $id)->get()->toArray();
             $report = Report::where('report_reference_id',$id)->where('report_category_id', 24)->first();
             $report_details = json_decode($report->report_details, true);
-            $description;
+            $description = "";
 
             foreach($educFields as $row){
                 if($row->name == 'description')
@@ -415,7 +418,7 @@ class EducationController extends Controller
                 'status' => $educationData[0]->EnrollmentStatus,
                 'units_earned' => $educationData[0]->UnitsEarned,
                 'units_enrolled' =>$educationData[0]->UnitsEnrolled,
-                'description' => $educationData[0]->Description,
+                'description' => $educationData[0]->Description ?? "N/A",
                 'document' => $educationData[0]->Attachment,
                 'mimetype' => $educationData[0]->MimeType,
             ];
@@ -464,29 +467,29 @@ class EducationController extends Controller
             $id,                                  //EmployeeEducationBackgroundID
             $emp_code,                          //EmpCode
             $request->level,                    //EducationLevelID
-            $request->degree,                   //Degree
+            $request->degree ?? '',                   //Degree
             $request->major ?? '',                    //Major
             $request->minor ?? '',                    //Minor
-            $request->education_discipline ?? 0,     //EducationDisciplineID
-            $request->school_name,              //SchoolName
-            $request->program_level ?? 0,            //AccreditationLevelID
+            $request->education_discipline,     //EducationDisciplineID
+            $request->school_name ?? '',              //SchoolName
+            $request->program_level,            //AccreditationLevelID
             $is_graduated,                      //IsGraduated
             $is_enrolled,                       //IsCurrentlyEnrolled
-            $request->status ?? 0,                   //EnrollmentStatusID
+            $request->status,                   //EnrollmentStatusID
             $request->units_earned ?? '',             //UnitsEarned
             $request->units_enrolled ?? '',           //UnitsEnrolled
             $request->from,                     //IncYearFrom
-            $request->to,                       //IncYearTo
+            $request->to ?? '',                       //IncYearTo
             $year_graduated ?? 0,            //YearGraduated
             $request->honors ?? '',                   //HonorsReceived
-            $request->support_type ?? 0,             //TypeOfSupportID
+            $request->support_type,             //TypeOfSupportID
             $request->sponsor_name ?? '',             //Scholarship
             $request->amount ?? 0,                   //Amount
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? 'N/A', //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
-            $user->email                        //TransAccount
+            $user->email                              //TransAccount
         ];
 
         $db_ext->select(
@@ -540,7 +543,10 @@ class EducationController extends Controller
         if($document['isError'] == false){
             return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.educ.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.educ.index')->with('error', 
+                $document['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
     }
 
@@ -579,7 +585,7 @@ class EducationController extends Controller
             'support_type' => $educationData[0]->TypeOfSupport,
             'sponsor_name' => $educationData[0]->Scholarship,
             'amount' => $educationData[0]->Amount,
-            'description' => $educationData[0]->Description,
+            'description' => $educationData[0]->Description ?? "N/A",
             'document' => $educationData[0]->Attachment,
             'department_id' => Department::where('id', $department_id)->pluck('name')->first(),
             'college_id' => College::where('id', Department::where('id', $department_id)->pluck('college_id')->first())->pluck('name')->first(),
@@ -641,7 +647,7 @@ class EducationController extends Controller
             'sponsor_name' => $educationData[0]->Scholarship,
             'amount' => $educationData[0]->Amount,
             'remarks' => $educationData[0]->Remarks,
-            'description' => $educationData[0]->Description,
+            'description' => $educationData[0]->Description ?? "N/A",
             'department_id' => $department_id,
             'document' => $educationData[0]->Attachment,
             'mimetype' => $educationData[0]->MimeType,
@@ -752,29 +758,29 @@ class EducationController extends Controller
             $id,                                  //EmployeeEducationBackgroundID
             $emp_code,                          //EmpCode
             $request->level,                    //EducationLevelID
-            $request->degree,                   //Degree
+            $request->degree ?? '',                   //Degree
             $request->major ?? '',                    //Major
             $request->minor ?? '',                    //Minor
-            $request->education_discipline ?? 0,     //EducationDisciplineID
-            $request->school_name,              //SchoolName
-            $request->program_level ?? 0,            //AccreditationLevelID
+            $request->education_discipline,     //EducationDisciplineID
+            $request->school_name ?? '',              //SchoolName
+            $request->program_level,            //AccreditationLevelID
             $is_graduated,                      //IsGraduated
             $is_enrolled,                       //IsCurrentlyEnrolled
-            $request->status ?? 0,                   //EnrollmentStatusID
+            $request->status,                   //EnrollmentStatusID
             $request->units_earned ?? '',             //UnitsEarned
             $request->units_enrolled ?? '',           //UnitsEnrolled
             $request->from,                     //IncYearFrom
-            $request->to,                       //IncYearTo
+            $request->to ?? '',                       //IncYearTo
             $year_graduated ?? 0,            //YearGraduated
             $request->honors ?? '',                   //HonorsReceived
-            $request->support_type ?? 0,             //TypeOfSupportID
+            $request->support_type,             //TypeOfSupportID
             $request->sponsor_name ?? '',             //Scholarship
             $request->amount ?? 0,                   //Amount
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? 'N/A', //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
-            $user->email                        //TransAccount
+            $user->email                                 //TransAccount
         ];
 
         $newid = $db_ext->select(
@@ -827,7 +833,10 @@ class EducationController extends Controller
         if($document['isError'] == false){
             return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.educ.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.educ.index')->with('error',
+                $document['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
     }
 
@@ -861,7 +870,7 @@ class EducationController extends Controller
     public function check($id){
         $education = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '1')->first();
 
-        if(LockController::isLocked($education->id, 24))
+        if(LockController::isLocked($education->hris_id, 24))
             return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
 
         if($this->submit($education->id))
@@ -948,7 +957,7 @@ class EducationController extends Controller
             'support_type' => $educationData[0]->TypeOfSupport,
             'sponsor_name' => $educationData[0]->Scholarship,
             'amount' => $educationData[0]->Amount,
-            'description' => $educationData[0]->Description,
+            'description' => $educationData[0]->Description ?? "N/A",
             'department_id' => $department_name,
             'college_id' => $college_name,
         ];
@@ -1133,23 +1142,34 @@ class EducationController extends Controller
 
         $filenames = [];
 
-        if($request->has('document')){
-            $documents = $request->input('document');
-            foreach($documents as $document){
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, "", 'HRIS-OAPS', 'submissions.educ.index');
-                if(is_string($fileName)) {
+                if(is_string($fileName)){
                     HRISDocument::create(['hris_form_id' => 1, 'reference_id' => $educID, 'filename' => $fileName]);
                     array_push($filenames, $fileName);
-                } else {
-                    HRISDocument::where('reference_id', $educID)->delete();
-                    return $fileName;
-                }
+                } else return $fileName;
             }
         }
         
         $FORFILESTORE->report_documents = json_encode(collect($filenames));
         $FORFILESTORE->save();
 
+        return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been submitted.');
+
+        // if($request->has('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $fileName = $this->commonService->fileUploadHandler($document, "", 'HRIS-OAPS', 'submissions.educ.index');
+        //         if(is_string($fileName)) {
+        //             HRISDocument::create(['hris_form_id' => 1, 'reference_id' => $educID, 'filename' => $fileName]);
+        //             array_push($filenames, $fileName);
+        //         } else {
+        //             HRISDocument::where('reference_id', $educID)->delete();
+        //             return $fileName;
+        //         }
+        //     }
+        // }
     
         // if($request->has('document')){
         //     try {
@@ -1175,6 +1195,6 @@ class EducationController extends Controller
         //     }
         // }
 
-        return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been submitted.');
+
     }
 }

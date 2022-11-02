@@ -92,7 +92,7 @@
             @enderror
     </div>
 </div>
-@push('scripts')
+{{-- @push('scripts')
 <script src="{{ asset('dist/selectize.min.js') }}"></script>
 <!-- For words separated by (',') -->
 <script>
@@ -198,4 +198,4 @@
         },
     });
 </script>
-@endpush
+@endpush --}}

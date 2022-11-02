@@ -21,6 +21,7 @@ use App\Models\FormBuilder\DropdownOption;
 use App\Http\Controllers\StorageFileController;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
+use App\Models\Maintenance\Currency;
 use App\Models\TemporaryFile;
 use App\Services\CommonService;
 use Exception;
@@ -46,8 +47,8 @@ class OfficershipController extends Controller
         $officershipFinal = $db_ext->select("SET NOCOUNT ON; EXEC GetEmployeeOfficershipMembershipByEmpCode N'$user->emp_code'");
         $savedReports = HRIS::where('hris_type', '3')->where('user_id', $user->id)->pluck('hris_id')->all();
 
-        $submissionStatus = [];
-        $submitRole = "";
+        $submissionStatus = array();
+        $submitRole = array();
         foreach ($officershipFinal as $officership) {
             $id = HRIS::where('hris_id', $officership->EmployeeOfficershipMembershipID)->where('hris_type', 3)->where('user_id', $user->id)->pluck('hris_id')->first();
             if($id != ''){
@@ -144,7 +145,7 @@ class OfficershipController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -192,7 +193,10 @@ class OfficershipController extends Controller
         if($document['isError'] == false){
             return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.officership.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.officership.index')->with('error', 
+            $document['message']
+            // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+        );
         }
 
         // return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been saved.');
@@ -231,7 +235,7 @@ class OfficershipController extends Controller
             'current_member' => $current,
             'to' => $to,
             'document' => $officeData[0]->Attachment,
-            'description' => $officeData[0]->Description,
+            'description' => $officeData[0]->Description ?? "N/A",
             'mimetype' => $officeData[0]->MimeType,
         ];
 
@@ -278,7 +282,7 @@ class OfficershipController extends Controller
             $hrisDocuments = HRISDocument::where('hris_form_id', 3)->where('reference_id', $id)->get()->toArray();
             $report = Report::where('report_reference_id',$id)->where('report_category_id', 28)->first();
             $report_details = json_decode($report->report_details, true);
-            $description;
+            $description = "";
 
             foreach($officeFields as $row){
                 if($row->name == 'description')
@@ -301,7 +305,7 @@ class OfficershipController extends Controller
                 'from' => date('m/d/Y', strtotime($officeData[0]->IncDateFrom)),
                 'to' => date('m/d/Y', strtotime($officeData[0]->IncDateTo)),
                 'document' => $officeData[0]->Attachment,
-                'description' => $officeData[0]->Description,
+                'description' => $officeData[0]->Description ?? "N/A",
                 'mimetype' => $officeData[0]->MimeType,
             ];
         }
@@ -332,7 +336,7 @@ class OfficershipController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -379,7 +383,10 @@ class OfficershipController extends Controller
         if($document['isError'] == false){
             return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.officership.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.officership.index')->with('error', 
+                $document['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
     }
 
@@ -417,7 +424,7 @@ class OfficershipController extends Controller
             'current_member' => 0,
             'to' => $to,
             'document' => $officeData[0]->Attachment,
-            'description' => $officeData[0]->Description,
+            'description' => $officeData[0]->Description ?? "N/A",
             'department_id' => Department::where('id', $department_id)->pluck('name')->first(),
             'college_id' => College::where('id', Department::where('id', $department_id)->pluck('college_id')->first())->pluck('name')->first(),
             'mimetype' => $officeData[0]->MimeType,
@@ -475,7 +482,7 @@ class OfficershipController extends Controller
             'current_member' => $current,
             'to' => $to,
             'document' => $officeData[0]->Attachment,
-            'description' => $officeData[0]->Description,
+            'description' => $officeData[0]->Description ?? "N/A",
             'department_id' => $department_id,
             'mimetype' => $officeData[0]->MimeType,
         ];
@@ -537,7 +544,7 @@ class OfficershipController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -582,7 +589,10 @@ class OfficershipController extends Controller
         if($document['isError'] == false){
             return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.officership.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.officership.index')->with('error', 
+                $document['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
     }
 
@@ -616,7 +626,7 @@ class OfficershipController extends Controller
     public function check($id){
         $officership = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '3')->first();
 
-        if(LockController::isLocked($officership->id, 28))
+        if(LockController::isLocked($officership->hris_id, 28))
             return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
 
         if($this->submit($officership->id))
@@ -698,7 +708,7 @@ class OfficershipController extends Controller
             'from' => date('m/d/Y', strtotime($officeData[0]->IncDateFrom)),
             'to' => $to,
             // 'document' => $officeData[0]->Attachment,
-            'description' => $officeData[0]->Description,
+            'description' => $officeData[0]->Description ?? "N/A",
             'department_id' => $department_name,
             'college_id' => $college_name
         ];
@@ -857,26 +867,6 @@ class OfficershipController extends Controller
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
         $sector_id = College::where('id', $college_id)->pluck('sector_id')->first();
 
-        // if($request->has('document')){
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //         if($temporaryFile){
-        //             $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //             $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //             $ext = $info['extension'];
-        //             $fileName = 'HRIS-OM-'.now()->timestamp.uniqid().'.'.$ext;
-        //             $newPath = "documents/".$fileName;
-        //             Storage::move($temporaryPath, $newPath);
-        //             Storage::deleteDirectory("documents/tmp/".$document);
-        //             $temporaryFile->delete();
-
-        //             HRISDocument::create(['hris_form_id' => 3, 'reference_id' => $id, 'filename' => $fileName]);
-        //             array_push($filenames, $fileName);
-        //         }
-        //     }
-        // }
-
         $currentQuarterYear = Quarter::find(1);
 
         Report::where('report_reference_id', $id)
@@ -916,6 +906,16 @@ class OfficershipController extends Controller
                     HRISDocument::where('reference_id', $id)->delete();
                     return $fileName;
                 }
+            }
+        }
+
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, "", 'HRIS-OM', 'submissions.officership.index');
+                if(is_string($fileName)){
+                    HRISDocument::create(['hris_form_id' => 3, 'reference_id' => $id, 'filename' => $fileName]);
+                    array_push($filenames, $fileName);
+                } else return $fileName;
             }
         }
 

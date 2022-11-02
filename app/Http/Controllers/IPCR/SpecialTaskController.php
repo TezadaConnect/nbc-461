@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\IPCR;
 
+use App\Helpers\LogActivity;
 use App\Models\Employee;
 use App\Models\SpecialTask;
 use Illuminate\Http\Request;
@@ -19,15 +20,18 @@ use App\Models\FormBuilder\DropdownOption;
 use App\Http\Controllers\StorageFileController;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
+use App\Services\CommonService;
 use App\Services\DateContentService;
 use Exception;
 
 class SpecialTaskController extends Controller
 {
     protected $storageFileController;
+    private $commonService;
 
-    public function __construct(StorageFileController $storageFileController){
+    public function __construct(StorageFileController $storageFileController, CommonService $commonService){
         $this->storageFileController = $storageFileController;
+        $this->commonService = $commonService;
     }
     /**
      * Display a listing of the resource.
@@ -60,8 +64,8 @@ class SpecialTaskController extends Controller
                                 ->distinct()
                                 ->get();
 
-        $submissionStatus = [];
-        $submitRole = "";
+        $submissionStatus = array();
+        $submitRole = array();
         $reportdata = new ReportDataController;
             foreach ($specialTasks as $task) {
                 if (LockController::isLocked($task->id, 30)) {
@@ -165,36 +169,56 @@ class SpecialTaskController extends Controller
         $taskdata = SpecialTask::create($input);
         $taskdata->update(['user_id' => auth()->id()]);
 
-        if($request->has('document')){
+        LogActivity::addToLog('Had added a '.$namePage.'.');
+        $version;
 
-            try {
-                $documents = $request->input('document');
-                foreach($documents as $document){
-                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                    if($temporaryFile){
-                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                        $ext = $info['extension'];
-                        $fileName = $type.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                        $newPath = "documents/".$fileName;
-                        Storage::move($temporaryPath, $newPath);
-                        Storage::deleteDirectory("documents/tmp/".$document);
-                        $temporaryFile->delete();
-    
-                        SpecialTaskDocument::create([
-                            'special_task_id' => $taskdata->id,
-                            'filename' => $fileName,
-                        ]);
-                    }
-                }
-            } catch (Exception $th) {
-                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), $type, 'special-tasks.index');
+                if(is_string($fileName)) SpecialTaskDocument::create(['special_task_id' => $taskdata->id, 'filename' => $fileName]);
+                else return $fileName;
             }
         }
 
-        \LogActivity::addToLog('Had added a '.$namePage.'.');
-        $version;
         return redirect()->route('special-tasks.index', 'v='.$version)->with('success', 'Your accomplishment in '.$namePage.' has been saved.');
+
+        // if($request->has('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $fileName = $this->commonService->fileUploadHandler($document, $this->storageFileController->abbrev($request->input('description')), $type , 'special-tasks.index');
+        //         if(is_string($fileName)) {
+        //             SpecialTaskDocument::create(['special_task_id' => $taskdata->id, 'filename' => $fileName]);
+        //         } else {
+        //             SpecialTaskDocument::where('where', $taskdata->id)->delete();
+        //             return $fileName;
+        //         }
+        //     }
+        // }
+
+        // if($request->has('document')){
+        //     try {
+        //         $documents = $request->input('document');
+        //         foreach($documents as $document){
+        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //             if($temporaryFile){
+        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //                 $ext = $info['extension'];
+        //                 $fileName = $type.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
+        //                 $newPath = "documents/".$fileName;
+        //                 Storage::move($temporaryPath, $newPath);
+        //                 Storage::deleteDirectory("documents/tmp/".$document);
+        //                 $temporaryFile->delete();
+        //                 SpecialTaskDocument::create([
+        //                     'special_task_id' => $taskdata->id,
+        //                     'filename' => $fileName,
+        //                 ]);
+        //             }
+        //         }
+        //     } catch (Exception $th) {
+        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        //     }
+        // }
     }
 
     /**
@@ -292,7 +316,6 @@ class SpecialTaskController extends Controller
             if($field->field_type_name == "dropdown" || $field->field_type_name == "text"){
                 $dropdownOptions = DropdownOption::where('dropdown_id', $field->dropdown_id)->where('is_active', 1)->get();
                 $dropdown_options[$field->name] = $dropdownOptions;
-
             }
         }
 
@@ -354,37 +377,55 @@ class SpecialTaskController extends Controller
 
         $special_task->update($input);
 
-        if($request->has('document')){
+        LogActivity::addToLog('Had updated a '.$namePage.'.');
 
-            try {
-                $documents = $request->input('document');
-                foreach($documents as $document){
-                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                    if($temporaryFile){
-                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                        $ext = $info['extension'];
-                        $fileName = $type.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                        $newPath = "documents/".$fileName;
-                        Storage::move($temporaryPath, $newPath);
-                        Storage::deleteDirectory("documents/tmp/".$document);
-                        $temporaryFile->delete();
-                    SpecialTaskDocument::create([
-                            'special_task_id' => $special_task->id,
-                            'filename' => $fileName,
-                        ]);
-                    }
-                }
-            } catch (Exception $th) {
-                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), $type, 'special-tasks.index');
+                if(is_string($fileName)) SpecialTaskDocument::create(['special_task_id' => $special_task->id, 'filename' => $fileName]);
+                else return $fileName;
             }
-
-            
         }
 
-        \LogActivity::addToLog('Had updated a '.$namePage.'.');
-
         return redirect()->route('special-tasks.index', 'v='.$version)->with('success', 'Your accomplishment in '.$namePage.' has been updated.');
+
+        // if($request->has('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $fileName = $this->commonService->fileUploadHandler($document, $this->storageFileController->abbrev($request->input('description')), $type , 'special-tasks.index');
+        //         if(is_string($fileName)) {
+        //             SpecialTaskDocument::create(['special_task_id' => $special_task->id, 'filename' => $fileName]);
+        //         } else {
+        //             SpecialTaskDocument::where('special_task_id', $special_task->id)->delete();
+        //             return $fileName;
+        //         }
+        //     }
+        // }
+
+        // if($request->has('document')){
+        //     try {
+        //         $documents = $request->input('document');
+        //         foreach($documents as $document){
+        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //             if($temporaryFile){
+        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //                 $ext = $info['extension'];
+        //                 $fileName = $type.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
+        //                 $newPath = "documents/".$fileName;
+        //                 Storage::move($temporaryPath, $newPath);
+        //                 Storage::deleteDirectory("documents/tmp/".$document);
+        //                 $temporaryFile->delete();
+        //             SpecialTaskDocument::create([
+        //                     'special_task_id' => $special_task->id,
+        //                     'filename' => $fileName,
+        //                 ]);
+        //             }
+        //         }
+        //     } catch (Exception $th) {
+        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        //     }
+        // }
     }
 
     /**
@@ -415,7 +456,7 @@ class SpecialTaskController extends Controller
         SpecialTaskDocument::where('special_task_id', $special_task->id)->delete();
         $special_task->delete();
 
-        \LogActivity::addToLog('Had deleted a '.$namePage.'.');
+        LogActivity::addToLog('Had deleted a '.$namePage.'.');
 
         return redirect()->route('special-tasks.index', 'v='.$version)->with('success', 'Your accomplishment in '.$namePage.' has been deleted.');
     }
@@ -425,7 +466,7 @@ class SpecialTaskController extends Controller
             return view('inactive');
         SpecialTaskDocument::where('filename', $filename)->delete();
 
-        \LogActivity::addToLog('Special Task document deleted.');
+        LogActivity::addToLog('Special Task document deleted.');
 
         return true;
     }

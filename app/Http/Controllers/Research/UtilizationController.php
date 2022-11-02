@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Research;
 
+use App\Helpers\LogActivity;
 use App\Http\Controllers\{
     Controller,
     Maintenances\LockController,
@@ -35,6 +36,7 @@ class UtilizationController extends Controller
         $this->storageFileController = $storageFileController;
         $this->commonService = $commonService;
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -113,39 +115,55 @@ class UtilizationController extends Controller
         $string = str_replace(' ', '-', $request->input('description')); // Replaces all spaces with hyphens.
         $description =  preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
 
-        if($request->has('document')){
-            try {
-                $documents = $request->input('document');
-                foreach($documents as $document){
-                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                    if($temporaryFile){
-                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                        $ext = $info['extension'];
-                        $fileName = 'RU-'.$request->input('research_code').'-'.$description.'-'.now()->timestamp.uniqid().'.'.$ext;
-                        $newPath = "documents/".$fileName;
-                        Storage::move($temporaryPath, $newPath);
-                        Storage::deleteDirectory("documents/tmp/".$document);
-                        $temporaryFile->delete();
+        // if($request->has('document')){
+        //     try {
+        //         $documents = $request->input('document');
+        //         foreach($documents as $document){
+        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //             if($temporaryFile){
+        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //                 $ext = $info['extension'];
+        //                 $fileName = 'RU-'.$request->input('research_code').'-'.$description.'-'.now()->timestamp.uniqid().'.'.$ext;
+        //                 $newPath = "documents/".$fileName;
+        //                 Storage::move($temporaryPath, $newPath);
+        //                 Storage::deleteDirectory("documents/tmp/".$document);
+        //                 $temporaryFile->delete();
 
-                        ResearchDocument::create([
-                            'research_code' => $request->input('research_code'),
-                            'research_id' => $research->id,
-                            'research_form_id' => 6,
-                            'research_utilization_id' => $utilization->id,
-                            'filename' => $fileName,
-                        ]);
-                    }
-                }
-            }  catch (Exception $th) {
-                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-            }
+        //                 ResearchDocument::create([
+        //                     'research_code' => $request->input('research_code'),
+        //                     'research_id' => $research->id,
+        //                     'research_form_id' => 6,
+        //                     'research_utilization_id' => $utilization->id,
+        //                     'filename' => $fileName,
+        //                 ]);
+        //             }
+        //         }
+        //     }  catch (Exception $th) {
+        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        //     }
     
             
+        // }
+
+        LogActivity::addToLog('Had added a research utilization for "'.$research->title.'".');
+
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCR-", 'research.utilization.index');
+                if(is_string($fileName)) {
+                    ResearchDocument::create([
+                        'research_code' => $request->input('research_code'),
+                        'research_id' => $research->id,
+                        'research_form_id' => 6,
+                        'research_utilization_id' => $utilization->id,
+                        'filename' => $fileName,
+                    ]);
+                } else return $fileName;
+            }
         }
 
         \LogActivity::addToLog('Had added a research utilization for "'.$research->title.'".');
-
 
         return redirect()->route('research.index')->with('success', 'Research utilization has been added.');
     }
@@ -206,8 +224,9 @@ class UtilizationController extends Controller
                 }
             }
         }
+        $firstResearch = Research::where('research_code', $research->research_code)->first();
 
-        return view('research.utilization.show', compact('research', 'researchFields', 'values', 'researchDocuments'));
+        return view('research.utilization.show', compact('research', 'researchFields', 'values', 'researchDocuments', 'firstResearch'));
     }
 
     /**
@@ -277,39 +296,52 @@ class UtilizationController extends Controller
         $string = str_replace(' ', '-', $utilization->description); // Replaces all spaces with hyphens.
         $description =  preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
 
-        if($request->has('document')){
+        // if($request->has('document')){
 
-            try {
-                $documents = $request->input('document');
-                foreach($documents as $document){
-                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                    if($temporaryFile){
-                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                        $ext = $info['extension'];
-                        $fileName = 'RU-'.$request->input('research_code').'-'.$description.'-'.now()->timestamp.uniqid().'.'.$ext;
-                        $newPath = "documents/".$fileName;
-                        Storage::move($temporaryPath, $newPath);
-                        Storage::deleteDirectory("documents/tmp/".$document);
-                        $temporaryFile->delete();
+        //     try {
+        //         $documents = $request->input('document');
+        //         foreach($documents as $document){
+        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //             if($temporaryFile){
+        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //                 $ext = $info['extension'];
+        //                 $fileName = 'RU-'.$request->input('research_code').'-'.$description.'-'.now()->timestamp.uniqid().'.'.$ext;
+        //                 $newPath = "documents/".$fileName;
+        //                 Storage::move($temporaryPath, $newPath);
+        //                 Storage::deleteDirectory("documents/tmp/".$document);
+        //                 $temporaryFile->delete();
 
-                        ResearchDocument::create([
-                            'research_code' => $request->input('research_code'),
-                            'research_id' => $research->id,
-                            'research_form_id' => 6,
-                            'research_utilization_id' => $utilization->id,
-                            'filename' => $fileName,
-                        ]);
-                    }
-                }
-            }  catch (Exception $th) {
-                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        //                 ResearchDocument::create([
+        //                     'research_code' => $request->input('research_code'),
+        //                     'research_id' => $research->id,
+        //                     'research_form_id' => 6,
+        //                     'research_utilization_id' => $utilization->id,
+        //                     'filename' => $fileName,
+        //                 ]);
+        //             }
+        //         }
+        //     }  catch (Exception $th) {
+        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        //     }     
+        // }
+
+        LogActivity::addToLog('Had updated a research utilization of "'.$research->title.'".');
+
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RU-", 'research.utilization.index');
+                if(is_string($fileName)) {
+                    ResearchDocument::create([
+                        'research_code' => $request->input('research_code'),
+                        'research_id' => $research->id,
+                        'research_form_id' => 6,
+                        'research_utilization_id' => $utilization->id,
+                        'filename' => $fileName,
+                    ]);
+                } else return $fileName;
             }
-
-            
         }
-
-        \LogActivity::addToLog('Had updated a research utilization of "'.$research->title.'".');
 
         return redirect()->route('research.utilization.show', [$research->id, $utilization->id])->with('success', 'Research Utilization has been updated.');
     }
@@ -336,7 +368,7 @@ class UtilizationController extends Controller
 
         $utilization->delete();
 
-        \LogActivity::addToLog('Had deleted a research utilization of "'.$research->title.'".');
+        LogActivity::addToLog('Had deleted a research utilization of "'.$research->title.'".');
 
         return redirect()->route('research.utilization.index', $research->id)->with('success', 'Research utilization has been deleted.');
     }

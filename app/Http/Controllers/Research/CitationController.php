@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Research;
 
+use App\Helpers\LogActivity;
 use App\Http\Controllers\{
     Controller,
     Maintenances\LockController,
@@ -57,7 +58,8 @@ class CitationController extends Controller
             $submissionStatus[5][$citation->id] = $this->commonService->getSubmissionStatus($citation->id, 5)['submissionStatus'];
             $submitRole[$citation->id] = $this->commonService->getSubmissionStatus($citation->id, 5)['submitRole'];
         }
-
+        $firstResearch = Research::where('research_code', $research->research_code)->first();
+        
         return view('research.citation.index', compact('research', 'citationRecords',
             'currentQuarterYear', 'submissionStatus', 'submitRole'));
     }
@@ -117,33 +119,20 @@ class CitationController extends Controller
 
         $citation = ResearchCitation::create($input);
 
-        if($request->has('document')){
+        LogActivity::addToLog('Had added a research citation for "'.$research->title.'".');
 
-            try {
-                $documents = $request->input('document');
-                foreach($documents as $document){
-                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                    if($temporaryFile){
-                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                        $ext = $info['extension'];
-                        $fileName = 'RCT-'.$request->input('research_code').'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                        $newPath = "documents/".$fileName;
-                        Storage::move($temporaryPath, $newPath);
-                        Storage::deleteDirectory("documents/tmp/".$document);
-                        $temporaryFile->delete();
-
-                        ResearchDocument::create([
-                            'research_code' => $request->input('research_code'),
-                            'research_id' => $research->id,
-                            'research_form_id' => 5,
-                            'research_citation_id' => $citation->id,
-                            'filename' => $fileName,
-                        ]);
-                    }
-                }
-            } catch (Exception $th) {
-                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCT-", 'research.citation.index');
+                if(is_string($fileName)) {
+                    ResearchDocument::create([
+                        'research_code' => $request->input('research_code'),
+                        'research_id' => $research->id,
+                        'research_form_id' => 5,
+                        'research_citation_id' => $citation->id,
+                        'filename' => $fileName,
+                    ]);
+                } else return $fileName;
             }
         }
 
@@ -184,6 +173,7 @@ class CitationController extends Controller
         $values = $this->commonService->getDropdownValues($citationFields, $values);
 
         return view('research.citation.show', compact('research', 'citationFields', 'values', 'citationDocuments'));
+
     }
 
     /**
@@ -262,32 +252,20 @@ class CitationController extends Controller
 
         $citation->update($input);
 
-        if($request->has('document')){
-            try {
-                $documents = $request->input('document');
-                foreach($documents as $document){
-                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                    if($temporaryFile){
-                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                        $ext = $info['extension'];
-                        $fileName = 'RCT-'.$request->input('research_code').'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                        $newPath = "documents/".$fileName;
-                        Storage::move($temporaryPath, $newPath);
-                        Storage::deleteDirectory("documents/tmp/".$document);
-                        $temporaryFile->delete();
+        LogActivity::addToLog('Had updated a research citation of "'.$research->title.'".');
 
-                        ResearchDocument::create([
-                            'research_code' => $request->input('research_code'),
-                            'research_id' => $research->id,
-                            'research_form_id' => 5,
-                            'research_citation_id' => $citation->id,
-                            'filename' => $fileName,
-                        ]);
-                    }
-                }
-            } catch (Exception $th) {
-                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCT-", 'research.citation.index');
+                if(is_string($fileName)) {
+                    ResearchDocument::create([
+                        'research_code' => $request->input('research_code'),
+                        'research_id' => $research->id,
+                        'research_form_id' => 5,
+                        'research_citation_id' => $citation->id,
+                        'filename' => $fileName,
+                    ]);
+                } else return $fileName;
             }
         }
 
@@ -318,7 +296,7 @@ class CitationController extends Controller
 
         $citation->delete();
 
-        \LogActivity::addToLog('Had deleted a research citation of "'.$research->title.'".');
+        LogActivity::addToLog('Had deleted a research citation of "'.$research->title.'".');
 
         return redirect()->route('research.citation.index', $research->id)->with('success', 'Research citation has been deleted.');
     }

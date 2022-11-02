@@ -16,6 +16,9 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
+
+                {{-- ========= ALERT DETAILS ========= --}}
+                
                 @if ($message = Session::get('success'))
                     <div class="alert alert-success alert-index">
                         <i class="bi bi-check-circle"></i> {{ $message }}

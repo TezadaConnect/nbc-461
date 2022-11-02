@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Research;
 
+use App\Helpers\LogActivity;
 use App\Http\Controllers\{
     Controller,
     Maintenances\LockController,
@@ -40,6 +41,7 @@ use App\Models\{
 };
 use App\Notifications\ResearchInviteNotification;
 use App\Rules\Keyword;
+use App\Services\CommonService;
 use App\Services\DateContentService;
 use App\Services\CommonService;
 use Exception;
@@ -301,35 +303,51 @@ class ResearchController extends Controller
 
             Research::where('id', $research->id)->update($input);
 
-            if($request->has('document')){
+            // if($request->has('document')){
 
-                try {
-                    $documents = $request->input('document');
-                    foreach($documents as $document){
-                        $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                        if($temporaryFile){
-                            $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                            $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                            $ext = $info['extension'];
-                            $fileName = 'RR-'.$researchCode.'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                            $newPath = "documents/".$fileName;
-                            Storage::move($temporaryPath, $newPath);
-                            Storage::deleteDirectory("documents/tmp/".$document);
-                            $temporaryFile->delete();
+            //     try {
+            //         $documents = $request->input('document');
+            //         foreach($documents as $document){
+            //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
+            //             if($temporaryFile){
+            //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+            //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+            //                 $ext = $info['extension'];
+            //                 $fileName = 'RR-'.$researchCode.'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
+            //                 $newPath = "documents/".$fileName;
+            //                 Storage::move($temporaryPath, $newPath);
+            //                 Storage::deleteDirectory("documents/tmp/".$document);
+            //                 $temporaryFile->delete();
     
-                            ResearchDocument::create([
-                                'research_id' => $research->id,
-                                'research_code' => $researchCode,
-                                'research_form_id' => 1,
-                                'filename' => $fileName,
+            //                 ResearchDocument::create([
+            //                     'research_id' => $research->id,
+            //                     'research_code' => $researchCode,
+            //                     'research_form_id' => 1,
+            //                     'filename' => $fileName,
     
-                            ]);
-                        }
-                    }
-                } catch (Exception $th) {
-                    return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+            //                 ]);
+            //             }
+            //         }
+            //     } catch (Exception $th) {
+            //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+            //     }
+            // }
+
+
+            if(!empty($request->file(['document']))){      
+                foreach($request->file(['document']) as $document){
+                    $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RR-", 'research.index');
+                    if(is_string($fileName)) {
+                        ResearchDocument::create([
+                            'research_id' => $research->id,
+                            'research_code' => $researchCode,
+                            'research_form_id' => 1,
+                            'filename' => $fileName,
+                        ]);
+                    } else return $fileName;
                 }
             }
+
         // }
 
         $count = 0;
@@ -376,9 +394,9 @@ class ResearchController extends Controller
                     'researchers' => implode("/", $researcherExploded),
                 ]);
             }
-            \LogActivity::addToLog('Had added a co-researcher in the research "'.$research_title.'".'); 
+            LogActivity::addToLog('Had added a co-researcher in the research "'.$research_title.'".'); 
         }           
-        \LogActivity::addToLog('Had added a research entitled "'.$request->input('title').'".');
+        LogActivity::addToLog('Had added a research entitled "'.$request->input('title').'".');
 
         return redirect()->route('research.index')->with('success', 'Research has been registered.');
     }
@@ -570,38 +588,38 @@ class ResearchController extends Controller
             'funding_amount' => $funding_amount,
         ]);
 
-        if($request->has('document')){
-            try {
-                $documents = $request->input('document');
-                $count = 1;
-                foreach($documents as $document){
-                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                    if($temporaryFile){
-                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                        $ext = $info['extension'];
-                        $fileName = 'RR-'.$research->researchCode.'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                        $newPath = "documents/".$fileName;
-                        Storage::move($temporaryPath, $newPath);
-                        Storage::deleteDirectory("documents/tmp/".$document);
-                        $temporaryFile->delete();
+        // if($request->has('document')){
+        //     try {
+        //         $documents = $request->input('document');
+        //         $count = 1;
+        //         foreach($documents as $document){
+        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //             if($temporaryFile){
+        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //                 $ext = $info['extension'];
+        //                 $fileName = 'RR-'.$research->researchCode.'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
+        //                 $newPath = "documents/".$fileName;
+        //                 Storage::move($temporaryPath, $newPath);
+        //                 Storage::deleteDirectory("documents/tmp/".$document);
+        //                 $temporaryFile->delete();
     
-                        ResearchDocument::create([
-                            'research_id' => $research->id,
-                            'research_code' => $research->research_code,
-                            'research_form_id' => 1,
-                            'filename' => $fileName,
+        //                 ResearchDocument::create([
+        //                     'research_id' => $research->id,
+        //                     'research_code' => $research->research_code,
+        //                     'research_form_id' => 1,
+        //                     'filename' => $fileName,
     
-                        ]);
-                    }
-                }
-            } catch (Exception $th) {
-                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-            }
+        //                 ]);
+        //             }
+        //         }
+        //     } catch (Exception $th) {
+        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        //     }
            
-        }
+        // }
 
-        \LogActivity::addToLog('Had updated the details of research "'.$research->title.'".');
+        LogActivity::addToLog('Had updated the details of research "'.$research->title.'".');
 
         return redirect()->route('research.index')->with('success', 'Research has been updated.');
     }
@@ -630,7 +648,7 @@ class ResearchController extends Controller
         $input = $request->except(['_token', '_method', 'document']);
         Research::where('id', $research->id)->update($input);
 
-        \LogActivity::addToLog('Had updated the details of research "'.$research->title.'".');
+        LogActivity::addToLog('Had updated the details of research "'.$research->title.'".');
 
         return redirect()->route('research.index')->with('success', 'Research has been updated.');
     }
@@ -655,7 +673,7 @@ class ResearchController extends Controller
         ResearchInvite::where('research_id', $research->id)->delete();
         ResearchDocument::where('research_id', $research->id)->delete();
 
-        \LogActivity::addToLog('Had deleted the research entitled "'.$research->title.'".');
+        LogActivity::addToLog('Had deleted the research entitled "'.$research->title.'".');
 
 
         return redirect()->route('research.index')->with('success', 'Research has been deleted.');
@@ -841,7 +859,7 @@ class ResearchController extends Controller
                         ->first()
                         ->delete();
 
-        \LogActivity::addToLog('Had saved a research entitled "'.$research_title.'".');
+        LogActivity::addToLog('Had saved a research entitled "'.$research_title.'".');
 
 
         return redirect()->route('research.index')->with('success', 'Research has been saved.');
@@ -932,6 +950,54 @@ class ResearchController extends Controller
             }  
         }
         return redirect()->route('to-finalize.index')->with('success', 'Document added successfully');
+
+                // if($request->has('document')){
+
+        //     try {
+        //         $documents = $request->input('document');
+        //         $count = 1;
+        //         foreach($documents as $document){
+        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //             if($temporaryFile){
+        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //                 $ext = $info['extension'];
+        //                 $fileName = 'RR-'.$researchCode.'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
+        //                 $newPath = "documents/".$fileName;
+        //                 Storage::move($temporaryPath, $newPath);
+        //                 Storage::deleteDirectory("documents/tmp/".$document);
+        //                 $temporaryFile->delete();
+
+        //                 if($report_category_id == 5){//citations
+        //                     ResearchDocument::create([
+        //                         'research_code' => $research_code,
+        //                         'research_form_id' => $report_category_id,
+        //                         'research_citation_id' => $citation_id,
+        //                         'filename' => $fileName,
+        //                     ]);
+        //                 }
+        //                 elseif($report_category_id == 6){
+        //                     ResearchDocument::create([
+        //                         'research_code' => $research_code,
+        //                         'research_form_id' => $report_category_id,
+        //                         'research_utilization_id' => $utilization_id,
+        //                         'filename' => $fileName,
+        //                     ]);
+        //                 }
+        //                 else{
+        //                     ResearchDocument::create([
+        //                         'research_code' => $research_code,
+        //                         'research_form_id' => $report_category_id,
+        //                         'filename' => $fileName,
+
+        //                     ]);
+        //                 }
+        //             }
+        //         }
+        //     } catch (Exception $th) {
+        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        //     }
+        // }
     }
 
     public function manageResearchers($research_code){

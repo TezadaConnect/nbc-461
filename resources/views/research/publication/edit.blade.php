@@ -24,7 +24,7 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('research.publication.update', [$research['id'], $value['id']]) }}" method="post" class="needs-validation" novalidate>
+                        <form action="{{ route('research.publication.update', [$research['id'], $value['id']]) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
                             @csrf
                             @method('put')
                             @include('quarter-field')

@@ -55,8 +55,8 @@ class ConsultantController extends Controller
                                         ->orderBy('expert_service_consultants.updated_at', 'desc')
                                         ->get();
 
-        $submissionStatus = [];
-        $submitRole = "";
+        $submissionStatus = array();
+        $submitRole = array();
         $reportdata = new ReportDataController;
         foreach ($expertServicesConsultant as $consultant) {
             if (LockController::isLocked($consultant->id, 9)) {
@@ -144,16 +144,24 @@ class ConsultantController extends Controller
 
         LogActivity::addToLog('Had added an expert service rendered as consultant "'.$request->input('title').'".');
 
-        if($request->has('document')){
-            $documents = $request->input('document');
-            foreach($documents as $document){
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'ESCS-', 'expert-service-as-consultant.index');
                 if(is_string($fileName)) ExpertServiceConsultantDocument::create(['expert_service_consultant_id' => $esConsultant->id, 'filename' => $fileName]);
                 else return $fileName;
             }
         }
 
-        return redirect()->route('expert-service-as-consultant.index')->with('edit_esconsultant_success', 'Expert service rendered as consultant has been added.');
+        return redirect()->route('expert-service-as-consultant.index')->with('success', 'Expert service rendered as consultant has been added.');
+
+        // if($request->has('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'ESCS-', 'expert-service-as-consultant.index');
+        //         if(is_string($fileName)) ExpertServiceConsultantDocument::create(['expert_service_consultant_id' => $esConsultant->id, 'filename' => $fileName]);
+        //         else return $fileName;
+        //     }
+        // }
     }
 
     /**
@@ -297,16 +305,17 @@ class ConsultantController extends Controller
 
         LogActivity::addToLog('Had updated the xpert service rendered as consultant "'.$expert_service_as_consultant->title.'".');
 
-        if($request->has('document')){      
-            $documents = $request->input('document');
-            foreach($documents as $document){
+        // return $request->file(['document']);
+
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'ESCS-', 'expert-service-as-consultant.index');
                 if(is_string($fileName)) ExpertServiceConsultantDocument::create(['expert_service_consultant_id' => $expert_service_as_consultant->id, 'filename' => $fileName]);
                 else return $fileName;
             }
         }
 
-        return redirect()->route('expert-service-as-consultant.index')->with('edit_esconsultant_success', 'Expert service rendered as consultant has been updated.');
+        return redirect()->route('expert-service-as-consultant.index')->with('success', 'Expert service rendered as consultant has been updated.');
     }
 
     /**
@@ -330,7 +339,7 @@ class ConsultantController extends Controller
 
         LogActivity::addToLog('Had deleted the expert service rendered as consultant "'.$expert_service_as_consultant->title.'".');
 
-        return redirect()->route('expert-service-as-consultant.index')->with('edit_esconsultant_success', 'Expert service rendered as consultant has been deleted.');
+        return redirect()->route('expert-service-as-consultant.index')->with('success', 'Expert service rendered as consultant has been deleted.');
     }
 
     public function removeDoc($filename){

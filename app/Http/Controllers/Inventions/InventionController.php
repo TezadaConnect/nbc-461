@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Inventions;
 
+use App\Helpers\LogActivity;
 use App\Http\Controllers\{
     Controller,
     Maintenances\LockController,
@@ -25,14 +26,17 @@ use App\Models\{
     Maintenance\Department,
     Maintenance\Quarter,
 };
+use App\Services\CommonService;
 use App\Services\DateContentService;
 
 class InventionController extends Controller
 {
     protected $storageFileController;
+    private $commonService;
 
-    public function __construct(StorageFileController $storageFileController){
+    public function __construct(StorageFileController $storageFileController, CommonService $commonService){
         $this->storageFileController = $storageFileController;
+        $this->commonService = $commonService;
     }
 
     /**
@@ -56,8 +60,8 @@ class InventionController extends Controller
                         ->orderBy('inventions.updated_at', 'DESC')
                         ->get();
 
-        $submissionStatus = [];
-        $submitRole = "";
+        $submissionStatus = array();
+        $submitRole = array();
         $reportdata = new ReportDataController;
         foreach ($inventions as $invention) {
             if (LockController::isLocked($invention->id, 8)) {
@@ -150,35 +154,49 @@ class InventionController extends Controller
         $iicw = Invention::create($input);
         $iicw->update(['user_id' => auth()->id()]);
 
-        if($request->has('document')){
+        $classification = DB::select("CALL get_dropdown_name_by_id($iicw->classification)");
+        LogActivity::addToLog("Had added ".ucfirst($classification[0]->name).' entitled "'.$request->input('title').'".');
 
-            $documents = $request->input('document');
-            foreach($documents as $document){
-                $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                if($temporaryFile){
-                    $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                    $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                    $ext = $info['extension'];
-                    $fileName = 'IICW-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                    $newPath = "documents/".$fileName;
-                    Storage::move($temporaryPath, $newPath);
-                    Storage::deleteDirectory("documents/tmp/".$document);
-                    $temporaryFile->delete();
-
-                    InventionDocument::create([
-                        'invention_id' => $iicw->id,
-                        'filename' => $fileName,
-                    ]);
-                }
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'IICW-', 'invention-innovation-creative.index');
+                if(is_string($fileName)) InventionDocument::create(['invention_id' => $iicw->id, 'filename' => $fileName]);
+                else return $fileName;
             }
         }
 
-        $classification = DB::select("CALL get_dropdown_name_by_id($iicw->classification)");
-
-        \LogActivity::addToLog("Had added ".ucfirst($classification[0]->name).' entitled "'.$request->input('title').'".');
-
-        // dd($classification);
         return redirect()->route('invention-innovation-creative.index')->with('edit_iicw_success', ucfirst($classification[0]->name).' has been added.');
+        
+        // if($request->file('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $fileName = $this->commonService->fileUploadHandler($document, $this->storageFileController->abbrev($request->input('description')), 'IICW-', 'invention-innovation-creative.index');
+        //         if(is_string($fileName)) {
+        //             InventionDocument::create(['invention_id' => $iicw->id,'filename' => $fileName]);
+        //         } else {
+        //             InventionDocument::where('invention_id', $iicw->id)->delete();
+        //             return $fileName;
+        //         }
+        //     }
+        // }
+        // if($request->has('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //         if($temporaryFile){
+        //             $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //             $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //             $ext = $info['extension'];
+        //             $fileName = 'IICW-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
+        //             $newPath = "documents/".$fileName;
+        //             Storage::move($temporaryPath, $newPath);
+        //             Storage::deleteDirectory("documents/tmp/".$document);
+        //             $temporaryFile->delete();
+
+        //             InventionDocument::create(['invention_id' => $iicw->id,'filename' => $fileName]);
+        //         }
+        //     }
+        // }
     }
 
     /**
@@ -337,34 +355,55 @@ class InventionController extends Controller
         $invention_innovation_creative->update(['description' => '-clear']);
         $invention_innovation_creative->update($input);
 
-        if($request->has('document')){
+        
+        $classification = DB::select("CALL get_dropdown_name_by_id($invention_innovation_creative->classification)");
 
-            $documents = $request->input('document');
-            foreach($documents as $document){
-                $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                if($temporaryFile){
-                    $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                    $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                    $ext = $info['extension'];
-                    $fileName = 'IICW-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                    $newPath = "documents/".$fileName;
-                    Storage::move($temporaryPath, $newPath);
-                    Storage::deleteDirectory("documents/tmp/".$document);
-                    $temporaryFile->delete();
+        LogActivity::addToLog("Had updated ".ucfirst($classification[0]->name).'.');
 
-                    InventionDocument::create([
-                        'invention_id' => $invention_innovation_creative->id,
-                        'filename' => $fileName,
-                    ]);
-                }
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'IICW-', 'invention-innovation-creative.index');
+                if(is_string($fileName)) InventionDocument::create(['invention_id' => $invention_innovation_creative->id, 'filename' => $fileName]);
+                else return $fileName;
             }
         }
 
-        $classification = DB::select("CALL get_dropdown_name_by_id($invention_innovation_creative->classification)");
-
-        \LogActivity::addToLog("Had updated ".ucfirst($classification[0]->name).'.');
-
         return redirect()->route('invention-innovation-creative.index')->with('edit_iicw_success', ucfirst($classification[0]->name).' has been updated.');
+
+        // if($request->has('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $fileName = $this->commonService->fileUploadHandler($document, $this->storageFileController->abbrev($request->input('description')), 'IICW-', 'invention-innovation-creative.index');
+        //         if(is_string($fileName)) {
+        //             InventionDocument::create(['invention_id' => $invention_innovation_creative->id,'filename' => $fileName]);
+        //         } else {
+        //             InventionDocument::where('invention_id', $invention_innovation_creative->id)->delete();
+        //             return $fileName;
+        //         }
+        //     }
+        // }
+
+        // if($request->has('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //         if($temporaryFile){
+        //             $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //             $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //             $ext = $info['extension'];
+        //             $fileName = 'IICW-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
+        //             $newPath = "documents/".$fileName;
+        //             Storage::move($temporaryPath, $newPath);
+        //             Storage::deleteDirectory("documents/tmp/".$document);
+        //             $temporaryFile->delete();
+        //             InventionDocument::create([
+        //                 'invention_id' => $invention_innovation_creative->id,
+        //                 'filename' => $fileName,
+        //             ]);
+        //         }
+        //     }
+        // }
+
     }
 
     /**
@@ -390,9 +429,9 @@ class InventionController extends Controller
 
         $classification = DB::select("CALL get_dropdown_name_by_id($invention_innovation_creative->classification)");
 
-        \LogActivity::addToLog("Had deleted ".ucfirst($classification[0]->name).' entitled "'.$invention_innovation_creative->title.'".');
+        LogActivity::addToLog("Had deleted ".ucfirst($classification[0]->name).' entitled "'.$invention_innovation_creative->title.'".');
 
-        return redirect()->route('invention-innovation-creative.index')->with('edit_iicw_success', ucfirst($classification[0]->name).' has been deleted.');
+        return redirect()->route('invention-innovation-creative.index')->with('success', ucfirst($classification[0]->name).' has been deleted.');
     }
 
     public function removeDoc($filename){
@@ -404,7 +443,7 @@ class InventionController extends Controller
         InventionDocument::where('filename', $filename)->delete();
         // Storage::delete('documents/'.$filename);
 
-        \LogActivity::addToLog('Had deleted a document of an Invention/Innovation/Creative Work.');
+        LogActivity::addToLog('Had deleted a document of an Invention/Innovation/Creative Work.');
 
         return true;
     }

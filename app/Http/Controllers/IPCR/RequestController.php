@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\IPCR;
 
+use App\Helpers\LogActivity;
 use App\Models\Dean;
 use App\Models\Chairperson;
 use Illuminate\Http\Request;
@@ -19,14 +20,17 @@ use App\Models\FormBuilder\DropdownOption;
 use App\Http\Controllers\StorageFileController;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
+use App\Services\CommonService;
 use Exception;
 
 class RequestController extends Controller
 {
     protected $storageFileController;
+    private $commonService;
 
-    public function __construct(StorageFileController $storageFileController){
+    public function __construct(StorageFileController $storageFileController, CommonService $commonService){
         $this->storageFileController = $storageFileController;
+        $this->commonService = $commonService;
     }
 
     /**
@@ -55,7 +59,7 @@ class RequestController extends Controller
                                 ->distinct()
                                 ->get();
 
-        $submissionStatus = [];
+        $submissionStatus = array();
         $reportdata = new ReportDataController;
         foreach ($requests as $request) {
             if (LockController::isLocked($request->id, 17))
@@ -130,37 +134,54 @@ class RequestController extends Controller
         $requestdata = RequestModel::create($input);
         $requestdata->update(['user_id' => auth()->id()]);
 
-        if($request->has('document')){
-            try {
-                $documents = $request->input('document');
-                foreach($documents as $document){
-                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                    if($temporaryFile){
-                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                        $ext = $info['extension'];
-                        $fileName = 'R-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                        $newPath = "documents/".$fileName;
-                        Storage::move($temporaryPath, $newPath);
-                        Storage::deleteDirectory("documents/tmp/".$document);
-                        $temporaryFile->delete();
+        LogActivity::addToLog('Had added a Request & Queries Acted Upon.');
 
-                        RequestDocument::create([
-                            'request_id' => $requestdata->id,
-                            'filename' => $fileName,
-                        ]);
-                    }
-                }
-            
-            } catch (Exception $th) {
-                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'R-', 'request.index');
+                if(is_string($fileName)) RequestDocument::create(['request_id' => $requestdata->id, 'filename' => $fileName]);
+                else return $fileName;
             }
-
         }
 
-        \LogActivity::addToLog('Had added a Request & Queries Acted Upon.');
+        return redirect()->route('request.index')->with('success', 'Your Accomplishment in Request & Queries Acted Upon has been saved.');
 
-        return redirect()->route('request.index')->with('request_success', 'Your Accomplishment in Request & Queries Acted Upon has been saved.');
+        // if($request->has('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $fileName = $this->commonService->fileUploadHandler($document, $this->storageFileController->abbrev($request->input('description')), 'R-', 'request.index');
+        //         if(is_string($fileName)) {
+        //             RequestDocument::create(['request_id' => $requestdata->id, 'filename' => $fileName]);
+        //         } else {
+        //             RequestDocument::where('request_id', $requestdata->id)->delete();
+        //             return $fileName;
+        //         }
+        //     }
+        // }
+        // if($request->has('document')){
+        //     try {
+        //         $documents = $request->input('document');
+        //         foreach($documents as $document){
+        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //             if($temporaryFile){
+        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //                 $ext = $info['extension'];
+        //                 $fileName = 'R-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
+        //                 $newPath = "documents/".$fileName;
+        //                 Storage::move($temporaryPath, $newPath);
+        //                 Storage::deleteDirectory("documents/tmp/".$document);
+        //                 $temporaryFile->delete();
+        //                 RequestDocument::create([
+        //                     'request_id' => $requestdata->id,
+        //                     'filename' => $fileName,
+        //                 ]);
+        //             }
+        //         }
+        //     } catch (Exception $th) {
+        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        //     }
+        // }
     }
 
     /**
@@ -214,7 +235,7 @@ class RequestController extends Controller
             }
         }
 
-    return view('ipcr.request.show', compact('request', 'requestFields', 'documents', 'values'));
+        return view('ipcr.request.show', compact('request', 'requestFields', 'documents', 'values'));
     }
 
     /**
@@ -291,38 +312,55 @@ class RequestController extends Controller
 
         $request->update($input);
 
-        if($requestdata->has('document')){
+        LogActivity::addToLog('Had updated a Request & Queries Acted Upon.');
 
-            try {
-                $documents = $requestdata->input('document');
-                foreach($documents as $document){
-                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                    if($temporaryFile){
-                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                        $ext = $info['extension'];
-                        $fileName = 'R-'.$this->storageFileController->abbrev($requestdata->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-                        $newPath = "documents/".$fileName;
-                        Storage::move($temporaryPath, $newPath);
-                        Storage::deleteDirectory("documents/tmp/".$document);
-                        $temporaryFile->delete();
-
-                        RequestDocument::create([
-                            'request_id' => $request->id,
-                            'filename' => $fileName,
-                        ]);
-                    }
-                }
-            } catch (Exception $th) {
-                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'R-', 'request.index');
+                if(is_string($fileName)) RequestDocument::create(['request_id' => $requestdata->id, 'filename' => $fileName]);
+                else return $fileName;
             }
-
-            
         }
 
-        \LogActivity::addToLog('Had updated a Request & Queries Acted Upon.');
+        return redirect()->route('request.index')->with('success', 'Your accomplishment in Request & Queries Acted Upon has been updated.');
 
-        return redirect()->route('request.index')->with('request_success', 'Your accomplishment in Request & Queries Acted Upon has been updated.');
+        // if($request->has('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $fileName = $this->commonService->fileUploadHandler($document, $this->storageFileController->abbrev($request->input('description')), 'R-', 'request.index');
+        //         if(is_string($fileName)) {
+        //             RequestDocument::create(['request_id' => $request->id,'filename' => $fileName]);
+        //         } else {
+        //             RequestDocument::where('request_id', $request->id)->delete();
+        //             return $fileName;
+        //         }
+        //     }
+        // }
+
+        // if($requestdata->has('document')){
+        //     try {
+        //         $documents = $requestdata->input('document');
+        //         foreach($documents as $document){
+        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //             if($temporaryFile){
+        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //                 $ext = $info['extension'];
+        //                 $fileName = 'R-'.$this->storageFileController->abbrev($requestdata->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
+        //                 $newPath = "documents/".$fileName;
+        //                 Storage::move($temporaryPath, $newPath);
+        //                 Storage::deleteDirectory("documents/tmp/".$document);
+        //                 $temporaryFile->delete();
+        //                 RequestDocument::create([
+        //                     'request_id' => $request->id,
+        //                     'filename' => $fileName,
+        //                 ]);
+        //             }
+        //         }
+        //     } catch (Exception $th) {
+        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+        //     }
+        // }
     }
 
     /**
@@ -342,9 +380,9 @@ class RequestController extends Controller
         RequestDocument::where('request_id', $request->id)->delete();
         $request->delete();
 
-        \LogActivity::addToLog('Had deleted a Request & Queries Acted Upon.');
+        LogActivity::addToLog('Had deleted a Request & Queries Acted Upon.');
 
-        return redirect()->route('request.index')->with('request_success', 'Your accomplishment in Request & Queries Acted Upon has been deleted.');
+        return redirect()->route('request.index')->with('success', 'Your accomplishment in Request & Queries Acted Upon has been deleted.');
     }
 
     public function removeDoc($filename){
@@ -352,7 +390,7 @@ class RequestController extends Controller
             return view('inactive');
         RequestDocument::where('filename', $filename)->delete();
 
-        \LogActivity::addToLog('Request & Queries Acted Upon document deleted.');
+        LogActivity::addToLog('Request & Queries Acted Upon document deleted.');
 
         return true;
     }

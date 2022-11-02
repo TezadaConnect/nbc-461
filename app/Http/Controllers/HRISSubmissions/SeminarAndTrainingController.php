@@ -26,12 +26,11 @@ use App\Models\{
 use App\Services\CommonService;
 use Carbon\Carbon;
 use App\Services\SavePersonalDataDocumentService;
-use Exception;
 use stdClass;
 
 class SeminarAndTrainingController extends Controller
 {
-    private $commonService = null;
+    private $commonService;
 
     public function __construct(CommonService $commonService) {
         $this->commonService = $commonService;
@@ -52,7 +51,7 @@ class SeminarAndTrainingController extends Controller
         $savedSeminars = HRIS::where('hris_type', '4')->where('user_id', $user->id)->pluck('hris_id')->all();
         $savedTrainings = HRIS::where('hris_type', '5')->where('user_id', $user->id)->pluck('hris_id')->all();
 
-        $submissionStatus = [];
+        $submissionStatus = array();
         $submitRole = array();
         foreach ($developmentFinal as $development) {
             $id = HRIS::where('hris_id', $development->EmployeeTrainingProgramID)->where('hris_type', 4)->where('user_id', $user->id)->pluck('hris_id')->first();
@@ -173,42 +172,8 @@ class SeminarAndTrainingController extends Controller
         if($request->fund_source == '0' && $request->budget == 0){
             $is_paid = 'N';
         }
-
-        // if($request->has('documentSO')){
-        //     $datastringSO = file_get_contents($request->file(['documentSO']));
-        //     $mimetypeSO = $request->file('documentSO')->getMimeType();
-        //     $imagedataSO = unpack("H*hex", $datastringSO);
-        //     $imagedataSO = '0x' . strtoupper($imagedataSO['hex']);
-        //     $descriptionSO = "SPECIAL ORDER (S.O.) DOCUMENT";
-        // }
-        // if($request->has('documentCert')){
-        //     $datastringCert = file_get_contents($request->file(['documentCert']));
-        //     $mimetypeCert = $request->file('documentCert')->getMimeType();
-        //     $imagedataCert = unpack("H*hex", $datastringCert);
-        //     $imagedataCert = '0x' . strtoupper($imagedataCert['hex']);
-        //     $descriptionCert = "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION";
-        // }
-        // if($request->has('documentPic')){
-        //     $datastringPic = file_get_contents($request->file(['documentPic']));
-        //     $mimetypePic = $request->file('documentPic')->getMimeType();
-        //     $imagedataPic = unpack("H*hex", $datastringPic);
-        //     $imagedataPic = '0x' . strtoupper($imagedataPic['hex']);
-        //     $descriptionPic = "COMPILED PHOTOS";
-        // }
-
-        // '', //Remarks
-        // $descriptionSO ?? null, //AttachmentDescSO
-        // $imagedataSO ?? null, //AttachmentSO
-        // $mimetypeSO ?? null, //MimeTypeSO
-        // $descriptionCert ?? null, //AttachmentDescCert
-        // $imagedataCert ?? null, //AttachmentCert
-        // $mimetypeCert ?? null, //MimeTypeCert
-        // $descriptionPic ?? null, //AttachmentDescPic
-        // $imagedataPic ?? null, //AttachmentPic
-        // $mimetypePic ?? null, //MimeTypePic
         
         // dd($datastringSO);
-
         $documentSO = $this->commonService->fileUploadHandlerForExternal($request, 'documentSO', "SPECIAL ORDER (S.O.) DOCUMENT");
         $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
         $documentPic = $this->commonService->fileUploadHandlerForExternal($request, 'documentPic', "COMPILED PHOTOS");
@@ -231,15 +196,15 @@ class SeminarAndTrainingController extends Controller
             $request->budget, //Budget
             'image/pdf/files', //Remarks
 
-            $documentSO['description'], //AttachmentDescSO
+            $documentSO['description'] ?? "N/A", //AttachmentDescSO
             $documentSO['image'], //AttachmentSO
             $documentSO['mimetype'], //MimeTypeSO
 
-            $documentCert['description'], //AttachmentDescCert
+            $documentCert['description'] ?? "N/A", //AttachmentDescCert
             $documentCert['image'], //AttachmentCert
             $documentCert['mimetype'], //MimeTypeCert
 
-            $documentPic['description'], //AttachmentDescPic
+            $documentPic['description'] ?? "N/A", //AttachmentDescPic
             $documentPic['image'], //AttachmentPic
             $documentPic['mimetype'], //MimeTypePic
 
@@ -306,7 +271,11 @@ class SeminarAndTrainingController extends Controller
         if($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false){
             return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.development.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.development.index')->with('error', 
+                $documentSO['message'] . " | " . 
+                $documentCert['message'] . " | " . 
+                $documentPic['message']
+            );
         }
 
         // return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
@@ -409,7 +378,7 @@ class SeminarAndTrainingController extends Controller
             'documentSO' => $seminar->AttachmentSO,
             'documentCert' => $seminar->AttachmentCert,
             'documentPic' => $seminar->AttachmentPic,
-            'description' => "",
+            'description' => "N/A",
             'id' => $seminar->EmployeeTrainingProgramID,
             'mimeTypeSO' => $seminar->MimeTypeSO,
             'mimeTypeCert' => $seminar->MimeTypeCert,
@@ -464,7 +433,7 @@ class SeminarAndTrainingController extends Controller
                 'documentSO' => $seminar->AttachmentSO,
                 'documentCert' => $seminar->AttachmentCert,
                 'documentPic' => $seminar->AttachmentPic,
-                'description' => "",
+                'description' => "N/A",
                 'id' => $seminar->EmployeeTrainingProgramID,
                 'mimeTypeSO' => $seminar->MimeTypeSO,
                 'mimeTypeCert' => $seminar->MimeTypeCert,
@@ -499,38 +468,6 @@ class SeminarAndTrainingController extends Controller
         $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
         $documentPic = $this->commonService->fileUploadHandlerForExternal($request, 'documentPic', "COMPILED PHOTOS");
 
-        // if($request->has('documentSO')){
-        //     $datastring = file_get_contents($request->file(['documentSO']));
-        //     $mimetypeSO = $request->file('documentSO')->getMimeType();
-        //     $imagedataSO = unpack("H*hex", $datastring);
-        //     $imagedataSO = '0x' . strtoupper($imagedataSO['hex']);
-        //     $descriptionSO = "SPECIAL ORDER (S.O.) DOCUMENT";
-        // }
-        // if($request->has('documentCert')){
-        //     $datastring = file_get_contents($request->file(['documentCert']));
-        //     $mimetypeCert = $request->file('documentCert')->getMimeType();
-        //     $imagedataCert = unpack("H*hex", $datastring);
-        //     $imagedataCert = '0x' . strtoupper($imagedataCert['hex']);
-        //     $descriptionCert = "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION";
-        // }
-        // if($request->has('documentPic')){
-        //     $datastring = file_get_contents($request->file(['documentPic']));
-        //     $mimetypePic = $request->file('documentPic')->getMimeType();
-        //     $imagedataPic = unpack("H*hex", $datastring);
-        //     $imagedataPic = '0x' . strtoupper($imagedataPic['hex']);
-        //     $descriptionPic = "COMPILED PHOTOS";
-        // }
-
-        // $descriptionSO ?? null, //AttachmentDescSO
-        // $imagedataSO ?? null, //AttachmentSO
-        // $mimetypeSO ?? null, //MimeTypeSO
-        // $descriptionCert ?? null, //AttachmentDescCert
-        // $imagedataCert ?? null, //AttachmentCert
-        // $mimetypeCert ?? null, //MimeTypeCert
-        // $descriptionPic ?? null, //AttachmentDescPic
-        // $imagedataPic ?? null, //AttachmentPic
-        // $mimetypePic ?? null, //MimeTypePic
-
         $value = array(
             $id, //EmployeeTrainingProgramID
             $emp_code, //EmpCode
@@ -549,15 +486,15 @@ class SeminarAndTrainingController extends Controller
             $request->budget ?? '', //Budget
             'image/pdf/files', //Remarks
 
-            $documentSO['description'], //AttachmentDescSO
+            $documentSO['description'] ?? "N/A", //AttachmentDescSO
             $documentSO['image'], //AttachmentSO
             $documentSO['mimetype'], //MimeTypeSO
 
-            $documentCert['description'], //AttachmentDescCert
+            $documentCert['description'] ?? "N/A", //AttachmentDescCert
             $documentCert['image'], //AttachmentCert
             $documentCert['mimetype'], //MimeTypeCert
 
-            $documentPic['description'], //AttachmentDescPic
+            $documentPic['description'] ?? "N/A", //AttachmentDescPic
             $documentPic['image'], //AttachmentPic
             $documentPic['mimetype'], //MimeTypePic
 
@@ -617,7 +554,12 @@ class SeminarAndTrainingController extends Controller
         if($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false){
             return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.development.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.development.index')->with('error', 
+                $documentSO['message'] . " | " . 
+                $documentCert['message'] . " | " . 
+                $documentPic['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
     }
 
@@ -656,52 +598,20 @@ class SeminarAndTrainingController extends Controller
             $request->budget ?? '', //Budget
             'image/pdf/files', //Remarks
 
-            $documentSO['description'], //AttachmentDescSO
+            $documentSO['description']  ?? "N/A", //AttachmentDescSO
             $documentSO['image'], //AttachmentSO
             $documentSO['mimetype'], //MimeTypeSO
 
-            $documentCert['description'], //AttachmentDescCert
+            $documentCert['description'] ?? "N/A", //AttachmentDescCert
             $documentCert['image'], //AttachmentCert
             $documentCert['mimetype'], //MimeTypeCert
 
-            $documentPic['description'], //AttachmentDescPic
+            $documentPic['description'] ?? "N/A", //AttachmentDescPic
             $documentPic['image'], //AttachmentPic
             $documentPic['mimetype'], //MimeTypePic
 
             $user->email //TransAccount
         );
-
-        // if($request->has('documentSO')){
-        //     $datastring = file_get_contents($request->file(['documentSO']));
-        //     $mimetypeSO = $request->file('documentSO')->getMimeType();
-        //     $imagedataSO = unpack("H*hex", $datastring);
-        //     $imagedataSO = '0x' . strtoupper($imagedataSO['hex']);
-        //     $descriptionSO = "SPECIAL ORDER (S.O.) DOCUMENT";
-        // }
-        // if($request->has('documentCert')){
-        //     $datastring = file_get_contents($request->file(['documentCert']));
-        //     $mimetypeCert = $request->file('documentCert')->getMimeType();
-        //     $imagedataCert = unpack("H*hex", $datastring);
-        //     $imagedataCert = '0x' . strtoupper($imagedataCert['hex']);
-        //     $descriptionCert = "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION";
-        // }
-        // if($request->has('documentPic')){
-        //     $datastring = file_get_contents($request->file(['documentPic']));
-        //     $mimetypePic = $request->file('documentPic')->getMimeType();
-        //     $imagedataPic = unpack("H*hex", $datastring);
-        //     $imagedataPic = '0x' . strtoupper($imagedataPic['hex']);
-        //     $descriptionPic = "COMPILED PHOTOS";
-        // }
-
-        // $descriptionSO ?? null, //AttachmentDescSO
-        // $imagedataSO ?? null, //AttachmentSO
-        // $mimetypeSO ?? null, //MimeTypeSO
-        // $descriptionCert ?? null, //AttachmentDescCert
-        // $imagedataCert ?? null, //AttachmentCert
-        // $mimetypeCert ?? null, //MimeTypeCert
-        // $descriptionPic ?? null, //AttachmentDescPic
-        // $imagedataPic ?? null, //AttachmentPic
-        // $mimetypePic ?? null, //MimeTypePic
 
         $db_ext->select(
             "
@@ -756,7 +666,12 @@ class SeminarAndTrainingController extends Controller
         if($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false){
             return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.development.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.development.index')->with('error', 
+                $documentSO['message'] . " | " . 
+                $documentCert['message'] . " | " . 
+                $documentPic['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
 
         
@@ -803,7 +718,7 @@ class SeminarAndTrainingController extends Controller
             'documentSO' => $seminar->AttachmentSO,
             'documentCert' => $seminar->AttachmentCert,
             'documentPic' => $seminar->AttachmentPic,
-            'description' => $seminar->DescriptionSO.', '.$seminar->DescriptionCert.', '.$seminar->DescriptionPic,
+            'description' => ($seminar->DescriptionSO.', '.$seminar->DescriptionCert.', '.$seminar->DescriptionPic) ?? "N/A",
             'id' => $seminar->EmployeeTrainingProgramID,
             'mimeTypeSO' => $seminar->MimeTypeSO,
             'mimeTypeCert' => $seminar->MimeTypeCert,
@@ -931,7 +846,7 @@ class SeminarAndTrainingController extends Controller
             'documentSO' => $seminar->AttachmentSO,
             'documentCert' => $seminar->AttachmentCert,
             'documentPic' => $seminar->AttachmentPic,
-            'description' => "",
+            'description' => "N/A",
             'id' => $seminar->EmployeeTrainingProgramID,
             'mimeTypeSO' => $seminar->MimeTypeSO,
             'mimeTypeCert' => $seminar->MimeTypeCert,
@@ -963,7 +878,7 @@ class SeminarAndTrainingController extends Controller
             'documentSO' => $seminar->AttachmentSO,
             'documentCert' => $seminar->AttachmentCert,
             'documentPic' => $seminar->AttachmentPic,
-            'description' => "",
+            'description' => "N/A",
             'id' => $seminar->EmployeeTrainingProgramID,
             'mimeTypeSO' => $seminar->MimeTypeSO,
             'mimeTypeCert' => $seminar->MimeTypeCert,
@@ -1052,15 +967,15 @@ class SeminarAndTrainingController extends Controller
             $request->budget ?? '', //Budget
             'image/pdf/files', //Remarks
 
-            $documentSO['description'], //AttachmentDescSO
+            $documentSO['description'] ?? "N/A", //AttachmentDescSO
             $documentSO['image'], //AttachmentSO
             $documentSO['mimetype'], //MimeTypeSO
 
-            $documentCert['description'], //AttachmentDescCert
+            $documentCert['description'] ?? "N/A", //AttachmentDescCert
             $documentCert['image'], //AttachmentCert
             $documentCert['mimetype'], //MimeTypeCert
 
-            $documentPic['description'], //AttachmentDescPic
+            $documentPic['description'] ?? "N/A", //AttachmentDescPic
             $documentPic['image'], //AttachmentPic
             $documentPic['mimetype'], //MimeTypePic
 
@@ -1132,7 +1047,12 @@ class SeminarAndTrainingController extends Controller
         if($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false){
             return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.development.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.development.index')->with('error', 
+                $documentSO['message'] . " | " . 
+                $documentCert['message'] . " | " . 
+                $documentPic['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
     }
 
@@ -1205,15 +1125,15 @@ class SeminarAndTrainingController extends Controller
             $request->budget ?? '', //Budget
             'image/pdf/files', //Remarks
 
-            $documentSO['description'], //AttachmentDescSO
+            $documentSO['description'] ?? "N/A", //AttachmentDescSO
             $documentSO['image'], //AttachmentSO
             $documentSO['mimetype'], //MimeTypeSO
 
-            $documentCert['description'], //AttachmentDescCert
+            $documentCert['description'] ?? "N/A", //AttachmentDescCert
             $documentCert['image'], //AttachmentCert
             $documentCert['mimetype'], //MimeTypeCert
 
-            $documentPic['description'], //AttachmentDescPic
+            $documentPic['description'] ?? "N/A", //AttachmentDescPic
             $documentPic['image'], //AttachmentPic
             $documentPic['mimetype'], //MimeTypePic
 
@@ -1285,7 +1205,12 @@ class SeminarAndTrainingController extends Controller
         if($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false){
             return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.development.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.development.index')->with('error', 
+                $documentSO['message'] . " | " . 
+                $documentCert['message'] . " | " . 
+                $documentPic['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
     }
 
@@ -1328,10 +1253,10 @@ class SeminarAndTrainingController extends Controller
         if(is_null($development))
             $development = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '5')->first();
 
-        if(LockController::isLocked($development->id, 25))
+        if(LockController::isLocked($development->hris_id, 25))
             return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
 
-        if(LockController::isLocked($development->id, 26))
+        if(LockController::isLocked($development->hris_id, 26))
             return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
 
         if($development->hris_type == '4'){
@@ -1392,7 +1317,7 @@ class SeminarAndTrainingController extends Controller
             'from' => date('m/d/Y', strtotime($seminar->IncDateFrom)),
             'to' => date('m/d/Y', strtotime($seminar->IncDateTo)),
             'total_hours' => $seminar->NumberOfHours,
-            'description' => implode(", ", array_filter($description)),
+            'description' => implode(", ", array_filter($description)) ?? "N/A",
             'department_id' => $department_name,
             'college_id' => $college_name,
         ];
@@ -1556,7 +1481,7 @@ class SeminarAndTrainingController extends Controller
             'from' => date('m/d/Y', strtotime($training->IncDateFrom)),
             'to' => date('m/d/Y', strtotime($training->IncDateTo)),
             'total_hours' => $training->NumberOfHours,
-            'description' => implode(", ", array_filter($description)),
+            'description' => implode(", ", array_filter($description)) ?? "N/A",
             'department_id' => $department_name,
             'college_id' => $college_name,
         ];

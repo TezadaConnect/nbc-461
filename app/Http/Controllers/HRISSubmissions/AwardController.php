@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\HRISSubmissions;
 
-use App\Helpers\LogActivity;
 use Image;
+use Exception;
 use Carbon\Carbon;
 use App\Models\HRIS;
 use App\Models\User;
 use App\Models\Report;
 use App\Models\Employee;
+use App\Helpers\LogActivity;
 use App\Models\HRISDocument;
 use Illuminate\Http\Request;
+use App\Models\TemporaryFile;
+use App\Services\CommonService;
 use Illuminate\Support\Facades\DB;
 use App\Models\Maintenance\College;
 use App\Models\Maintenance\Quarter;
@@ -18,15 +21,20 @@ use App\Http\Controllers\Controller;
 use App\Models\Maintenance\Currency;
 use App\Models\Maintenance\HRISField;
 use App\Models\Maintenance\Department;
+use Illuminate\Support\Facades\Storage;
 use App\Models\FormBuilder\DropdownOption;
+use App\Http\Controllers\StorageFileController;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
-use App\Models\TemporaryFile;
-use Exception;
-use Illuminate\Support\Facades\Storage;
 
 class AwardController extends Controller
 {
+    private $commonService = null;
+
+    public function __construct(CommonService $commonService) {
+        $this->commonService = $commonService;
+    }
+
     public function index(){
 
         $currentQuarterYear = Quarter::find(1);
@@ -38,8 +46,8 @@ class AwardController extends Controller
         $awardFinal = $db_ext->select("SET NOCOUNT ON; EXEC GetEmployeeOutstandingAchievementByEmpCode N'$user->emp_code'");
         $savedReports = HRIS::where('hris_type', '2')->where('user_id', $user->id)->pluck('hris_id')->all();
 
-        $submissionStatus = [];
-        $submitRole = "";
+        $submissionStatus = array();
+        $submitRole = array();
         foreach ($awardFinal as $award) {
             $id = HRIS::where('hris_id', $award->EmployeeOutstandingAchievementID)->where('hris_type', 2)->where('user_id', $user->id)->pluck('hris_id')->first();
             if($id != ''){
@@ -133,7 +141,7 @@ class AwardController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -180,7 +188,10 @@ class AwardController extends Controller
         if($document['isError'] == false){
             return redirect()->route('submissions.award.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.award.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.award.index')->with('error', 
+            $document['message']
+            // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+        );
         }
 
         // return redirect()->route('submissions.award.index')->with('success','The accomplishment has been saved.');
@@ -210,7 +221,7 @@ class AwardController extends Controller
             'from' => date('m/d/Y', strtotime($awardData[0]->IncDateFrom)),
             'to' => date('m/d/Y', strtotime($awardData[0]->IncDateTo)),
             'document' => $awardData[0]->Attachment,
-            'description' => $awardData[0]->Description,
+            'description' => $awardData[0]->Description ?? "N/A",
             'mimetype' => $awardData[0]->MimeType,
         ];
 
@@ -257,7 +268,7 @@ class AwardController extends Controller
             $hrisDocuments = HRISDocument::where('hris_form_id', 2)->where('reference_id', $id)->get()->toArray();
             $report = Report::where('report_reference_id',$id)->where('report_category_id', 27)->first();
             $report_details = json_decode($report->report_details, true);
-            $description;
+            $description = "";
 
             foreach($awardFields as $row){
                 if($row->name == 'description')
@@ -280,7 +291,7 @@ class AwardController extends Controller
                 'from' => date('m/d/Y', strtotime($awardData[0]->IncDateFrom)),
                 'to' => date('m/d/Y', strtotime($awardData[0]->IncDateTo)),
                 'document' => $awardData[0]->Attachment,
-                'description' => $awardData[0]->Description,
+                'description' => $awardData[0]->Description ?? "N/A",
                 'mimetype' => $awardData[0]->MimeType,
             ];
          }
@@ -319,7 +330,7 @@ class AwardController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -366,7 +377,9 @@ class AwardController extends Controller
         if($document['isError'] == false){
             return redirect()->route('submissions.award.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.award.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.award.index')->with('error', 
+                $document['message']  // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
 
     }
@@ -397,7 +410,7 @@ class AwardController extends Controller
             'from' => date('m/d/Y', strtotime($awardData[0]->IncDateFrom)),
             'to' => date('m/d/Y', strtotime($awardData[0]->IncDateTo)),
             'document' => $awardData[0]->Attachment,
-            'description' => $awardData[0]->Description,
+            'description' => $awardData[0]->Description ?? "N/A",
             'department_id' => Department::where('id', $department_id)->pluck('name')->first(),
             'college_id' => College::where('id', Department::where('id', $department_id)->pluck('college_id')->first())->pluck('name')->first(),
             'mimetype' => $awardData[0]->MimeType,
@@ -445,7 +458,7 @@ class AwardController extends Controller
             'from' => date('m/d/Y', strtotime($awardData[0]->IncDateFrom)),
             'to' => date('m/d/Y', strtotime($awardData[0]->IncDateTo)),
             'document' => $awardData[0]->Attachment,
-            'description' => $awardData[0]->Description,
+            'description' => $awardData[0]->Description ?? "N/A",
             'department_id' => $department_id,
             'mimetype' => $awardData[0]->MimeType,
         ];
@@ -516,7 +529,7 @@ class AwardController extends Controller
             $request->level, //LevelID
             $request->classification, //ClassificationID
             'image/pdf/files', //Remarks
-            $request->description, //AttachmentDescription
+            $request->description ?? "N/A", //AttachmentDescription
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
@@ -560,7 +573,10 @@ class AwardController extends Controller
         if($document['isError'] == false){
             return redirect()->route('submissions.award.index')->with('success','The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.award.index')->with('error', "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!");
+            return redirect()->route('submissions.award.index')->with('error', 
+                $document['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
 
         // return redirect()->route('submissions.award.index')->with('success','The accomplishment has been updated.');
@@ -588,7 +604,7 @@ class AwardController extends Controller
             HRIS::where('id', $awardID)->delete();
         }
 
-        \LogActivity::addToLog('Had deleted a Outstanding Achievement.');
+        LogActivity::addToLog('Had deleted a Outstanding Achievement.');
 
         return redirect()->route('submissions.award.index')->with('success','The accomplishment has been deleted.');
     }
@@ -596,7 +612,7 @@ class AwardController extends Controller
     public function check($id){
         $award = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '2')->first();
 
-        if(LockController::isLocked($award->id, 27))
+        if(LockController::isLocked($award->hris_id, 27))
             return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
 
         if($this->submit($award->id))
@@ -676,7 +692,7 @@ class AwardController extends Controller
             'from' => date('m/d/Y', strtotime($awardData[0]->IncDateFrom)),
             'to' => date('m/d/Y', strtotime($awardData[0]->IncDateTo)),
             // 'document' => $awardData[0]->Attachment,
-            'description' => $awardData[0]->Description,
+            'description' => $awardData[0]->Description ?? "N/A",
             'department_id' => $department_name,
             'college_id' => $college_name,
         ];

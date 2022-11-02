@@ -1238,18 +1238,9 @@ class SubmissionController extends Controller
         if($request->has('document')){
             $documents = $request->input('document');
             foreach($documents as $document){
-                $temporaryFile = TemporaryFile::where('folder', $document)->first();
-                if($temporaryFile){
-                    $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-                    $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-                    $ext = $info['extension'];
-                    $fileName = 'DOC-'.$id.'-'.now()->timestamp.uniqid().'.'.$ext;
-                    $newPath = "documents/".$fileName;
-                    Storage::move($temporaryPath, $newPath);
-                    Storage::deleteDirectory("documents/tmp/".$document);
-                    $temporaryFile->delete();
-
-                    if($report_category_id == 8) InventionDocument::create(['invention_id' => $id,'filename' => $fileName]);
+                $fileName = $this->commonService->fileUploadHandler($document, "", 'DOC-'.$id , 'to-finalize.index');
+                if(is_string($fileName)) {
+                    if($report_category_id == 8) InventionDocument::create(['invention _id' => $id,'filename' => $fileName]);
                     elseif($report_category_id == 9) ExpertServiceConsultantDocument::create(['expert_service_consultant_id' => $id,'filename' => $fileName]);
                     elseif($report_category_id == 10) ExpertServiceConferenceDocument::create(['expert_service_conference_id' => $id, 'filename' => $fileName]);
                     elseif($report_category_id == 11) ExpertServiceAcademicDocument::create(['expert_service_academic_id' => $id,'filename' => $fileName]);
@@ -1264,11 +1255,45 @@ class SubmissionController extends Controller
                     elseif($report_category_id == 20) ViableProjectDocument::create(['viable_project_id' => $id,'filename' => $fileName]);
                     elseif($report_category_id == 21) CollegeDepartmentAwardDocument::create(['college_department_award_id' => $id, 'filename' => $fileName]);
                     elseif($report_category_id == 22) OutreachProgramDocument::create(['outreach_program_id' => $id,'filename' => $fileName]);
-                    elseif($report_category_id == 23) TechnicalExtensionDocument::create(['technical_extension_id' => $id,'filename' => $fileName]);
+                    elseif($report_category_id == 23) TechnicalExtensionDocument::create(['technical_extension_id' => $id,'filename' => $fileName]); 
+                } else {
+                    return $fileName;
                 }
-            }            
+            }
         }
+        // if($request->has('document')){
+        //     $documents = $request->input('document');
+        //     foreach($documents as $document){
+        //         $temporaryFile = TemporaryFile::where('folder', $document)->first();
+        //         if($temporaryFile){
+        //             $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+        //             $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+        //             $ext = $info['extension'];
+        //             $fileName = 'DOC-'.$id.'-'.now()->timestamp.uniqid().'.'.$ext;
+        //             $newPath = "documents/".$fileName;
+        //             Storage::move($temporaryPath, $newPath);
+        //             Storage::deleteDirectory("documents/tmp/".$document);
+        //             $temporaryFile->delete();
 
+        //             if($report_category_id == 8) InventionDocument::create(['invention_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 9) ExpertServiceConsultantDocument::create(['expert_service_consultant_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 10) ExpertServiceConferenceDocument::create(['expert_service_conference_id' => $id, 'filename' => $fileName]);
+        //             elseif($report_category_id == 11) ExpertServiceAcademicDocument::create(['expert_service_academic_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 12) ExtensionServiceDocument::create(['extension_service_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 13) PartnershipDocument::create(['partnership_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 14) MobilityDocument::create(['mobility_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 15) ReferenceDocument::create(['reference_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 16) SyllabusDocument::create(['syllabus_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 17) RequestDocument::create(['request_id' => $id, 'filename' => $fileName]);
+        //             elseif($report_category_id == 18) StudentAwardDocument::create(['student_award_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 19) StudentTrainingDocument::create(['student_training_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 20) ViableProjectDocument::create(['viable_project_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 21) CollegeDepartmentAwardDocument::create(['college_department_award_id' => $id, 'filename' => $fileName]);
+        //             elseif($report_category_id == 22) OutreachProgramDocument::create(['outreach_program_id' => $id,'filename' => $fileName]);
+        //             elseif($report_category_id == 23) TechnicalExtensionDocument::create(['technical_extension_id' => $id,'filename' => $fileName]);
+        //         }
+        //     }            
+        // }
         return redirect()->route('to-finalize.index')->with('success', 'Document/s have been added');
     }
 
@@ -2515,7 +2540,7 @@ class SubmissionController extends Controller
             // if($research_nature_of_involvement != 11 && $research_nature_of_involvement != 224){
                 if($report_category_id == 1){
                     $research_code = Research::where('id', $accomplishment_id)->pluck('research_code')->first();
-                    $leadsResearch = Research::where('research_code', $research_code)->where('nature_of_involvement', 11)->pluck('id')->first();
+                    $leadsResearch = Research::where('research_code', $research_code)->pluck('id')->first();
                     if($leadsResearch != $accomplishment_id && $leadsResearch != null)
                         if(!(Report::where('report_reference_id', $leadsResearch)
                         ->where('report_code', $research_code)
@@ -2527,7 +2552,7 @@ class SubmissionController extends Controller
                 if($report_category_id == 2){
                     $research_id = ResearchComplete::where('id', $accomplishment_id)->pluck('research_id')->first();
                     $research_code = ResearchComplete::where('id', $accomplishment_id)->pluck('research_code')->first();
-                    $leadsResearch = Research::where('research_code', $research_code)->where('nature_of_involvement', 11)->pluck('id')->first();
+                    $leadsResearch = Research::where('research_code', $research_code)->pluck('id')->first();
                     $ownResearch = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
                     if($leadsResearch != $ownResearch && $leadsResearch != null)
                         if(!(Report::where('report_reference_id', $accomplishment_id)
@@ -2540,7 +2565,7 @@ class SubmissionController extends Controller
                 if($report_category_id == 3){
                     $research_id = ResearchPublication::where('id', $accomplishment_id)->pluck('research_id')->first();
                     $research_code = ResearchPublication::where('id', $accomplishment_id)->pluck('research_code')->first();
-                    $leadsResearch = Research::where('research_code', $research_code)->where('nature_of_involvement', 11)->pluck('id')->first();
+                    $leadsResearch = Research::where('research_code', $research_code)->pluck('id')->first();
                     $ownResearch = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
                     if($leadsResearch != $ownResearch && $leadsResearch != null)
                         if(!(Report::where('report_reference_id', $accomplishment_id)
@@ -2553,7 +2578,7 @@ class SubmissionController extends Controller
                 if($report_category_id == 4){
                     $research_id = ResearchPresentation::where('id', $accomplishment_id)->pluck('research_id')->first();
                     $research_code = ResearchPresentation::where('id', $accomplishment_id)->pluck('research_code')->first();
-                    $leadsResearch = Research::where('research_code', $research_code)->where('nature_of_involvement', 11)->pluck('id')->first();
+                    $leadsResearch = Research::where('research_code', $research_code)->pluck('id')->first();
                     $ownResearch = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
                     if($leadsResearch != $ownResearch && $leadsResearch != null)
                         if(!(Report::where('report_reference_id', $accomplishment_id)
@@ -2566,7 +2591,7 @@ class SubmissionController extends Controller
                 if($report_category_id == 5){
                     $research_id = ResearchCitation::where('id', $accomplishment_id)->pluck('research_id')->first();
                     $research_code = ResearchCitation::where('id', $accomplishment_id)->pluck('research_code')->first();
-                    $leadsResearch = Research::where('research_code', $research_code)->where('nature_of_involvement', 11)->pluck('id')->first();
+                    $leadsResearch = Research::where('research_code', $research_code)->pluck('id')->first();
                     $ownResearch = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
                     if($leadsResearch != $ownResearch && $leadsResearch != null)
                         if(!(Report::where('report_reference_id', $accomplishment_id)
@@ -2579,7 +2604,7 @@ class SubmissionController extends Controller
                 if($report_category_id == 6){
                     $research_id = ResearchUtilization::where('id', $accomplishment_id)->pluck('research_id')->first();
                     $research_code = ResearchUtilization::where('id', $accomplishment_id)->pluck('research_code')->first();
-                    $leadsResearch = Research::where('research_code', $research_code)->where('nature_of_involvement', 11)->pluck('id')->first();
+                    $leadsResearch = Research::where('research_code', $research_code)->pluck('id')->first();
                     $ownResearch = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
                     if($leadsResearch != $ownResearch && $leadsResearch != null)
                         if(!(Report::where('report_reference_id', $accomplishment_id)
@@ -2593,7 +2618,7 @@ class SubmissionController extends Controller
                 if($report_category_id == 7){
                     $research_id = ResearchCopyright::where('id', $accomplishment_id)->pluck('research_id')->first();
                     $research_code = ResearchCopyright::where('id', $accomplishment_id)->pluck('research_code')->first();
-                    $leadsResearch = Research::where('research_code', $research_code)->where('nature_of_involvement', 11)->pluck('id')->first();
+                    $leadsResearch = Research::where('research_code', $research_code)->pluck('id')->first();
                     $ownResearch = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
                     if($leadsResearch != $ownResearch && $leadsResearch != null)
                         if(!(Report::where('report_reference_id', $accomplishment_id)

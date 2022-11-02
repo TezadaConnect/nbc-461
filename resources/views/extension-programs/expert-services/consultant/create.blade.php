@@ -5,17 +5,12 @@
             <div class="col-md-12">
                 <h3 class="font-weight-bold mr-2">Expert Service Rendered as Consultant</h3>
                 {{-- ========= ALERT DETAILS ========= --}}
-                @if ($errorMsg = Session::get('error'))
-                    <div class="alert alert-danger" role="alert">
-                        <i class="bi bi-exclamation-circle"></i> <strong>Action Denied</strong> : {{$errorMsg}}
-                    </div>
-                @endif
                 <div class="mb-3">
                     <a class="back_link" href="{{ route('expert-service-as-consultant.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Expert Services as Consultant</a>
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('expert-service-as-consultant.store' ) }}" method="post" class="needs-validation" novalidate>
+                        <form action="{{ route('expert-service-as-consultant.store' ) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
                             <div class="mt-2 mb-3">
                                 <i class="bi bi-pencil-square mr-1"></i><strong>Instructions: </strong> Please fill in the necessary details. No abbreviations. All inputs with the symbol (<strong style="color: red;">*</strong>) are required.
                             </div>    
