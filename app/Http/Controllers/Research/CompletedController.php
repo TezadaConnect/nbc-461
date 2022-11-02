@@ -35,10 +35,12 @@ class CompletedController extends Controller
 {
     protected $storageFileController;
     private $commonService;
+    protected $researchController;
 
-    public function __construct(StorageFileController $storageFileController, CommonService $commonService){
+    public function __construct(StorageFileController $storageFileController, CommonService $commonService, ResearchController $researchController){
         $this->storageFileController = $storageFileController;
         $this->commonService = $commonService;
+        $this->researchController = $researchController;
     }
 
     /**
@@ -50,72 +52,36 @@ class CompletedController extends Controller
     {
         $this->authorize('viewAny', ResearchComplete::class);
 
-        $researchFields = DB::select("CALL get_research_fields_by_form_id('2')");
+        $completionFields = DB::select("CALL get_research_fields_by_form_id('2')");
 
-        $researchDocuments = ResearchDocument::where('research_code', $research->research_code)->where('research_form_id', 2)->get()->toArray();
         $research= Research::where('research_code', $research->research_code)->where('user_id', auth()->id())
                 ->join('dropdown_options', 'dropdown_options.id', 'research.status')
                 ->select('research.*', 'dropdown_options.name as status_name')->first();
-
-        $values = ResearchComplete::where('research_code', $research->research_code)->first();
-
-        if($values == null){
-            return redirect()->route('research.completed.create', $research->id);
-        }
-        $values = collect($values->toArray());
-        $values = $values->except(['research_code']);
-        $values = $values->toArray();
-
-        $value = $research;
-        $value->toArray();
-        $value = collect($research);
-        $value = $value->except(['description']);
-        $value = $value->toArray();
-
-        $value = array_merge($value, $values);
-
-        $submissionStatus = array();
-        $submitRole = array();
-        $reportdata = new ReportDataController;
-            if (LockController::isLocked($value['id'], 2)) {
-                $submissionStatus[2][$value['id']] = 1;
-                $submitRole[$value['id']] = ReportDataController::getSubmitRole($value['id'], 2);
-            }
-            else
-                $submissionStatus[2][$value['id']] = 0;
-            if (empty($reportdata->getDocuments(2, $value['id'])))
-                $submissionStatus[2][$value['id']] = 2;
-
-        foreach($researchFields as $field){
-            if($field->field_type_name == "dropdown"){
-                $dropdownOptions = DropdownOption::where('id', $value[$field->name])->where('is_active', 1)->pluck('name')->first();
-                if($dropdownOptions == null)
-                    $dropdownOptions = "-";
-                $value[$field->name] = $dropdownOptions;
-            }
-            elseif($field->field_type_name == "college"){
-                if($value[$field->name] == '0'){
-                    $value[$field->name] = 'N/A';
-                }
-                else{
-                    $college = College::where('id', $value[$field->name])->pluck('name')->first();
-                    $value[$field->name] = $college;
-                }
-            }
-            elseif($field->field_type_name == "department"){
-                if($value[$field->name] == '0'){
-                    $value[$field->name] = 'N/A';
-                }
-                else{
-                    $department = Department::where('id', $value[$field->name])->pluck('name')->first();
-                    $value[$field->name] = $department;
-                }
+        $completionDocuments = ResearchDocument::where('research_code', $research->research_code)->where('research_form_id', 2)->get()->toArray();
+        $completionRecord = ResearchComplete::where('research_code', $research->research_code)->first();
+        
+        if($completionRecord == null){
+            if($research->status == 27)
+                return redirect()->route('research.completed.create', $research->id);
+            else {
+                $value = null;
+                return view('research.completed.index', compact('research', 'value'));
             }
         }
-        $firstResearch = Research::where('research_code', $research->research_code)->first();
+        
+        $completionValues = array_merge(collect($completionRecord)->except(['research_code'])->toArray(), collect($research)->except(['description'])->toArray());
+        
+        $submissionStatus[2][$completionValues['id']] = $this->commonService->getSubmissionStatus($completionValues['id'], 2)['submissionStatus'];
+        $submitRole[$completionValues['id']] = $this->commonService->getSubmissionStatus($completionValues['id'], 2)['submitRole'];
+        
+        $value = $this->commonService->getDropdownValues($completionFields, $completionValues);
 
-        return view('research.completed.index', compact('research', 'researchFields',
-            'value', 'researchDocuments', 'submissionStatus', 'submitRole', 'firstResearch'));
+        $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+
+        return view('research.completed.index', compact('research', 'completionFields',
+            'value', 'completionDocuments', 'submissionStatus', 'submitRole', 'noRequisiteRecords'));
     }
 
     /**
@@ -215,7 +181,7 @@ class CompletedController extends Controller
 
         if($imageChecker) return redirect()->route('research.completed.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        return redirect()->route('research.completed.index', $research->id)->with('save_success', 'Research completetion has been added.');
+        return redirect()->route('research.index')->with('success', 'Research completetion has been added.');
     }
 
     /**
@@ -243,9 +209,6 @@ class CompletedController extends Controller
         if (auth()->id() !== $research->user_id)
             abort(403);
 
-        if(LockController::isLocked($research->id, 1)){
-            return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
-        }
         if(LockController::isLocked($completed->id, 2)){
             return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
         }
@@ -276,7 +239,11 @@ class CompletedController extends Controller
 
         $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', $research['status'])->first();
 
-        return view('research.completed.edit', compact('research', 'researchFields', 'researchDocuments', 'value', 'researchStatus', 'dropdown_options', 'currentQuarter'));
+        $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+
+        return view('research.completed.edit', compact('research', 'researchFields', 'researchDocuments', 'value', 'researchStatus', 'dropdown_options', 'currentQuarter', 'noRequisiteRecords'));
     }
 
     /**
@@ -335,12 +302,9 @@ class CompletedController extends Controller
 
         $imageRecord = ResearchDocument::where('research_id', $research->id)->get();
 
-        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
-
         if($imageChecker) return redirect()->route('research.completed.index')->with('warning', 'Need to attach supporting documents to enable submission');
-
-        return redirect()->route('research.completed.index', $research->id)->with('save_success', 'Research completetion has been updated.');
-
+        
+        return redirect()->route('research.index')->with('success', 'Research completetion has been updated.');
     }
 
     /**
