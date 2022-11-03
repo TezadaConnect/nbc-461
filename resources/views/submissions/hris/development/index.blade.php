@@ -61,6 +61,7 @@
                                                 <th>Title</th>
                                                 <th>Inclusive Date</th>
                                                 <th>Level</th>
+                                                <th>Status</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -71,34 +72,53 @@
                                                     <td>{{ $development->TrainingProgram }}</td>
                                                     <td>{{ date( 'F d, Y', strtotime($development->IncDateFrom)) }} - {{ date( 'F d, Y', strtotime($development->IncDateTo)) }}</td>
                                                     <td>{{ $development->Level }}</td>
+                                                    <td>Test Status</td>
                                                     <td>
                                                         <div class="btn-group" role="group" aria-label="button-group">
                                                             @if(in_array($development->EmployeeTrainingProgramID, $savedSeminars)||in_array($development->EmployeeTrainingProgramID, $savedTrainings))
                                                                 <a href="{{ route('submissions.development.show', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">View</a>
-                                                                <a href="{{ route('submissions.development.edit', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-warning d-inline-flex align-items-center">Edit</a>
-                                                                <button type="button" value="{{ $development->EmployeeTrainingProgramID }}" class="btn btn-sm btn-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-development="{{ $development->TrainingProgram }}">Delete</button>
                                                                 @if(isset($submissionStatus[25]))
                                                                     @if(isset($submissionStatus[25][$development->EmployeeTrainingProgramID]))
+                                                                        @if(in_array($submissionStatus[25][$development->EmployeeTrainingProgramID], array(0,2)))
+                                                                            <a href="{{ route('submissions.development.edit', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-warning d-inline-flex align-items-center">Edit</a>
+                                                                        @elseif ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 1 )
+                                                                            <button class="btn btn-sm btn-warning d-inline-flex align-items-center" onclick="cantEdit()">Edit</button>
+                                                                        @endif
                                                                         @if ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 0 )
                                                                             <a href="{{ route('submissions.development.check', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">Submit</a>
                                                                         @elseif ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 1 )
-                                                                            <a href="{{ route('submissions.development.check', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Submitted {{ $submitRole[$development->EmployeeTrainingProgramID] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                                                                            <!-- Go to landing page here --><a href="{{ route('reports.consolidate.myaccomplishments') }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Submitted {{ $submitRole[$development->EmployeeTrainingProgramID] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
                                                                         @elseif ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 2 )
                                                                             <a href="{{ route('submissions.development.edit', $development->EmployeeTrainingProgramID ) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> Certificate is Required</a>
                                                                         @endif
+                                                                        @if(in_array($submissionStatus[25][$development->EmployeeTrainingProgramID], array(0,2)))
+                                                                            <button type="button" value="{{ $development->EmployeeTrainingProgramID }}" class="btn btn-sm btn-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-development="{{ $development->TrainingProgram }}">Delete</button>
+                                                                        @elseif ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 1 )
+                                                                            <button type="button" class="btn btn-sm btn-danger d-inline-flex align-items-center" onclick="cantDelete()">Delete</button>
+                                                                        @endif 
                                                                     @endif
                                                                 @endif
                                                                 @if(isset($submissionStatus[26]))
                                                                     @if(isset($submissionStatus[26][$development->EmployeeTrainingProgramID]))
+                                                                        @if(in_array($submissionStatus[25][$development->EmployeeTrainingProgramID], array(0,2)))
+                                                                            <a href="{{ route('submissions.development.edit', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-warning d-inline-flex align-items-center">Edit</a>
+                                                                        @elseif ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 1 )
+                                                                            <button class="btn btn-sm btn-warning d-inline-flex align-items-center" onclick="cantEdit()">Edit</button>
+                                                                        @endif
                                                                         @if ( $submissionStatus[26][$development->EmployeeTrainingProgramID] == 0)
                                                                             <a href="{{ route('submissions.development.check', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">Submit</a>
                                                                         @elseif ($submissionStatus[26][$development->EmployeeTrainingProgramID] == 1)
-                                                                            <a href="{{ route('submissions.development.check', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Submitted {{ $submitRole[$development->EmployeeTrainingProgramID] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                                                                            <!-- Go to landing page here --><a href="{{ route('reports.consolidate.myaccomplishments') }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Submitted {{ $submitRole[$development->EmployeeTrainingProgramID] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
                                                                         @elseif ($submissionStatus[26][$development->EmployeeTrainingProgramID] == 2)
                                                                             <a href="{{ route('submissions.development.edit', $development->EmployeeTrainingProgramID ) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> Certificate is Required</a>
                                                                         @endif
+                                                                        @if(in_array($submissionStatus[25][$development->EmployeeTrainingProgramID], array(0,2)))
+                                                                            <button type="button" value="{{ $development->EmployeeTrainingProgramID }}" class="btn btn-sm btn-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-development="{{ $development->TrainingProgram }}">Delete</button>
+                                                                        @elseif ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 1 )
+                                                                            <button type="button" class="btn btn-sm btn-danger d-inline-flex align-items-center" onclick="cantDelete()">Delete</button>
+                                                                        @endif 
                                                                     @endif
-                                                                @endif
+                                                                @endif                                                               
                                                             @else
                                                                 <a href="{{ route('submissions.development.add', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Add</a>
                                                                 <button type="button" value="{{ $development->EmployeeTrainingProgramID }}" class="btn btn-sm btn-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-development="{{ $development->TrainingProgram }}">Delete</button>
@@ -153,6 +173,24 @@
                     $(this).remove();
                 });
             }, 4000);
+
+            function cantEdit() {
+                // alert("Cannot be edited once submitted. Please request to return the accomplishment to be edited.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot be edited once submitted.',
+                    text: 'Please request to return the accomplishment to be edited.'
+                });
+            }
+
+            function cantDelete() {
+                // alert("Cannot be deleted once submitted. Please request to return the accomplishment if you wish to delete it.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot be deleted once submitted.',
+                    text: 'Please request to return the accomplishment if you wish to delete it.'
+                });
+            }
 
              //Item to delete to display in delete modal
             var deleteModal = document.getElementById('deleteModal')
