@@ -10,15 +10,19 @@
         <link rel="icon" href="{{ url('favicon.ico') }}">
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
+
         <!-- Styles -->
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css"/>
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.1/css/dataTables.bootstrap4.min.css"/>
+        <link rel="stylesheet" href="{{ asset('dist/markdown-toolbar.css') }}" type="text/css" />
         <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css" rel="stylesheet" />
         <link href="https://unpkg.com/filepond-plugin-file-poster/dist/filepond-plugin-file-poster.css" rel="stylesheet" />
         <link href="https://unpkg.com/filepond/dist/filepond.min.css" rel="stylesheet" />
+        <link href="{{ asset('lightbox2/dist/css/lightbox.css') }}" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"> <!--added-->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css"/>
-  
+        <link rel="stylesheet" href="{{ asset('dist/selectize.bootstrap4.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+
         <!-- Scripts -->
         <script src="https://kit.fontawesome.com/b22b0c1d67.js" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -28,29 +32,24 @@
         <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
         <script src="https://unpkg.com/filepond-plugin-image-exif-orientation/dist/filepond-plugin-image-exif-orientation.min.js"></script>
         <script src="https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.min.js"></script>
+        <script src="{{ asset('lightbox2/dist/js/lightbox.js') }}"></script>
         <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
-        <!-- JavaScript Bundle with Popper -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+         <!-- JavaScript Bundle with Popper -->
+         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+        <script src="{{ asset('js/app.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
         <!-- Bootstrap Datepicker Resources -->
         <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
         <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script> -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
-
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css"/>
 
         {{-- LOCAL DEPENDENCIES CSS--}}
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/selectize.bootstrap4.css') }}">
-        <link rel="stylesheet" href="{{ asset('lightbox2/dist/css/lightbox.css') }}" />
-        <link rel="stylesheet" href="{{ asset('dist/markdown-toolbar.css') }}" type="text/css" />
         <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}">
     
         {{-- LOCAL DEPENDENCIES SCRIPTS--}}
-        <script src="{{ asset('js/app.js') }}"></script>
-        <script src="{{ asset('lightbox2/dist/js/lightbox.js') }}"></script>
         <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
-
-
     </head>
     <body class="font-sans antialiased bg-light" style="background-image: {{ URL('storage/cover2.png') }}">
         <div id="loading">
@@ -204,6 +203,14 @@
         });
     }
   
+    if("{{ Session::has('cannot_access'); }}"){
+        Swal.fire({
+            title: "Oops!",
+            text: "{{ Session::get('cannot_access'); }}",
+            confirmButtonColor: '#38c172',
+            icon: "warning"
+        });
+    }
 </script>
 
 

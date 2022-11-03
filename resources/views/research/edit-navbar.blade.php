@@ -23,7 +23,7 @@
                         @default
                     @endswitch
                         
-                    @if ($noRequisiteRecords[1] != null)
+                    @if ($noRequisiteRecords[1]== true)
                     @canany(['viewAny','create', 'update'], App\Models\ResearchPresentation::class)
                     <li class="nav-sub-menu">
                         <a href="{{ route('research.presentation', $research_code) }}" class="text-dark {{ request()->routeIs('research.presentation.*') ? 'active' : '' }}">
@@ -33,7 +33,7 @@
                     @endcanany
                     @endif
 
-                    @if ($noRequisiteRecords[2] != null)
+                    @if ($noRequisiteRecords[2]== true)
                     @canany(['viewAny','create', 'update'], App\Models\ResearchPublication::class)
                     <li class="nav-sub-menu">
                         <a href="{{ route('research.publication', $research_code) }}" class="text-dark {{ request()->routeIs('research.publication.*') ? 'active' : '' }}">
@@ -43,7 +43,7 @@
                     @endcanany
                     @endif
 
-                    @if ($noRequisiteRecords[3] != null)
+                    @if ($noRequisiteRecords[3]== true)
                     @canany(['viewAny','create', 'update'], App\Models\ResearchCopyright::class)
                     <li class="nav-sub-menu">
                         <a href="{{ route('research.copyright', $research_code) }}" class="text-dark {{ request()->routeIs('research.copyrighted.*') ? 'active' : '' }}">
@@ -53,17 +53,19 @@
                     @endcanany
                     @endif
                     
-                    @canany(['viewAny','create', 'update'], App\Models\ResearchCitation::class)
-                    <li class="nav-sub-menu">
-                        <a href="{{ route('research.citation.index', $research_code) }}" class="text-dark {{ request()->routeIs('research.citation.*') ? 'active' : '' }}">
-                            {{ __('Citations') }}
-                        </a >
-                    </li>
-                    @endcanany
+                    @if ($research_status >= '30')
+                        @canany(['viewAny','create', 'update'], App\Models\ResearchCitation::class)
+                        <li class="nav-sub-menu">
+                            <a href="{{ route('research.citation.index', $research_code) }}" class="text-dark {{ request()->routeIs('research.citation.*') ? 'active' : '' }}">
+                                {{ __('Citations') }}
+                            </a >
+                        </li>
+                        @endcanany
+                    @endif
 
                     @canany(['viewAny','create', 'update', 'delete'], App\Models\ResearchUtilization::class)
                     <li class="nav-sub-menu">
-                        <a href="{{ route('research.utilization.index', $research_code) }}" class="text-dark {{ request()->routeIs('research.utilization.*') ? 'active' : '' }}">
+                        <a href="{{ route('research.utilization.showAll', [$research_code, 'for-updates']) }}" class="text-dark {{ request()->routeIs('research.utilization.*') ? 'active' : '' }}">
                             {{ __('Utilizations') }}
                         </a >
                     </li>

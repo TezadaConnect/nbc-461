@@ -52,15 +52,7 @@
                                                     </td>
                                                     <td>
                                                         <div class="btn-group" role="group" aria-label="button-group">
-                                            
                                                             <a href="{{ route('research.utilization.show', [$research->id, $utilization->id]) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">View</a>
-                                                            @if ($submissionStatus[6][$utilization->id] == 0)
-                                                                <a href="{{ url('submissions/check/6/'.$utilization->id) }}" class="btn btn-sm btn-primary">Submit</a>
-                                                            @elseif ($submissionStatus[6][$utilization->id] == 1)
-                                                                <a href="{{ url('submissions/check/6/'.$utilization->id) }}" class="btn btn-sm btn-success">Submitted {{ $submitRole[$utilization->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
-                                                            @elseif ($submissionStatus[6][$utilization->id] == 2)
-                                                                <a href="{{ route('research.utilization.edit', [$research->id, $utilization->id]) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> No Document</a>
-                                                            @endif   
                                                         </div>     
                                                     </td>
                                                 </tr>
@@ -76,6 +68,7 @@
         </div>
     </div>
     {{-- Delete Form Modal --}}
+    @isset($utilization->id)
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -86,8 +79,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <h5 class="text-center">Are you sure you want to delete this research?</h5>
-                    <form action="{{ route('research.destroy', $research->id) }}" method="POST">
+                    <h5 class="text-center">Are you sure you want to delete this utilization record?</h5>
+                    <form action="{{ route('research.utilization.destroy', [$research->id, $utilization->id]) }}" method="POST">
                         @csrf
                         @method('delete')
                 </div>
@@ -99,6 +92,7 @@
             </div>
         </div>
     </div>
+    @endif
 @push('scripts')
     <script type="text/javascript" src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.11.1/js/dataTables.bootstrap4.min.js"></script>

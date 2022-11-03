@@ -3,7 +3,7 @@
         @section('title', 'Research/Book Chapter Citations |')
         <div class="row">
             <div class="col-md-12">
-                <h3 class="font-weight-bold mr-2">Citations of {{ $research->title }}</h3>
+                <h3 class="font-weight-bold mr-2">{{ $actionKeyword == 'for-submission' ? 'Submit ' : 'Edit ' }}Citations of {{ $research->title }}</h3>
                 <div class="mb-3">
                     <a class="back_link" href="{{ route('research.index') }}"><i class="bi bi-chevron-double-left"></i>Back to Research Main Page</a>
                 </div>
@@ -55,10 +55,20 @@
                                                         {{ $citation->report_year }}
                                                     </td>
                                                     <td>
+                                                        @if ($actionKeyword == 'for-submission')
+                                                            @if ($submissionStatus[5][$citation->id] == 0)
+                                                                <a href="{{ url('submissions/check/5/'.$citation->id) }}" class="btn btn-sm btn-primary">Submit</a>
+                                                            @elseif ($submissionStatus[5][$citation->id] == 1)
+                                                                <a href="{{ url('submissions/check/5/'.$citation->id) }}" class="btn btn-sm btn-success">Submitted {{ $submitRole[$citation->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                                                            @elseif ($submissionStatus[5][$citation->id] == 2)
+                                                                <a href="{{ route('research.citation.edit', [$research->id, $citation->id]) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> No Document</a>
+                                                            @endif 
+                                                        @else
                                                         <div class="btn-group" role="group" aria-label="button-group">
                                                             <a href="{{ route('research.citation.edit', [$research->id, $citation->id]) }}" class="btn btn-sm btn-warning d-inline-flex align-items-center">Edit</a>
                                                             <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteModal">Delete</button>   
                                                         </div>   
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             @endforeach

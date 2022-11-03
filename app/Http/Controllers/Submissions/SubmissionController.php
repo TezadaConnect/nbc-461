@@ -2490,7 +2490,7 @@ class SubmissionController extends Controller
     public function check($report_category_id, $accomplishment_id){
         $currentQuarterYear = Quarter::find(1);
         if(LockController::isLocked($accomplishment_id, $report_category_id))
-            return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
+            return redirect()->back()->with('cannot_access', 'Accomplishment was already submitted!');
 
         if ($report_category_id != 33) {
             $reportdata = new ReportDataController;
@@ -2501,7 +2501,7 @@ class SubmissionController extends Controller
         $research_code = '*';
         $research_id = '*';
         if($report_category_id >= 1 && $report_category_id <= 7){
-            $research_nature_of_involvement = Research::find($accomplishment_id)->nature_of_involvement;
+            // $research_nature_of_involvement = Research::find($accomplishment_id)->nature_of_involvement;
             // dd($research_nature_of_involvement);
             
             // if($research_nature_of_involvement != 11 && $research_nature_of_involvement != 224){
@@ -3177,7 +3177,7 @@ class SubmissionController extends Controller
     private function returnSuccessMessage($category) { // <<----------- Report category id
         switch($category){
             case 1: case 2: case 3: case 4: case 5: case 6: case 7:  // Researchs
-                return redirect()->back()->with('submit_success', 'Accomplisment has been endorsed to your RESEARCH/COORDINATOR/DIRECTOR for validation.');
+                return redirect()->back()->with('submit_success', 'Accomplisment has been endorsed to your RESEARCH COORDINATOR/DIRECTOR for validation.');
             case 12: case 13: case 14: case 23: case 34: case 35: case 36: case 37: // Extesnsions
                 return redirect()->back()->with('submit_success', 'Accomplisment has been endorsed to your EXTENSION COORDINATOR/DIRECTOR for validation.');
             default: // Others

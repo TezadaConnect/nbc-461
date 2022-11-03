@@ -166,7 +166,7 @@ class CopyrightedController extends Controller
 
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        if($imageChecker) return redirect()->route('research.copyrighted.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
         return redirect()->route('research.index')->with('success', 'Research copyright has been added.');
     }

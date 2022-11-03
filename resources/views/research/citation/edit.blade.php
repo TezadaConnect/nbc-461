@@ -9,7 +9,7 @@
         @section('title', 'Research/Book Chapter Utilizations |')
         <div class="row">
             <div class="col-md-12">
-                <h3 class="font-weight-bold mr-2">Edit Research/Book Chapter Citation</h3>
+                <h3 class="font-weight-bold mr-2">Edit Citation {{ isset($research['title']) ? 'for '.$research['title'] : '' }}</h3>
                 <div class="mb-3">
                     <a class="back_link" href="{{ route('research.citation.index', $research['id']) }}"><i class="bi bi-chevron-double-left"></i>Return to Citation Main Page</a>
                 </div>

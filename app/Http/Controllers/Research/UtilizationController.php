@@ -133,7 +133,7 @@ class UtilizationController extends Controller
 
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        if($imageChecker) return redirect()->route('research.utilization.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
         return redirect()->route('research.index')->with('success', 'Research utilization has been added.');
     }
@@ -287,9 +287,9 @@ class UtilizationController extends Controller
 
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
 
-        if($imageChecker) return redirect()->route('research.utilization.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        return redirect()->route('research.utilization.index', [$research->id, $utilization->id])->with('save_success', 'Research Utilization has been updated.');
+        return redirect()->route('research.index')->with('success', 'Research utilization has been updated.');
     }
 
     /**
@@ -301,9 +301,6 @@ class UtilizationController extends Controller
     public function destroy(Research $research, ResearchUtilization $utilization)
     {
         $this->authorize('delete', ResearchUtilization::class);
-        if(LockController::isLocked($research->id, 1)){
-            return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
-        }
         if(LockController::isLocked($utilization->id, 6)){
             return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
         }
@@ -316,15 +313,17 @@ class UtilizationController extends Controller
 
         LogActivity::addToLog('Had deleted a research utilization of "'.$research->title.'".');
 
-        return redirect()->route('research.utilization.index', $research->id)->with('success', 'Research utilization has been deleted.');
+        return redirect()->route('research.index', $research->id)->with('success', 'Research utilization has been deleted.');
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource and enable actions for the resource.
      *
+     * @param Int $researchID
+     * @param String $actionKeyword which has two values: for-updates and for-submission; to be used in appearance of action buttons
      * @return \Illuminate\Http\Response
      */
-    public function showAll($researchId)
+    public function showAll($researchId, $actionKeyword)
     {
         $this->authorize('viewAny', ResearchUtilization::class);;
 
@@ -345,6 +344,6 @@ class UtilizationController extends Controller
         }
 
         return view('research.utilization.show-all', compact('research', 'utilizationRecords',
-            'currentQuarterYear', 'submissionStatus', 'submitRole'));
+            'currentQuarterYear', 'submissionStatus', 'submitRole', 'actionKeyword'));
     }
 }

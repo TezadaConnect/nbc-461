@@ -307,11 +307,13 @@ class CitationController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+    * Display a listing of the resource and enable actions for the resource.
      *
+     * @param Int $researchID
+     * @param String $actionKeyword which has two values: for-updates and for-submission; to be used in appearance of action buttons
      * @return \Illuminate\Http\Response
      */
-    public function showAll($researchId)
+    public function showAll($researchId, $actionKeyword)
     {
         $this->authorize('viewAny', ResearchCitation::class);
 
@@ -332,6 +334,6 @@ class CitationController extends Controller
         }
 
         return view('research.citation.show-all', compact('research', 'citationRecords',
-            'currentQuarterYear', 'submissionStatus', 'submitRole'));
+            'currentQuarterYear', 'submissionStatus', 'submitRole', 'actionKeyword'));
     }
 }

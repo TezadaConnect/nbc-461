@@ -11,24 +11,34 @@
                 <div class="dropdown-divider"></div>
                 @break
             @case('28')
-            <a class="dropdown-item" href="{{ route('research.presentation', $research_id ) }}"><i class="bi bi-laptop"></i> Mark as Presented</a>
+                <a class="dropdown-item" href="{{ route('research.presentation', $research_id ) }}"><i class="bi bi-laptop"></i> Mark as Presented</a>
                 <a class="dropdown-item" href="{{ route('research.publication', $research_id ) }}"><i class="bi bi-paperclip"></i> Mark as Published</a>
+                @if ($copyrightRecord[$research->id] == null)
+                    <a class="dropdown-item" href="{{ route('research.copyright', $research_id ) }}"><i class="bi bi-paperclip"></i> Add Copyright Details</a>
+                @endif
                 @break
             @case('29')
                 <a class="dropdown-item" href="{{ route('research.publication', $research_id ) }}"><i class="bi bi-paperclip"></i> Mark as Published</a>
+                <a class="dropdown-item" href="{{ route('research.copyright', $research_id ) }}"><i class="bi bi-paperclip"></i> Add Copyright Details</a>
                 @break
             @case('30')
                 <a class="dropdown-item" href="{{ route('research.presentation', $research_id ) }}"><i class="bi bi-laptop"></i> Mark as Presented</a>
+                @if ($copyrightRecord[$research->id] == null)
+                    <a class="dropdown-item" href="{{ route('research.copyright', $research_id ) }}"><i class="bi bi-paperclip"></i> Add Copyright Details</a>
+                @endif
                 <a class="dropdown-item" href="{{ route('research.citation.create', $research_id) }}"><i class="bi bi-blockquote-left"></i> Add Citation</a>
                 @break
                 @case('31')
                 {{-- Presented.Published --}}
+                @if ($copyrightRecord[$research->id] == null)
+                    <a class="dropdown-item" href="{{ route('research.copyright', $research_id ) }}"><i class="bi bi-paperclip"></i> Add Copyright Details</a>
+                @endif
                 <a class="dropdown-item" href="{{ route('research.citation.create', $research_id) }}"><i class="bi bi-blockquote-left"></i> Add Citation</a>
                 @break
                 @default
             @endswitch
         <a class="dropdown-item" href="{{ route('research.utilization.create', $research_id) }}"><i class="bi bi-gear"></i> Add Utilization</a>
-        @if ($involvement != 224 && $research_id == $firstResearch[$research_id])
+        @if ($involvement != 224 && $research_id == $firstResearch->id)
             <div class="dropdown-divider"></div>
             <a class="dropdown-item {{$submissionStatus[1][$research_id] == 1 ? 'disabled' : '' }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Tooltip on bottom" href="{{ route('research.invite.index', $research->id) }}">Tag Coresearchers</a>
         @endif
@@ -49,56 +59,69 @@
         @else
             -
         @endif 
-        <!-- Completion -->
-        @if ($completionRecord[$research->id] != null)
-            @if ($submissionStatus[2][$completionRecord[$research->id]['id']] == 0)
-                <a href="{{ url('submissions/check/2/'.$completionRecord[$research->id]['id']) }}" class="dropdown-item">Submit Completion Record</a>
-            @elseif ($submissionStatus[2][$completionRecord[$research->id]['id']] == 1)
-                <a href="{{ url('submissions/check/2/'.$completionRecord[$research->id]['id']) }}" class="dropdown-item text-success">Completion Submitted {{ $submitRole[$completionRecord[$research->id]['id']] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
-            @elseif ($submissionStatus[2][$completionRecord[$research->id]['id']] == 2)
-                <a href="{{ route('research.complete', $completionRecord[$research->id]['id']) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Completion - No Document</a>
-            @else
-                -
+        @if ($isSubmitted['regi'][$research->id])
+            <!-- Completion -->
+            @if ($completionRecord[$research->id] != null)
+                @if ($submissionStatus[2][$completionRecord[$research->id]['id']] == 0)
+                    <a href="{{ url('submissions/check/2/'.$completionRecord[$research->id]['id']) }}" class="dropdown-item">Submit Completion Record</a>
+                @elseif ($submissionStatus[2][$completionRecord[$research->id]['id']] == 1)
+                    <a href="{{ url('submissions/check/2/'.$completionRecord[$research->id]['id']) }}" class="dropdown-item text-success">Completion Submitted {{ $submitRole[$completionRecord[$research->id]['id']] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                @elseif ($submissionStatus[2][$completionRecord[$research->id]['id']] == 2)
+                    <a href="{{ route('research.complete', $completionRecord[$research->id]['id']) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Completion - No Document</a>
+                @else
+                    -
+                @endif
             @endif
         @endif
-        <!-- Presentation -->
-        @if ($presentationRecord[$research->id] != null)
-            @if ($submissionStatus[4][$presentationRecord[$research->id]['id']] == 0)
-                <a href="{{ url('submissions/check/4/'.$presentationRecord[$research->id]['id']) }}" class="dropdown-item">Submit Presentation Record</a>
-            @elseif ($submissionStatus[4][$presentationRecord[$research->id]['id']] == 1)
-                <a href="{{ url('submissions/check/4/'.$presentationRecord[$research->id]['id']) }}" class="dropdown-item text-success">Presentation Submitted {{ $submitRole[$presentationRecord[$research->id]['id']] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
-            @elseif ($submissionStatus[4][$presentationRecord[$research->id]['id']] == 2)
-                <a href="{{ route('research.complete', $presentationRecord[$research->id]['id']) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Presentation - No Document</a>
-            @else
-                -
+        @if ($isSubmitted['completion'][$research->id])
+            <!-- Presentation -->
+            @if ($presentationRecord[$research->id] != null)
+                @if ($submissionStatus[4][$presentationRecord[$research->id]['id']] == 0)
+                    <a href="{{ url('submissions/check/4/'.$presentationRecord[$research->id]['id']) }}" class="dropdown-item">Submit Presentation Record</a>
+                @elseif ($submissionStatus[4][$presentationRecord[$research->id]['id']] == 1)
+                    <a href="{{ url('submissions/check/4/'.$presentationRecord[$research->id]['id']) }}" class="dropdown-item text-success">Presentation Submitted {{ $submitRole[$presentationRecord[$research->id]['id']] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                @elseif ($submissionStatus[4][$presentationRecord[$research->id]['id']] == 2)
+                    <a href="{{ route('research.complete', $presentationRecord[$research->id]['id']) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Presentation - No Document</a>
+                @else
+                    -
+                @endif
+            @endif
+            <!-- Publication -->
+            @if ($publicationRecord[$research->id] != null)
+                @if ($submissionStatus[3][$publicationRecord[$research->id]['id']] == 0)
+                    <a href="{{ url('submissions/check/3/'.$publicationRecord[$research->id]['id']) }}" class="dropdown-item">Submit Publication Record</a>
+                @elseif ($submissionStatus[3][$publicationRecord[$research->id]['id']] == 1)
+                    <a href="{{ url('submissions/check/3/'.$publicationRecord[$research->id]['id']) }}" class="dropdown-item text-success">Publication Submitted {{ $submitRole[$publicationRecord[$research->id]['id']] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                @elseif ($submissionStatus[3][$publicationRecord[$research->id]['id']] == 2)
+                    <a href="{{ route('research.complete', $publicationRecord[$research->id]['id']) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Publication - No Document</a>
+                @else
+                    -
+                @endif
+            @endif
+            <!-- Copyright -->
+            @if ($copyrightRecord[$research->id] != null)
+                @if ($submissionStatus[7][$copyrightRecord[$research->id]['id']] == 0)
+                    <a href="{{ url('submissions/check/7/'.$copyrightRecord[$research->id]['id']) }}" class="dropdown-item">Submit Copyright Record</a>
+                @elseif ($submissionStatus[7][$copyrightRecord[$research->id]['id']] == 1)
+                    <a href="{{ url('submissions/check/7/'.$copyrightRecord[$research->id]['id']) }}" class="dropdown-item text-success"> Copyright Submitted {{ $submitRole[$copyrightRecord[$research->id]['id']] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                @elseif ($submissionStatus[7][$copyrightRecord[$research->id]['id']] == 2)
+                    <a href="{{ route('research.copyrighted.edit', [$research->id, $copyrightRecord[$research->id]['id']]) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Copyright - No Document</a>
+                @else
+                    - 
+                @endif  
             @endif
         @endif
-        <!-- Publication -->
-        @if ($publicationRecord[$research->id] != null)
-            @if ($submissionStatus[3][$publicationRecord[$research->id]['id']] == 0)
-                <a href="{{ url('submissions/check/3/'.$publicationRecord[$research->id]['id']) }}" class="dropdown-item">Submit Publication Record</a>
-            @elseif ($submissionStatus[3][$publicationRecord[$research->id]['id']] == 1)
-                <a href="{{ url('submissions/check/3/'.$publicationRecord[$research->id]['id']) }}" class="dropdown-item text-success">Publication Submitted {{ $submitRole[$publicationRecord[$research->id]['id']] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
-            @elseif ($submissionStatus[3][$publicationRecord[$research->id]['id']] == 2)
-                <a href="{{ route('research.complete', $publicationRecord[$research->id]['id']) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Publication - No Document</a>
-            @else
-                -
+
+        @isset($citationRecord)
+            @if ($citationRecord[$research->id] != null)
+                <a class="dropdown-item" href="{{ route('research.citation.index', $research->id) }}">Submit Citations</a>
             @endif
+        @endisset
+        @isset($utilRecord)
+        @if ($utilRecord[$research->id] != null)
+            <a class="dropdown-item" href="{{ route('research.utilization.showAll', [$research->id, 'for-submission']) }}">Submit Utilizations</a>
         @endif
-        <!-- Copyright -->
-        @if ($copyrightRecord[$research->id] != null)
-            @if ($submissionStatus[7][$copyrightRecord[$research->id]['id']] == 0)
-                <a href="{{ url('submissions/check/7/'.$copyrightRecord[$research->id]['id']) }}" class="dropdown-item">Submit Copyright Record</a>
-            @elseif ($submissionStatus[7][$copyrightRecord[$research->id]['id']] == 1)
-                <a href="{{ url('submissions/check/7/'.$copyrightRecord[$research->id]['id']) }}" class="dropdown-item text-success"> Copyright Submitted {{ $submitRole[$copyrightRecord[$research->id]['id']] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
-            @elseif ($submissionStatus[7][$copyrightRecord[$research->id]['id']] == 2)
-                <a href="{{ route('research.complete', $copyrightRecord[$research->id]['id']) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Copyright - No Document</a>
-            @else
-                - 
-            @endif  
-        @endif
-        <a class="dropdown-item" href="{{ route('research.citation.index', $research->id) }}">Submit Citations</a>
-        <a class="dropdown-item" href="{{ route('research.utilization.index', $research->id) }}">Submit Utilizations</a>
+        @endisset
     </div>
 </div>
 

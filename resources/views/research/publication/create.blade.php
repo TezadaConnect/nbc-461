@@ -5,7 +5,7 @@
                 @section('title', 'Research/Book Chapter Publication |')
                 <div class="row">
                     <div class="col-md-12">
-                        <h3 class="font-weight-bold mr-2">Add Research/Book Chapter Publication</h3>
+                        <h3 class="font-weight-bold mr-2">Add Publication Details {{ isset($research['title']) ? 'of '.$research['title'] : '' }}</h3>
                         <div class="mb-3">
                             <a class="back_link" href="{{ route('research.index') }}"><i class="bi bi-chevron-double-left"></i>Return to Research Main Page</a>
                         </div>

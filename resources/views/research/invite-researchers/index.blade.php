@@ -18,21 +18,12 @@
                         {{ $message }}
                     </div>
                 @endif
+                <h3 class="font-weight-bold mb-2">Tagged Coresearchers for {{ $research['title'] }}</h3>
+                <p>
+                    <a class="back_link" href="{{ route('research.index') }}"><i class="bi bi-chevron-double-left"></i>Return to Research Main Page</a>
+                </p>
                 <div class="card">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h4>Tagged Co-Researchers for {{ $research['title'] }}</h4>
-                            </div>
-                            <div class="col-md-6 text-right">
-                                <div class="mb-0">
-                                    {{-- <div class="d-flex justify-content-end align-items-baseline">
-                                        @include('research.options', ['research_id' => $research->id, 'research_status' => $research->status, 'involvement' => $research->nature_of_involvement, 'research_code' => $research->research_code])
-                                    </div> --}}
-                                </div>
-                            </div>
-                        </div>
-                        <hr>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-0">

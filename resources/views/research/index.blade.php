@@ -7,21 +7,6 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                {{-- Success Message --}}
-                @if ($message = Session::get('success'))
-                <div class="alert alert-success alert-index">
-                    <i class="bi bi-check-circle"></i> {{ $message }}
-                </div>
-                @elseif ($message = Session::get('code-missing'))
-                <div class="alert alert-danger alert-index">
-                    {{ $message }}
-                </div>
-                @endif
-                @if ($message = Session::get('cannot_access'))
-                    <div class="alert alert-danger alert-index">
-                        {{ $message }}
-                    </div>
-                @endif
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="row">
@@ -48,11 +33,9 @@
                                 <div class="alert alert-info" role="alert">
                                     <i class="bi bi-lightbulb-fill"></i> <strong>Instructions & Reminders: </strong> <br>
                                     <div class="ml-3">
-                                        &#8226; Click on the row to View/Edit/Delete/Submit Research. <br>
-                                        &#8226; Only the <strong>Lead Researcher</strong> can register the research. You must tag your co-researchers to share them the research you encode. <br>
-                                        &#8226; If you are a <strong>Lead Researcher</strong>, tag your co-researchers before submitting. <br>
-                                        <span class="ml-3"><i class="bi bi-arrow-right ml-1"></i></i> Click "Tag Co-researchers" button after you encode and view the research.</span><br>
-                                        &#8226; If you are a <strong>Co-Researcher</strong>, check your <strong>notifications</strong> or click the "Research to Add" button to <strong>confirm and add</strong> the research registered by your Lead Researcher. <br>
+                                        &#8226; <strong>If you registered the research</strong>, tag your co-researchers before submitting. <br>
+                                        <span class="ml-3"><i class="bi bi-arrow-right ml-1"></i></i> On "Other Options", click "Tag Coresearchers".</span><br>
+                                        &#8226; If you are a <strong>Co-Researcher</strong>, click the "Research to Add" button to complete the research details. <br>
                                         &#8226; Once you <strong>submit</strong> an accomplishment, you are <strong>not allowed to edit</strong> until the quarter period ends. <br>
                                         &#8226; Submit your accomplishments for the <strong>Quarter {{ $currentQuarterYear->current_quarter }}</strong> on or before 
                                             <?php
@@ -88,7 +71,7 @@
                                                         <div class="btn-group" role="group" aria-label="button-group">
                                                             <a class="btn btn-sm btn-primary d-inline-flex align-items-center" href="{{ route('research.show', $research->id) }}">View</a>
                                                             <a class="btn btn-sm btn-warning d-inline-flex align-items-center" href="{{ route('research.edit', $research->id) }}">Edit</a>
-                                                            @include('research.options', ['research_id' => $research->id, 'research_status' => $research->status, 'involvement' => $research->nature_of_involvement, 'research_code' => $research->research_code, 'firstResearch' => $firstResearch[$research->id]])
+                                                            @include('research.options', ['research_id' => $research->id, 'research_status' => $research->status, 'involvement' => $research->nature_of_involvement, 'research_code' => $research->research_code, 'firstResearch' => $firstResearch[$research->id], 'isSubmitted' => $isSubmitted ])
                                                         </div>
                                                     </td>
                                                 </tr>

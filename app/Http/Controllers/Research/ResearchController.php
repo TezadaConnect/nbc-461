@@ -43,7 +43,6 @@ use App\Notifications\ResearchInviteNotification;
 use App\Rules\Keyword;
 use App\Services\CommonService;
 use App\Services\DateContentService;
-use App\Services\CommonService;
 use Exception;
 
 class ResearchController extends Controller
@@ -82,15 +81,19 @@ class ResearchController extends Controller
         $completionRecord = array();                
         $presentationRecord = array();                
         $publicationRecord = array();                
-        $copyrightRecord = array();                
+        $copyrightRecord = array();               
         foreach ($researches as $row){
+            $isSubmitted['regi'][$row->id] = false;            
+            $isSubmitted['completion'][$row->id] = false;            
             $firstResearch[$row->id] = Research::where('research_code', $row->research_code)->first();
             // Research Registration
+            $isSubmitted['regi'][$row->id] = LockController::isReportSubmitted($row->id, 1);
             $submissionStatus[1][$row->id] = $this->commonService->getSubmissionStatus($row->id, 1)['submissionStatus'];
             $submitRole[$row->id] = $this->commonService->getSubmissionStatus($row->id, 1)['submitRole'];
             // Research Completion
             $completionRecord[$row->id] = ResearchComplete::where('research_code', $row->research_code)->first();
             if ($completionRecord[$row->id] != null) {
+                $isSubmitted['completion'][$row->id] = LockController::isReportSubmitted($completionRecord[$row->id]['id'], 2);
                 $submissionStatus[2][$completionRecord[$row->id]['id']] = $this->commonService->getSubmissionStatus($completionRecord[$row->id]['id'], 2)['submissionStatus'];
                 $submitRole[$completionRecord[$row->id]['id']] = $this->commonService->getSubmissionStatus($completionRecord[$row->id]['id'], 2)['submitRole'];
             }
@@ -112,6 +115,12 @@ class ResearchController extends Controller
                 $submissionStatus[7][$copyrightRecord[$row->id]['id']] = $this->commonService->getSubmissionStatus($copyrightRecord[$row->id]['id'], 7)['submissionStatus'];
                 $submitRole[$copyrightRecord[$row->id]['id']] = $this->commonService->getSubmissionStatus($copyrightRecord[$row->id]['id'], 7)['submitRole'];
             }
+
+            // Research Citations
+            $citationRecord[$row->id] = ResearchCitation::where('research_code', $row->research_code)->first();
+
+            // Research Utiizations
+            $utilRecord[$row->id] = ResearchUtilization::where('research_code', $row->research_code)->first();
         }
 
         $invites = ResearchInvite::join('research', 'research.id', 'research_invites.research_id')
@@ -127,7 +136,7 @@ class ResearchController extends Controller
 
         return view('research.index', compact('researches', 'year', 'statusResearch', 'invites',
              'currentQuarterYear', 'submissionStatus', 'submitRole', 'firstResearch', 'completionRecord',
-            'publicationRecord', 'presentationRecord', 'copyrightRecord'));
+            'publicationRecord', 'presentationRecord', 'copyrightRecord', 'citationRecord', 'utilRecord', 'isSubmitted'));
     }
 
     /**
@@ -525,9 +534,9 @@ class ResearchController extends Controller
      */
     public static function getNoRequisites($row){
         $noRequisiteRecords = array();
-        $noRequisiteRecords[1] = ResearchPublication::where('research_code', $row->research_code)->first();
-        $noRequisiteRecords[2] = ResearchPresentation::where('research_code', $row->research_code)->first();
-        $noRequisiteRecords[3] = ResearchCopyright::where('research_code', $row->research_code)->first();
+        $noRequisiteRecords[1] = ResearchPublication::where('research_code', $row->research_code)->exists();
+        $noRequisiteRecords[2] = ResearchPresentation::where('research_code', $row->research_code)->exists();
+        $noRequisiteRecords[3] = ResearchCopyright::where('research_code', $row->research_code)->exists();
 
         return [
             'publicationRecord' => $noRequisiteRecords[1],
@@ -546,7 +555,7 @@ class ResearchController extends Controller
     public function update(Request $request, Research $research)
     {
         if(LockController::isLocked($research->id, 1)){
-            return redirect()->back()->with('cannot_access', 'Cannot be edited because you already committed this accomplishment. You can edit it again in the next quarter.');
+            return redirect()->back()->with('cannot_access', 'Accomplishment was already submitted!');
         }
         $currentQuarterYear = Quarter::find(1);
         if(ResearchForm::where('id', 1)->pluck('is_active')->first() == 0)
@@ -682,7 +691,7 @@ class ResearchController extends Controller
         $this->authorize('delete', Research::class);
 
         if(LockController::isLocked($research->id, 1)){
-            return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
+            return redirect()->back()->with('cannot_access', 'Accomplishment was already submitted!');
         }
         if(ResearchForm::where('id', 1)->pluck('is_active')->first() == 0)
         return view('inactive');
@@ -888,7 +897,7 @@ class ResearchController extends Controller
             return view('inactive');
         $research = Research::where('research_code', $research_code)->where('user_id', auth()->id())->first();
         if(LockController::isLocked($research->id, 1)){
-            return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
+            return redirect()->back()->with('cannot_access', 'Accomplishment was already submitted!');
         }
         $researchLead = Research::where('research_code', $research_code)->first()->toArray();
         $researchLead = collect($researchLead);
@@ -1063,7 +1072,7 @@ class ResearchController extends Controller
     public function removeSelf($research_code){
         $research_id = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
         if(LockController::isLocked($research_id, 1)){
-            return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
+            return redirect()->back()->with('cannot_access', 'Accomplishment was already submitted!');
         }
 
         Research::where('research_code', $research_code)->where('user_id', auth()->id())->delete();
