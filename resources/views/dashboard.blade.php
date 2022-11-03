@@ -25,7 +25,7 @@
                             @if (in_array(10, $roles))
                             <div class="db-col mb-2">
                                 <div class="db-card">
-                                    <h5 class="card-header text-center">Researcher</h5>
+                                    <h5 class="card-header text-center">Research Coord.</h5>
                                     <div class="card-body d-flex justify-content-center">
                                         @foreach ($department[10] as $value)
                                             @include('dashboard.researcher', ['countToReview' => $countToReview[10][$value->cluster_id], 'collegeCode' => $value->cluster_name ])
@@ -37,7 +37,7 @@
                             @if (in_array(11, $roles))
                             <div class="db-col mb-2">
                                 <div class="db-card">
-                                    <h5 class="card-header text-center">Extensionist</h5>
+                                    <h5 class="card-header text-center">Extension Coord.</h5>
                                     <div class="card-body d-flex justify-content-center">
                                         @foreach ($department[11] as $value)
                                             @include('dashboard.extensionist', ['countToReview' => $countToReview[11][$value->college_id], 'collegeCode' => $value->code ])

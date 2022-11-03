@@ -122,10 +122,9 @@ class ResearcherController extends Controller
         $report = Report::find($report_id);
 
         $receiverData = User::find($report->user_id);
-        $senderName = FacultyResearcher::join('colleges', 'colleges.id', 'faculty_researchers.college_id')
-                            ->join('users', 'users.id', 'faculty_researchers.user_id')
-                            ->where('faculty_researchers.college_id', $report->college_id)
-                            ->select('colleges.name as college_name', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
+        $senderName = FacultyResearcher::
+                            join('users', 'users.id', 'faculty_researchers.user_id')
+                            ->select('users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
                             ->first();
 
         $report_category_name = ReportCategory::where('id', $report->report_category_id)->pluck('name')->first();
@@ -134,7 +133,7 @@ class ResearcherController extends Controller
 
 
         $notificationData = [
-            'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->college_name.' Researcher)',
+            'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' (Research Coord.)',
             'receiver' => $receiverData->first_name,
             'url' => $url,
             'category_name' => $report_category_name,
@@ -181,10 +180,9 @@ class ResearcherController extends Controller
         $report = Report::find($report_id);
 
         $returnData = User::find($report->user_id);
-        $senderName = FacultyResearcher::join('colleges', 'colleges.id', 'faculty_researchers.college_id')
-                            ->join('users', 'users.id', 'faculty_researchers.user_id')
-                            ->where('faculty_researchers.college_id', $report->college_id)
-                            ->select('colleges.name as college_name', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
+        $senderName = FacultyResearcher::
+                            join('users', 'users.id', 'faculty_researchers.user_id')
+                            ->select('users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
                             ->first();
 
         $report_category_name = ReportCategory::where('id', $report->report_category_id)->pluck('name')->first();
@@ -193,7 +191,7 @@ class ResearcherController extends Controller
 
 
         $notificationData = [
-            'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->college_name.' Researcher)',
+            'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' (Research Coord.)',
             'receiver' => $returnData->first_name,
             'url' => $url,
             'category_name' => $report_category_name,
@@ -226,10 +224,9 @@ class ResearcherController extends Controller
             $report = Report::find($report_id);
 
             $receiverData = User::find($report->user_id);
-            $senderName = FacultyResearcher::join('colleges', 'colleges.id', 'faculty_researchers.college_id')
-                            ->join('users', 'users.id', 'faculty_researchers.user_id')
-                            ->where('faculty_researchers.college_id', $report->college_id)
-                            ->select('colleges.name as college_name', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
+            $senderName = FacultyResearcher::
+                            join('users', 'users.id', 'faculty_researchers.user_id')
+                            ->select('users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
                             ->first();
 
             $report_category_name = ReportCategory::where('id', $report->report_category_id)->pluck('name')->first();
@@ -238,7 +235,7 @@ class ResearcherController extends Controller
 
 
             $notificationData = [
-                'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->college_name.' Researcher)',
+                'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' (Research Coord.)',
                 'receiver' => $receiverData->first_name,
                 'url' => $url,
                 'category_name' => $report_category_name,
@@ -291,11 +288,9 @@ class ResearcherController extends Controller
             $report = Report::find($report_id);
 
             $returnData = User::find($report->user_id);
-            $senderName = FacultyResearcher::join('colleges', 'colleges.id', 'faculty_researchers.college_id')
-                            ->join('users', 'users.id', 'faculty_researchers.user_id')
-                            ->where('faculty_researchers.college_id', $report->college_id)
-                            ->select('colleges.name as college_name', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
-
+            $senderName = FacultyResearcher::
+                            join('users', 'users.id', 'faculty_researchers.user_id')
+                            ->select('users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
                             ->first();
 
             $report_category_name = ReportCategory::where('id', $report->report_category_id)->pluck('name')->first();
@@ -303,7 +298,7 @@ class ResearcherController extends Controller
             $url = route('reports.consolidate.myaccomplishments');
 
             $notificationData = [
-                'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->college_name.' Researcher)',
+                'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' (Research Coord)',
                 'receiver' => $returnData->first_name,
                 'url' => $url,
                 'category_name' => $report_category_name,

@@ -99,7 +99,7 @@ class ChairpersonController extends Controller
 
         foreach($reportsToReview as $report){
             if ($report->format == 'f') {
-                if($report->report_category_id >= 1 && $report->report_category_id <= 8){
+                if($report->report_category_id >= 1 && $report->report_category_id <= 7){
                     if($report->researcher_approval === 1){
                         $tempReports = $tempReports->push($report);
                     }

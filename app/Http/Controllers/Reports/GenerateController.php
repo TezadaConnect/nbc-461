@@ -12,6 +12,7 @@ use App\Exports\CollegeConsolidatedAccomplishmentReportExport;
 use App\Exports\CollegeLevelConsolidatedExport;
 use App\Exports\IPOAccomplishmentReportExport;
 use App\Exports\SectorAccomplishmentReportExport;
+use App\Exports\ResearchAccomplishmentReportExport;
 use App\Models\{
     Chairperson,
     Dean,
@@ -20,6 +21,7 @@ use App\Models\{
     Report,
     SectorHead,
     User,
+    FormBuilder\DropdownOption,
     Maintenance\College,
     Maintenance\Department,
     Maintenance\GenerateColumn,
@@ -86,6 +88,16 @@ class GenerateController extends Controller
                         ->whereNull('deans.deleted_at')->pluck('deans.college_id')->first();
                 $data = College::where('id', $request->input("college_id"))->first();
             }
+        }
+
+        if($request->input("level") == 'research'){
+            $cluster_id = $id;
+            $data = DropdownOption::where('id', $cluster_id)->first();
+        }
+
+        if($request->input("level") == 'extension'){
+            $cluster_id = $id;
+            $data = College::where('id', $cluster_id)->first();
         }
 
         $level = $request->input("level");
@@ -236,6 +248,34 @@ class GenerateController extends Controller
                 $type,
                 $q1,
                 $q2,
+                $year,
+            ),
+            $fileSuffix.'.xlsx');
+        } elseif ($level == 'research'){
+            $clusterName = $data->name;
+            $level = $request->level;
+            $year = $request->year_generate;
+            $fileSuffix = 'RESEARCH-QAR-'.strtoupper($clusterName).'-Y'.$year;
+
+            return Excel::download(new ResearchAccomplishmentReportExport(
+                $id,
+                $clusterName,
+                $level,
+                $year,
+            ),
+            $fileSuffix.'.xlsx');
+        }
+
+        elseif ($level == 'extension'){
+            $clusterName = $data->name;
+            $type = $request->type;
+            $year = $request->year_generate;
+            $fileSuffix = 'EXTENSION-QAR-'.strtoupper($clusterName).'-Y'.$year;
+
+            return Excel::download(new ResearchAccomplishmentReportExport(
+                $id,
+                $clusterName,
+                $type,
                 $year,
             ),
             $fileSuffix.'.xlsx');

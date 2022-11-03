@@ -30,7 +30,6 @@ class ResearchConsolidatedController extends Controller
         }
 
         $currentQuarterYear = Quarter::find(1);
-        $quarter = $currentQuarterYear->current_quarter;
         $year = $currentQuarterYear->current_year;
 
         $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
@@ -82,10 +81,9 @@ class ResearchConsolidatedController extends Controller
                           )
                 ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
                 ->join('users', 'users.id', 'reports.user_id')
-                ->whereIn('reports.report_category_id', [1, 2, 3, 4, 5, 6, 7, 8])
+                ->whereIn('reports.report_category_id', [1, 2, 3, 4, 5, 6, 7])
                 ->where('reports.report_year', $year)
-                ->where('reports.report_quarter', $quarter)
-                ->where('reports.college_id', $id)
+                ->where('reports.research_cluster_id', $id)
                 ->orderBy('reports.updated_at', 'DESC')
                 ->get();
         //get_department_and_college_name
@@ -112,11 +110,11 @@ class ResearchConsolidatedController extends Controller
         return view(
                     'reports.consolidate.research',
                     compact('roles', 'departments', 'colleges', 'department_accomps', 'department' , 'department_names',
-                        'college_names', 'sectors', 'departmentsResearch', 'departmentsExtension', 'year', 'quarter', 'id', 'collegesForAssociate', 'sectorsForAssistant')
+                        'college_names', 'sectors', 'departmentsResearch', 'departmentsExtension', 'year', 'id', 'collegesForAssociate', 'sectorsForAssistant')
                 );
     }
 
-    public function departmentResReportYearFilter($dept, $year, $quarter) {
+    public function departmentResReportYearFilter($dept, $year) {
         if ($year == "default") {
             return redirect()->route('reports.consolidate.research');
         }
@@ -174,7 +172,6 @@ class ResearchConsolidatedController extends Controller
                     ->join('users', 'users.id', 'reports.user_id')
                     ->whereIn('reports.report_category_id', [1, 2, 3, 4, 5, 6, 7, 8])
                     ->where('reports.report_year', $year)
-                    ->where('reports.report_quarter', $quarter)
                     ->where('reports.college_id', $dept)
                     ->orderBy('reports.updated_at', 'DESC')
                     ->get();
@@ -202,7 +199,7 @@ class ResearchConsolidatedController extends Controller
             return view(
                         'reports.consolidate.research',
                         compact('roles', 'departments', 'colleges', 'department_accomps', 'department' , 'department_names',
-                            'college_names', 'sectors', 'departmentsResearch', 'departmentsExtension', 'year', 'quarter', 'id', 'collegesForAssociate', 'sectorsForAssistant')
+                            'college_names', 'sectors', 'departmentsResearch', 'departmentsExtension', 'year', 'id', 'collegesForAssociate', 'sectorsForAssistant')
                     );
         }
     }

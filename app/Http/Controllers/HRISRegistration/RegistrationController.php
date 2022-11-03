@@ -34,9 +34,9 @@ class RegistrationController extends Controller
         
         $userLocal =  User::where('email', $request->email)->first();
 
-        if(!in_array($userLocal->id,[461,462,463])){
-            return redirect()->route('researchredirect');
-        }
+        // if(!in_array($userLocal->id,[461,462,463])){
+        //     return redirect()->route('researchredirect');
+        // }
 
         if ($user == '-1') {
             
