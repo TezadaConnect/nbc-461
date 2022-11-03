@@ -148,8 +148,6 @@ class CopyrightedController extends Controller
 
         $copyright = ResearchCopyright::create($input);
 
-        LogActivity::addToLog('Had added a copyright for research "'.$research->title.'".');
-
         if(!empty($request->file(['document']))){      
             foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCR-", 'research.copyrighted.index');
@@ -167,6 +165,7 @@ class CopyrightedController extends Controller
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
         if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        \LogActivity::addToLog('Had added a copyright for research "'.$research->title.'".');
 
         return redirect()->route('research.index')->with('success', 'Research copyright has been added.');
     }
@@ -280,7 +279,7 @@ class CopyrightedController extends Controller
 
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
 
-        if($imageChecker) return redirect()->route('research.copyrighted.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
         return redirect()->route('research.index')->with('success', 'Research copyright has been updated.');
     }

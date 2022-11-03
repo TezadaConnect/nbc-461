@@ -61,7 +61,6 @@ class PublicationController extends Controller
                 return view('research.publication.index', compact('research', 'value'));
             }
         }
-        $firstResearch = Research::where('research_code', $research->research_code)->first();
 
         $publicationValues = array_merge(collect($publicationRecord)->except(['research_code'])->toArray(), collect($research)->except(['description'])->toArray());
 

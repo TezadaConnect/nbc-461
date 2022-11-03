@@ -117,21 +117,6 @@ class CommonService {
         return false;
     }
 
-
-
-// $tempFile = TemporaryFile::where('folder', $file)->first();
-// if($tempFile){
-//     $temporaryPath = "documents/tmp/".$file."/".$tempFile->filename;
-//     $info = pathinfo(storage_path().'/documents/tmp/'.$file."/".$tempFile->filename);
-//     $ext = $info['extension'];
-//     $fileName = $additiveName . $fileDesc . '-' . now()->timestamp.uniqid() . '.' . $ext;
-//     Storage::move($temporaryPath, "documents/".$fileName);
-//     Storage::deleteDirectory("documents/tmp/".$file);
-//     $tempFile->delete();
-//     return $fileName;
-// }
-// throw new Exception("1");
-
     /**
      * =============================================================================================
      * 

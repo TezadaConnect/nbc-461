@@ -161,8 +161,6 @@ class CompletedController extends Controller
             'description' => $request->input('description'),
         ]);
 
-        LogActivity::addToLog('Had marked the research "'.$research->title.'" as completed.');
-
         if(!empty($request->file(['document']))){      
             foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCP-", 'research.completed.index');
@@ -180,6 +178,8 @@ class CompletedController extends Controller
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
         if($imageChecker) return redirect()->route('research.completed.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        \LogActivity::addToLog('Had marked the research "'.$research->title.'" as completed.');
 
         return redirect()->route('research.index')->with('success', 'Research completetion has been added.');
     }

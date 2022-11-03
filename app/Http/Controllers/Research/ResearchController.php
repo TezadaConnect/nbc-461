@@ -929,21 +929,27 @@ class ResearchController extends Controller
         $string = str_replace(' ', '-', $request->input('description')); // Replaces all spaces with hyphens.
         $description =  preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
 
+        if($request->has('document')){
 
-        if(!empty($request->file(['document']))){      
-            foreach($request->file(['document']) as $document){
-                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RR-", 'to-finalize.index');
-                if(is_string($fileName)) {
-                    if($report_category_id == 5){//citations
-                        ResearchDocument::create([
-                            'research_code' => $research_code,
-                            'research_form_id' => $report_category_id,
-                            'research_citation_id' => $citation_id,
-                            'filename' => $fileName,
-                        ]);
+            try {
+                $documents = $request->input('document');
+                $count = 1;
+                foreach($documents as $document){
+                    $temporaryFile = TemporaryFile::where('folder', $document)->first();
+                    if($temporaryFile){
+                        $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
+                        $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
+                        $ext = $info['extension'];
+                        $fileName = 'RR-'.$researchCode.'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
+                        $newPath = "documents/".$fileName;
+                        Storage::move($temporaryPath, $newPath);
+                        Storage::deleteDirectory("documents/tmp/".$document);
+                        $temporaryFile->delete();
                     }
                 }
-            }
+            } catch (Exception $th) {
+                return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+            }  
         }
         return redirect()->route('to-finalize.index')->with('success', 'Document added successfully');
 
