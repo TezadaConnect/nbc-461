@@ -42,7 +42,7 @@ class IpqmsoController extends Controller
         $currentQuarterYear = Quarter::find(1);
 
         $reportsToReview = Report::where('reports.report_year', $currentQuarterYear->current_year)
-            ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
+            // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
             ->whereIn('sector_approval', [1,2])->where('ipqmso_approval', null)
             ->select('reports.*', 'colleges.name as college_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
             ->join('colleges', 'reports.college_id', 'colleges.id')
