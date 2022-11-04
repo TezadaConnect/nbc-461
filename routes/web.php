@@ -230,6 +230,9 @@ Route::group(['middleware' => ['auth', 'account']], function() {
     /* ANALYTICS */
     Route::get('/analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics');
 
+    /* SPATTIE */
+    Route::get('/spatie', [\App\Http\Controllers\SpatieController::class, 'index'])->name('spatie');
+
     /* RESEARCH ACCOMPLISHMENTS */
     Route::resource('research', \App\Http\Controllers\Research\ResearchController::class);
     Route::resource('research.completed', \App\Http\Controllers\Research\CompletedController::class);
