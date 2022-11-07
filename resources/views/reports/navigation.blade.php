@@ -71,14 +71,14 @@
                     @endif
     
                     {{-- Colleges/Branches/Offices --}}
-                    @if (in_array(6, $roles) || in_array(12, $roles))
+                    {{-- @if (in_array(6, $roles) || in_array(12, $roles))
                         @forelse ( $colleges as $row)
                             <a href="{{ route('reports.consolidate.college', $row->college_id) }}" class="submission-menu  {{ isset($id) ? ($row->college_id == $id && (request()->routeIs('reports.consolidate.college') || request()->routeIs('reports.consolidate.college.*')) ? 'active' : '') : '' }} ">
                                 Dean/Director - {{ $row->code }}
                             </a><br>
                         @empty
                         @endforelse
-                    @endif
+                    @endif --}}
     
                     {{-- Sectors/VPs --}}
                     @if (in_array(7, $roles) || in_array(13, $roles))
