@@ -52,13 +52,13 @@ Route::post('register/alternate-log', [\App\Http\Controllers\HRISRegistration\Re
 
 
 
-Route::group(['middleware' => 'auth'], function() {
+Route::group(['middleware' => 'auth'], function () {
     /* MAINTENANCES */
     Route::get('/maintenances', [\App\Http\Controllers\Maintenances\MaintenanceController::class, 'index'])->name('maintenances.index');
 
     //Quarter and Year Maintenance
-    Route::get('/maintenances/quarter',[App\Http\Controllers\Maintenances\QuarterController::class, 'index'])->name('maintenance.quarter.index');
-    Route::post('/maintenances/quarter/update',[App\Http\Controllers\Maintenances\QuarterController::class, 'update'])->name('maintenance.quarter.update');
+    Route::get('/maintenances/quarter', [App\Http\Controllers\Maintenances\QuarterController::class, 'index'])->name('maintenance.quarter.index');
+    Route::post('/maintenances/quarter/update', [App\Http\Controllers\Maintenances\QuarterController::class, 'update'])->name('maintenance.quarter.update');
 
     // 1. Colleges
     Route::get('/maintenances/colleges/name/{id}', [\App\Http\Controllers\Maintenances\CollegeController::class, 'getCollegeName'])->name('college.name');
@@ -69,7 +69,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('/maintenances/departments/name/{id}', [\App\Http\Controllers\Maintenances\DepartmentController::class, 'getDepartmentName'])->name('department.name');
     Route::resource('/maintenances/departments', \App\Http\Controllers\Maintenances\DepartmentController::class);
     // 3. Sectors
-    Route::get('/maintenances/sectors', [\App\Http\Controllers\Maintenances\SectorController::class , 'index'])->name('sectors.maintenance.index');
+    Route::get('/maintenances/sectors', [\App\Http\Controllers\Maintenances\SectorController::class, 'index'])->name('sectors.maintenance.index');
     Route::get('/maintenances/sectors/sync', [\App\Http\Controllers\Maintenances\SectorController::class, 'sync'])->name('sectors.maintenance.sync');
     Route::get('/maintenances/sectors/name/{collegeID}', [\App\Http\Controllers\Maintenances\SectorController::class, 'getSectorName'])->name('sectors.name');
 
@@ -212,7 +212,7 @@ Route::group(['middleware' => 'auth'], function() {
 });
 
 /* AUTH CHECKER */
-Route::group(['middleware' => ['auth', 'account']], function() {
+Route::group(['middleware' => ['auth', 'account']], function () {
 
     Route::get('/switch_type', [\App\Http\Controllers\HRISRegistration\RegistrationController::class, 'switch_type'])->name('switch_type');
 
@@ -278,26 +278,24 @@ Route::group(['middleware' => ['auth', 'account']], function() {
     Route::resource('/extension-programs/expert-service-in-academic', \App\Http\Controllers\ExtensionPrograms\ExpertServices\AcademicController::class);
     Route::resource('/extension-programs/extension-service', \App\Http\Controllers\ExtensionPrograms\ExtensionServiceController::class);
     Route::resource('outreach-program', \App\Http\Controllers\ExtensionPrograms\OutreachProgramController::class);
-    Route::resource('stdnt-award', \App\Http\Controllers\AcademicDevelopment\StudentAwardController::class)->
-			names([
-				'create' => 'student-award.create',
-				'index' => 'student-award.index',
-				'edit' => 'student-award.edit',
-				'update' => 'student-award.update',
-				'show' => 'student-award.show',
-				'store' => 'student-award.store',
-				'destroy' => 'student-award.destroy'
-			]);
-    Route::resource('stdnt-training', \App\Http\Controllers\AcademicDevelopment\StudentTrainingController::class)->
-			names([
-				'create' => 'student-training.create',
-				'index' => 'student-training.index',
-				'edit' => 'student-training.edit',
-				'update' => 'student-training.update',
-				'show' => 'student-training.show',
-				'store' => 'student-training.store',
-				'destroy' => 'student-training.destroy'
-			]);
+    Route::resource('stdnt-award', \App\Http\Controllers\AcademicDevelopment\StudentAwardController::class)->names([
+        'create' => 'student-award.create',
+        'index' => 'student-award.index',
+        'edit' => 'student-award.edit',
+        'update' => 'student-award.update',
+        'show' => 'student-award.show',
+        'store' => 'student-award.store',
+        'destroy' => 'student-award.destroy'
+    ]);
+    Route::resource('stdnt-training', \App\Http\Controllers\AcademicDevelopment\StudentTrainingController::class)->names([
+        'create' => 'student-training.create',
+        'index' => 'student-training.index',
+        'edit' => 'student-training.edit',
+        'update' => 'student-training.update',
+        'show' => 'student-training.show',
+        'store' => 'student-training.store',
+        'destroy' => 'student-training.destroy'
+    ]);
     Route::resource('viable-project', \App\Http\Controllers\AcademicDevelopment\ViableProjectController::class);
     Route::resource('college-department-award', \App\Http\Controllers\AcademicDevelopment\CollegeDepartmentAwardController::class);
     Route::resource('technical-extension', \App\Http\Controllers\AcademicDevelopment\TechnicalExtensionController::class);
@@ -451,6 +449,7 @@ Route::group(['middleware' => ['auth', 'account']], function() {
     Route::get('/reports/consolidate/college/reportYearFilter/{college}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\CollegeConsolidatedController::class, 'collegeReportYearFilter'])->name('reports.consolidate.college.reportYearFilter');
     Route::get('/reports/consolidate/sector/reportYearFilter/{sector}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'sectorReportYearFilter'])->name('reports.consolidate.sector.reportYearFilter');
     Route::get('/reports/consolidate/all/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
+    Route::get('/reports/consolidate/all/{pending?}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'generatePendingList'])->name('reports.consolidate.ipo.reportYearFilter');
 
     /* GENERATE/EXPORT REPORT */
     Route::post('/reports/export/individual-export/{source_type}/{report_format}/{source_generate}/{year_generate}/{quarter_generate}/{id}', [\App\Http\Controllers\Reports\GenerateController::class, 'individualExport'])->name('report.individual.export');
@@ -517,11 +516,9 @@ Route::group(['middleware' => ['auth', 'account']], function() {
     Route::post('/submissions/outstanding-awards/{id}/update', [\App\Http\Controllers\HRISSubmissions\AwardController::class, 'update'])->name('submissions.award.update');
     Route::get('/submissions/outstanding-awards/create', [\App\Http\Controllers\HRISSubmissions\AwardController::class, 'create'])->name('submissions.award.create');
     Route::post('/submissions/outstanding-awards/save', [\App\Http\Controllers\HRISSubmissions\AwardController::class, 'savetohris'])->name('submissions.award.save');
-
-
 });
 /* SUPER ADMIN PERMANENT TASKS */
-Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth'], function(){
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth'], function () {
     // Maintenance
     Route::resource('/maintenances/colleges', \App\Http\Controllers\Maintenances\CollegeController::class);
     Route::resource('/maintenances/departments', \App\Http\Controllers\Maintenances\DepartmentController::class);

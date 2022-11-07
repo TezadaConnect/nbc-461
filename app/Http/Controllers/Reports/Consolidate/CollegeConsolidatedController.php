@@ -23,7 +23,8 @@ use App\Services\ManageConsolidatedReportAuthorizationService;
 
 class CollegeConsolidatedController extends Controller
 {
-    public function index($id){
+    public function index($id)
+    {
         $authorize = (new ManageConsolidatedReportAuthorizationService())->authorizeManageConsolidatedReportsByCollege();
         if (!($authorize)) {
             abort(403, 'Unauthorized action.');
@@ -40,70 +41,70 @@ class CollegeConsolidatedController extends Controller
         $quarter = $currentQuarterYear->current_quarter;
         $year = $currentQuarterYear->current_year;
 
-        if(in_array(5, $roles)){
+        if (in_array(5, $roles)) {
             $departments = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
-                                        ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
+                ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
         }
-        if(in_array(6, $roles)){
+        if (in_array(6, $roles)) {
             $colleges = Dean::where('deans.user_id', auth()->id())->select('deans.college_id', 'colleges.code')
-                            ->join('colleges', 'colleges.id', 'deans.college_id')->get();
+                ->join('colleges', 'colleges.id', 'deans.college_id')->get();
         }
-        if(in_array(7, $roles)){
+        if (in_array(7, $roles)) {
             $sectors = SectorHead::where('sector_heads.user_id', auth()->id())->select('sector_heads.sector_id', 'sectors.code')
-                        ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
+                ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
         }
-        if(in_array(10, $roles)){
+        if (in_array(10, $roles)) {
             $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())
-                                        ->select('faculty_researchers.college_id', 'colleges.code')
-                                        ->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
+                ->select('faculty_researchers.college_id', 'colleges.code')
+                ->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
         }
-        if(in_array(11, $roles)){
+        if (in_array(11, $roles)) {
             $departmentsExtension = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
-                                        ->select('faculty_extensionists.college_id', 'colleges.code')
-                                        ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
+                ->select('faculty_extensionists.college_id', 'colleges.code')
+                ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
         }
-        if(in_array(12, $roles)){
+        if (in_array(12, $roles)) {
             $colleges = Associate::where('associates.user_id', auth()->id())->select('associates.college_id', 'colleges.code')
-                            ->join('colleges', 'colleges.id', 'associates.college_id')->get();
+                ->join('colleges', 'colleges.id', 'associates.college_id')->get();
         }
-        if(in_array(13, $roles)){
+        if (in_array(13, $roles)) {
             $sectors = Associate::where('associates.user_id', auth()->id())->select('associates.sector_id', 'sectors.code')
-                        ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
+                ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
         }
 
         $college_accomps =
             Report::select(
-                            'reports.*',
-                            'report_categories.name as report_category',
-                            'users.last_name',
-                            'users.first_name',
-                            'users.middle_name',
-                            'users.suffix'
-                          )
-                ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
-                ->join('users', 'users.id', 'reports.user_id')
-                ->where('reports.report_year', $year)
-                ->where('reports.report_quarter', $quarter)
-                ->where('reports.college_id', $id)
-                ->orderBy('reports.updated_at', 'DESC')
-                ->get();
+                'reports.*',
+                'report_categories.name as report_category',
+                'users.last_name',
+                'users.first_name',
+                'users.middle_name',
+                'users.suffix'
+            )
+            ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
+            ->join('users', 'users.id', 'reports.user_id')
+            ->where('reports.report_year', $year)
+            ->where('reports.report_quarter', $quarter)
+            ->where('reports.college_id', $id)
+            ->orderBy('reports.updated_at', 'DESC')
+            ->get();
 
         //get_department_and_college_name
         $college_names = [];
         $department_names = [];
-        foreach($college_accomps as $row){
+        foreach ($college_accomps as $row) {
             $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
             $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
             $row->report_details = json_decode($row->report_details, false);
 
-            if($temp_college_name == null)
+            if ($temp_college_name == null)
                 $college_names[$row->id] = '-';
             else
                 $college_names[$row->id] = $temp_college_name->name;
-            if($temp_department_name == null)
+            if ($temp_department_name == null)
                 $department_names[$row->id] = '-';
             else
-            $department_names[$row->id] = $temp_department_name->name;
+                $department_names[$row->id] = $temp_department_name->name;
         }
 
         $user = User::find(auth()->id());
@@ -111,18 +112,31 @@ class CollegeConsolidatedController extends Controller
         $college = College::find($id);
 
         return view(
-                    'reports.consolidate.college',
-                    compact('roles', 'departments', 'colleges', 'college_accomps', 'college' ,
-                        'department_names', 'college_names', 'sectors', 'departmentsResearch',
-                        'departmentsExtension', 'quarter', 'year', 'id', 'user')
-                );
+            'reports.consolidate.college',
+            compact(
+                'roles',
+                'departments',
+                'colleges',
+                'college_accomps',
+                'college',
+                'department_names',
+                'college_names',
+                'sectors',
+                'departmentsResearch',
+                'departmentsExtension',
+                'quarter',
+                'year',
+                'id',
+                'user'
+            )
+        );
     }
 
-    public function collegeReportYearFilter($college, $year, $quarter) {
+    public function collegeReportYearFilter($college, $year, $quarter)
+    {
         if ($year == "default") {
             return redirect()->route('reports.consolidate.college');
-        }
-        else{
+        } else {
             $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
             $departments = [];
             $colleges = [];
@@ -130,60 +144,60 @@ class CollegeConsolidatedController extends Controller
             $departmentsResearch = [];
             $departmentsExtension = [];
 
-            if(in_array(5, $roles)){
+            if (in_array(5, $roles)) {
                 $departments = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
-                                            ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
+                    ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
             }
-            if(in_array(6, $roles)){
+            if (in_array(6, $roles)) {
                 $colleges = Dean::where('deans.user_id', auth()->id())->select('deans.college_id', 'colleges.code')
-                                ->join('colleges', 'colleges.id', 'deans.college_id')->get();
+                    ->join('colleges', 'colleges.id', 'deans.college_id')->get();
             }
-            if(in_array(7, $roles)){
+            if (in_array(7, $roles)) {
                 $sectors = SectorHead::where('sector_heads.user_id', auth()->id())->select('sector_heads.sector_id', 'sectors.code')
-                            ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
+                    ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
             }
-            if(in_array(10, $roles)){
+            if (in_array(10, $roles)) {
                 $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())
-                                            ->select('faculty_researchers.college_id', 'colleges.code')
-                                            ->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
+                    ->select('faculty_researchers.college_id', 'colleges.code')
+                    ->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
             }
-            if(in_array(11, $roles)){
+            if (in_array(11, $roles)) {
                 $departmentsExtension = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
-                                            ->select('faculty_extensionists.college_id', 'colleges.code')
-                                            ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
+                    ->select('faculty_extensionists.college_id', 'colleges.code')
+                    ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
             }
 
             $college_accomps =
                 Report::select(
-                                'reports.*',
-                                'report_categories.name as report_category',
-                                'users.last_name',
-                                'users.first_name',
-                                'users.middle_name',
-                                'users.suffix'
-                            )
-                    ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
-                    ->join('users', 'users.id', 'reports.user_id')
-                    ->where('reports.report_year', $year)
-                    ->where('reports.report_quarter', $quarter)
-                    ->where('reports.college_id', $college)->get();
+                    'reports.*',
+                    'report_categories.name as report_category',
+                    'users.last_name',
+                    'users.first_name',
+                    'users.middle_name',
+                    'users.suffix'
+                )
+                ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
+                ->join('users', 'users.id', 'reports.user_id')
+                ->where('reports.report_year', $year)
+                ->where('reports.report_quarter', $quarter)
+                ->where('reports.college_id', $college)->get();
 
             //get_department_and_college_name
             $college_names = [];
             $department_names = [];
-            foreach($college_accomps as $row){
+            foreach ($college_accomps as $row) {
                 $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
                 $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
 
                 $row->report_details = json_decode($row->report_details, false);
-                if($temp_college_name == null)
+                if ($temp_college_name == null)
                     $college_names[$row->id] = '-';
                 else
                     $college_names[$row->id] = $temp_college_name->name;
-                if($temp_department_name == null)
+                if ($temp_department_name == null)
                     $department_names[$row->id] = '-';
                 else
-                $department_names[$row->id] = $temp_department_name->name;
+                    $department_names[$row->id] = $temp_department_name->name;
             }
 
             $user = User::find(auth()->id());
@@ -192,11 +206,24 @@ class CollegeConsolidatedController extends Controller
 
             $college = College::find($college);
             return view(
-                        'reports.consolidate.college',
-                        compact('roles', 'departments', 'colleges', 'college_accomps', 'college' , 'department_names',
-                             'college_names', 'sectors', 'departmentsResearch','departmentsExtension', 'quarter', 'year',
-                             'user', 'id' )
-                    );
+                'reports.consolidate.college',
+                compact(
+                    'roles',
+                    'departments',
+                    'colleges',
+                    'college_accomps',
+                    'college',
+                    'department_names',
+                    'college_names',
+                    'sectors',
+                    'departmentsResearch',
+                    'departmentsExtension',
+                    'quarter',
+                    'year',
+                    'user',
+                    'id'
+                )
+            );
         }
     }
 }
