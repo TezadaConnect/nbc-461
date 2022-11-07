@@ -197,30 +197,14 @@ class AttendanceFunctionController extends Controller
                 }
             }
         }
-    
-        // try {
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //         if($temporaryFile){
-        //             $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //             $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //             $ext = $info['extension'];
-        //             $fileName = 'AF-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //             $newPath = "documents/".$fileName;
-        //             Storage::move($temporaryPath, $newPath);
-        //             Storage::deleteDirectory("documents/tmp/".$document);
-        //             $temporaryFile->delete();
-        //             AttendanceFunctionDocument::create(['attendance_function_id' => $attendance->id, 'filename' => $fileName]);
-        //         }
-        //     }
-        // } catch (Exception $th) {
-        //     return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        // }
             
         LogActivity::addToLog('Had added a Attendance in University and College Function.');
 
-        return redirect()->route('attendance-function.index')->with('success', 'Your Accomplishment in Attendance in University and College Functions has been saved.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+
+        if($imageChecker) return redirect()->route('attendance-function.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('attendance-function.index')->with('save_success', 'Your Accomplishment in Attendance in University and College Functions has been saved.');
     }
 
     /**
@@ -379,47 +363,14 @@ class AttendanceFunctionController extends Controller
             }
         }
 
-        return redirect()->route('attendance-function.index')->with('success', 'Your Accomplishment in Attendance in University and College Functions has been updated.');
+        $imageRecord = AttendanceFunctionDocument::where('attendance_function_id', $attendance_function->id)->get();
 
-        // if($request->has('document')){
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $fileName = $this->commonService->fileUploadHandler($document, $this->storageFileController->abbrev($request->input('description')), 'AF-', 'attendance-function.index');
-        //         if(is_string($fileName)) {
-        //             AttendanceFunctionDocument::create(['attendance_function_id' => $attendance_function->id, 'filename' => $fileName]);
-        //         } else {
-        //             AttendanceFunctionDocument::where('attendance_function_id', $attendance_function->id)->delete();
-        //             return $fileName;
-        //         }
-        //     }
-        // }
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'AF-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
+        if($imageChecker) return redirect()->route('attendance-function.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        //                 AttendanceFunctionDocument::create([
-        //                     'attendance_function_id' => $attendance_function->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-            
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        return redirect()->route('attendance-function.index')->with('save_success', 'Your Accomplishment in Attendance in University and College Functions has been updated.');
+
     }
 
     /**

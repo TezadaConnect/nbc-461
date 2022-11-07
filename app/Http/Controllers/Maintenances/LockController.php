@@ -107,4 +107,13 @@ class LockController extends Controller
 
         return true;
     }
+
+    public static function isReportSubmitted($id, $reference){
+        if(Report::where('report_reference_id', $id)
+            ->where('report_category_id', $reference)
+            ->where('user_id', auth()->id())
+            ->exists()){
+                return true;
+        } return false;
+    }
 }

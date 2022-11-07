@@ -82,7 +82,7 @@ class ChairpersonController extends Controller
         $currentQuarterYear = Quarter::find(1);
         foreach ($departments as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
-                ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
+                ->whereIn('reports.report_quarter', [3,4])
                 ->where('department_id', $row->department_id)->where('chairperson_approval', null)
                 ->select('reports.*', 'departments.name as department_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
                 ->join('departments', 'reports.department_id', 'departments.id')
@@ -99,7 +99,7 @@ class ChairpersonController extends Controller
 
         foreach($reportsToReview as $report){
             if ($report->format == 'f') {
-                if($report->report_category_id >= 1 && $report->report_category_id <= 8){
+                if($report->report_category_id >= 1 && $report->report_category_id <= 7){
                     if($report->researcher_approval === 1){
                         $tempReports = $tempReports->push($report);
                     }

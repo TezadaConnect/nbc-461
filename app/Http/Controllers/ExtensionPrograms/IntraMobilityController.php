@@ -186,32 +186,11 @@ class IntraMobilityController extends Controller
             }
         }
 
-        return redirect()->route('intra-mobility.index')->with('success', 'Intra-Country mobility has been added.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'IntraM-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 IntraMobilityDocument::create([
-        //                     'intra_mobility_id' => $intraMobility->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        if($imageChecker) return redirect()->route('intra-mobility.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('intra-mobility.index')->with('save_success', 'Intra-Country mobility has been added.');
     }
 
     /**
@@ -387,33 +366,13 @@ class IntraMobilityController extends Controller
 
         LogActivity::addToLog('Had updated an intra-country mobility.');
 
-        return redirect()->route('intra-mobility.index')->with('success', 'Intra-Country mobility has been updated.');
+        $imageRecord = IntraMobilityDocument::where('intra_mobility_id', $intraMobility->id)->get();
 
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'IntraM-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 IntraMobilityDocument::create([
-        //                     'intra_mobility_id' => $intraMobility->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        if($imageChecker) return redirect()->route('intra-mobility.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('intra-mobility.index')->with('save_success', 'Intra-Country mobility has been updated.');
     }
 
     /**

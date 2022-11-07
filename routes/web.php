@@ -18,6 +18,11 @@ Route::get('/', function () {
     return view('hris-regi.check');
 })->name('home')->middleware('guest');
 
+
+Route::get('/back-up', function () {
+    return view('maintenances.back-up-function.backup-function');
+});
+
 //For maintenance mode
 // Route::get('/', function() {
 //     return view('maintenance');
@@ -27,9 +32,9 @@ Route::get('/', function () {
 //   ->where('query', '.*');
 
 //Redirect to research.pup.edu.ph
-// Route::get('/', function () {
-//     return Redirect::to('https://research.pup.edu.ph/qar/');
-// })->name('home')->middleware('guest');
+ Route::get('/redirecting', function () {
+     return Redirect::to('https://research.pup.edu.ph/qar/');
+ })->name('researchredirect');//->middleware('guest');
 // Route::any('{query}',
 //   function() { return redirect('/'); })
 //   ->where('query', '.*');
@@ -246,6 +251,9 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::get('/research/add-document/{research_code}/{research_category_id}',  [\App\Http\Controllers\Research\ResearchController::class, 'addDocument'])->name('research.adddoc');
     Route::post('/research/save-document/{research_code}/{research_category_id}',  [\App\Http\Controllers\Research\ResearchController::class, 'saveDocument'])->name('research.savedoc');
     Route::get('/research/remove-document/{filename}', [\App\Http\Controllers\Research\ResearchController::class, 'removeDoc'])->name('research.removedoc');
+    Route::get('/research/citations/{research_id}/{action_keyword}', [\App\Http\Controllers\Research\CitationController::class, 'showAll'])->name('research.citation.showAll');
+    Route::get('/research/utilizations/{research_id}/{action_keyword}', [\App\Http\Controllers\Research\UtilizationController::class, 'showAll'])->name('research.utilization.showAll');
+
     // Use Research By Co-Researchers
     Route::post('/research/with-code', [\App\Http\Controllers\Research\ResearchController::class, 'useResearchCode'])->name('research.code');
     Route::get('/research/with-code/create/{research_id}', [\App\Http\Controllers\Research\ResearchController::class, 'addResearch'])->name('research.code.create');

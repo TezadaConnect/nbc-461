@@ -1261,39 +1261,6 @@ class SubmissionController extends Controller
                 }
             }
         }
-        // if($request->has('document')){
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //         if($temporaryFile){
-        //             $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //             $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //             $ext = $info['extension'];
-        //             $fileName = 'DOC-'.$id.'-'.now()->timestamp.uniqid().'.'.$ext;
-        //             $newPath = "documents/".$fileName;
-        //             Storage::move($temporaryPath, $newPath);
-        //             Storage::deleteDirectory("documents/tmp/".$document);
-        //             $temporaryFile->delete();
-
-        //             if($report_category_id == 8) InventionDocument::create(['invention_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 9) ExpertServiceConsultantDocument::create(['expert_service_consultant_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 10) ExpertServiceConferenceDocument::create(['expert_service_conference_id' => $id, 'filename' => $fileName]);
-        //             elseif($report_category_id == 11) ExpertServiceAcademicDocument::create(['expert_service_academic_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 12) ExtensionServiceDocument::create(['extension_service_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 13) PartnershipDocument::create(['partnership_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 14) MobilityDocument::create(['mobility_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 15) ReferenceDocument::create(['reference_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 16) SyllabusDocument::create(['syllabus_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 17) RequestDocument::create(['request_id' => $id, 'filename' => $fileName]);
-        //             elseif($report_category_id == 18) StudentAwardDocument::create(['student_award_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 19) StudentTrainingDocument::create(['student_training_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 20) ViableProjectDocument::create(['viable_project_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 21) CollegeDepartmentAwardDocument::create(['college_department_award_id' => $id, 'filename' => $fileName]);
-        //             elseif($report_category_id == 22) OutreachProgramDocument::create(['outreach_program_id' => $id,'filename' => $fileName]);
-        //             elseif($report_category_id == 23) TechnicalExtensionDocument::create(['technical_extension_id' => $id,'filename' => $fileName]);
-        //         }
-        //     }            
-        // }
         return redirect()->route('to-finalize.index')->with('success', 'Document/s have been added');
     }
 
@@ -2523,7 +2490,7 @@ class SubmissionController extends Controller
     public function check($report_category_id, $accomplishment_id){
         $currentQuarterYear = Quarter::find(1);
         if(LockController::isLocked($accomplishment_id, $report_category_id))
-            return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
+            return redirect()->back()->with('cannot_access', 'Accomplishment was already submitted!');
 
         if ($report_category_id != 33) {
             $reportdata = new ReportDataController;
@@ -2534,7 +2501,7 @@ class SubmissionController extends Controller
         $research_code = '*';
         $research_id = '*';
         if($report_category_id >= 1 && $report_category_id <= 7){
-            $research_nature_of_involvement = Research::find($accomplishment_id)->nature_of_involvement;
+            // $research_nature_of_involvement = Research::find($accomplishment_id)->nature_of_involvement;
             // dd($research_nature_of_involvement);
             
             // if($research_nature_of_involvement != 11 && $research_nature_of_involvement != 224){
@@ -2628,54 +2595,23 @@ class SubmissionController extends Controller
                         ->where('report_year', $currentQuarterYear->current_year)->exists()))
                         return redirect()->back()->with('cannot_access', 'Wait for your lead researcher to submit the research.');
                 }
-            // } else {
-            //     if($report_category_id == 1){
-            //         $research_code = Research::where('id', $accomplishment_id)->pluck('research_code')->first();
-            //     }
-            //     if($report_category_id == 2){
-            //         $research_id = ResearchComplete::where('id', $accomplishment_id)->pluck('research_id')->first();
-            //         $research_code = ResearchComplete::where('id', $accomplishment_id)->pluck('research_code')->first();
-            //     }
-            //     if($report_category_id == 3){
-            //         $research_id = ResearchPublication::where('id', $accomplishment_id)->pluck('research_id')->first();
-            //         $research_code = ResearchPublication::where('id', $accomplishment_id)->pluck('research_code')->first();
-            //     }
-            //     if($report_category_id == 4){
-            //         $research_id = ResearchPresentation::where('id', $accomplishment_id)->pluck('research_id')->first();
-            //         $research_code = ResearchPresentation::where('id', $accomplishment_id)->pluck('research_code')->first();
-            //     }
-            //     if($report_category_id == 5){
-            //         $research_id = ResearchCitation::where('id', $accomplishment_id)->pluck('research_id')->first();
-            //         $research_code = ResearchCitation::where('id', $accomplishment_id)->pluck('research_code')->first();
-            //     }
-            //     if($report_category_id == 6){
-            //         $research_id = ResearchUtilization::where('id', $accomplishment_id)->pluck('research_id')->first();
-            //         $research_code = ResearchUtilization::where('id', $accomplishment_id)->pluck('research_code')->first();
-            //     }
 
-            //     if($report_category_id == 7){
-            //         $research_id = ResearchCopyright::where('id', $accomplishment_id)->pluck('research_id')->first();
-            //         $research_code = ResearchCopyright::where('id', $accomplishment_id)->pluck('research_code')->first();
-            //     }
-            // }
         }
-        if($this->submitAlternate($report_category_id, $accomplishment_id, $research_code, $research_id) == 1)
-            return redirect()->back()->with('success', 'Accomplishment submitted succesfully.');
-        else
-            return redirect()->back()->with('cannot_access', 'Failed to submit the accomplishment. For chairperson/chief and dean/director, please edit the department of your accomplishment as instructed in the edit form.');
+
+        if($this->submitAlternate($report_category_id, $accomplishment_id, $research_code, $research_id) == 1){
+            return $this->returnSuccessMessage($report_category_id);
+        } else  {
+            return redirect()->back()->with(
+                'cannot_access', 
+                'Failed to submit the accomplishment. For chairperson/chief and dean/director, please edit the department of your accomplishment as instructed in the edit form.'
+            );
+        }
     }
 
     public function submitAlternate($report_category_id, $accomplishment_id, $research_code, $research_id){
         $report_controller = new ReportDataController;
         $user_id = auth()->id();
         $currentQuarterYear = Quarter::find(1);
-        // $getUserTypeFromSession = session()->get('user_type');
-        // $format_type = '';
-        // if($getUserTypeFromSession == 'Faculty Employee')
-        //     $format_type = 'f';
-        // elseif($getUserTypeFromSession == 'Admin Employee')
-        //     $format_type = 'a';
-
 
         $report_details;
         $reportColumns;
@@ -2687,14 +2623,14 @@ class SubmissionController extends Controller
         switch($report_values_array[1]){
             case 1: case 2: case 3: case 4: case 5: case 6: case 7:
                 if ($report_values_array[1] == 1) {
-                    $collegeAndDepartment = Research::select('college_id', 'department_id')->where('user_id', $user_id)->where('id', $report_values_array[2])->first();
-                    $employee = Employee::where('user_id', auth()->id())->where('college_id', $collegeAndDepartment['college_id'])->get();
-                    $sector_id = College::where('id', $collegeAndDepartment->college_id)->pluck('sector_id')->first();
+                    $research = Research::select('college_id', 'department_id', 'discipline')->where('user_id', $user_id)->where('id', $report_values_array[2])->first();
+                    $employee = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->get();
+                    $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
                 }
                 else {
-                    $collegeAndDepartment = Research::select('college_id', 'department_id')->where('research_code', $report_values_array[0])->where('user_id', auth()->id())->first();
-                    $employee = Employee::where('user_id', auth()->id())->where('college_id', $collegeAndDepartment['college_id'])->get();
-                    $sector_id = College::where('id', $collegeAndDepartment->college_id)->pluck('sector_id')->first();
+                    $research = Research::select('college_id', 'department_id', 'discipline')->where('research_code', $report_values_array[0])->where('user_id', auth()->id())->first();
+                    $employee = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->get();
+                    $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
                 }
                 $reportColumns = collect($report_controller->getColumnDataPerReportCategory($report_values_array[1]));
                 if($report_values_array[1] == 5){
@@ -2718,29 +2654,28 @@ class SubmissionController extends Controller
                     ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->delete();
+
                 if (count($employee) == 2){
                     $getUserTypeFromSession = session()->get('user_type');
                     $type = '';
-                    if($getUserTypeFromSession == 'Faculty Employee')
-                        $type = 'f';
-                    elseif($getUserTypeFromSession == 'Admin Employee')
-                        $type = 'a';
+                    if($getUserTypeFromSession == 'Faculty Employee') $type = 'f';
+                    elseif($getUserTypeFromSession == 'Admin Employee') $type = 'a';
                 } elseif (count($employee) == 1) {
-                    if ($employee[0]['type'] == 'F')
-                        $type = 'f';
-                    elseif ($employee[0]['type'] == 'A')
-                        $type = 'a';
+                    if ($employee[0]['type'] == 'F') $type = 'f';
+                    elseif ($employee[0]['type'] == 'A') $type = 'a';
                 }
+
                 if ($type == 'a') {
-                    if ($collegeAndDepartment->department_id == $collegeAndDepartment->college_id) {
+                    if ($research->department_id == $research->college_id) {
                         Report::create([
                             'user_id' =>  $user_id,
                             'sector_id' => $sector_id,
-                            'college_id' => $collegeAndDepartment->college_id,
-                            'department_id' => $collegeAndDepartment->department_id,
+                            'college_id' => $research->college_id,
+                            'department_id' => $research->department_id,
                             'format' => $type,
                             'report_category_id' => $report_values_array[1],
                             'report_code' => $report_values_array[0] ?? null,
+                            'research_cluster_id' => $research->discipline,
                             'report_reference_id' => $report_values_array[2] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
@@ -2753,11 +2688,12 @@ class SubmissionController extends Controller
                         Report::create([
                             'user_id' =>  $user_id,
                             'sector_id' => $sector_id,
-                            'college_id' => $collegeAndDepartment->college_id,
-                            'department_id' => $collegeAndDepartment->department_id,
+                            'college_id' => $research->college_id,
+                            'department_id' => $research->department_id,
                             'format' => $type,
                             'report_category_id' => $report_values_array[1],
                             'report_code' => $report_values_array[0] ?? null,
+                            'research_cluster_id' => $research->discipline,
                             'report_reference_id' => $report_values_array[2] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
@@ -2767,16 +2703,17 @@ class SubmissionController extends Controller
                         ]);
                     }
                 } elseif ($type == 'f') {
-                    if ($collegeAndDepartment->department_id == $collegeAndDepartment->college_id) {
-                        if ($collegeAndDepartment->department_id >= 227 && $collegeAndDepartment->department_id <= 248) { // If branch
+                    if ($research->department_id == $research->college_id) {
+                        if ($research->department_id >= 227 && $research->department_id <= 248) { // If branch
                             Report::create([
                                 'user_id' =>  $user_id,
                                 'sector_id' => $sector_id,
-                                'college_id' => $collegeAndDepartment->college_id,
-                                'department_id' => $collegeAndDepartment->department_id,
+                                'college_id' => $research->college_id,
+                                'department_id' => $research->department_id,
                                 'format' => $type,
                                 'report_category_id' => $report_values_array[1],
                                 'report_code' => $report_values_array[0] ?? null,
+                                'research_cluster_id' => $research->discipline,
                                 'report_reference_id' => $report_values_array[2] ?? null,
                                 'report_details' => json_encode($report_details),
                                 'report_documents' => json_encode($report_documents),
@@ -2789,11 +2726,12 @@ class SubmissionController extends Controller
                                 Report::create([
                                     'user_id' =>  $user_id,
                                     'sector_id' => $sector_id,
-                                    'college_id' => $collegeAndDepartment->college_id,
-                                    'department_id' => $collegeAndDepartment->department_id,
+                                    'college_id' => $research->college_id,
+                                    'department_id' => $research->department_id,
                                     'format' => $type,
                                     'report_category_id' => $report_values_array[1],
                                     'report_code' => $report_values_array[0] ?? null,
+                                    'research_cluster_id' => $research->discipline,
                                     'report_reference_id' => $report_values_array[2] ?? null,
                                     'report_details' => json_encode($report_details),
                                     'report_documents' => json_encode($report_documents),
@@ -2805,11 +2743,12 @@ class SubmissionController extends Controller
                                 Report::create([
                                     'user_id' =>  $user_id,
                                     'sector_id' => $sector_id,
-                                    'college_id' => $collegeAndDepartment->college_id,
-                                    'department_id' => $collegeAndDepartment->department_id,
+                                    'college_id' => $research->college_id,
+                                    'department_id' => $research->department_id,
                                     'format' => $type,
                                     'report_category_id' => $report_values_array[1],
                                     'report_code' => $report_values_array[0] ?? null,
+                                    'research_cluster_id' => $research->discipline,
                                     'report_reference_id' => $report_values_array[2] ?? null,
                                     'report_details' => json_encode($report_details),
                                     'report_documents' => json_encode($report_documents),
@@ -2824,11 +2763,12 @@ class SubmissionController extends Controller
                         Report::create([
                             'user_id' =>  $user_id,
                             'sector_id' => $sector_id,
-                            'college_id' => $collegeAndDepartment->college_id,
-                            'department_id' => $collegeAndDepartment->department_id,
+                            'college_id' => $research->college_id,
+                            'department_id' => $research->department_id,
                             'format' => $type,
                             'report_category_id' => $report_values_array[1],
                             'report_code' => $report_values_array[0] ?? null,
+                            'research_cluster_id' => $research->discipline,
                             'report_reference_id' => $report_values_array[2] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
@@ -3221,4 +3161,58 @@ class SubmissionController extends Controller
 
         return true;
     }
+
+    /**
+     * =============================================================================================
+     * 
+     * Method that redirects and returns session message per submission.
+     * 
+     * @param Int $category requires report category code to find the right submition message
+     *  
+     * @return Session message and redirect to the same page
+     * 
+     * =============================================================================================
+     */
+    private function returnSuccessMessage($category) { // <<----------- Report category id
+        switch($category){
+            case 1: case 2: case 3: case 4: case 5: case 6: case 7:  // Researchs
+                return redirect()->back()->with('submit_success', 'Accomplisment has been endorsed to your RESEARCH COORDINATOR/DIRECTOR for validation.');
+            case 12: case 13: case 14: case 23: case 34: case 35: case 36: case 37: // Extesnsions
+                return redirect()->back()->with('submit_success', 'Accomplisment has been endorsed to your EXTENSION COORDINATOR/DIRECTOR for validation.');
+            default: // Others
+                return redirect()->back()->with('submit_success', 'Accomplisment has been endorsed to your CHAIR/CHIEF for validation.');
+        }       
+    }
 }
+
+
+// } else {
+//     if($report_category_id == 1){
+//         $research_code = Research::where('id', $accomplishment_id)->pluck('research_code')->first();
+//     }
+//     if($report_category_id == 2){
+//         $research_id = ResearchComplete::where('id', $accomplishment_id)->pluck('research_id')->first();
+//         $research_code = ResearchComplete::where('id', $accomplishment_id)->pluck('research_code')->first();
+//     }
+//     if($report_category_id == 3){
+//         $research_id = ResearchPublication::where('id', $accomplishment_id)->pluck('research_id')->first();
+//         $research_code = ResearchPublication::where('id', $accomplishment_id)->pluck('research_code')->first();
+//     }
+//     if($report_category_id == 4){
+//         $research_id = ResearchPresentation::where('id', $accomplishment_id)->pluck('research_id')->first();
+//         $research_code = ResearchPresentation::where('id', $accomplishment_id)->pluck('research_code')->first();
+//     }
+//     if($report_category_id == 5){
+//         $research_id = ResearchCitation::where('id', $accomplishment_id)->pluck('research_id')->first();
+//         $research_code = ResearchCitation::where('id', $accomplishment_id)->pluck('research_code')->first();
+//     }
+//     if($report_category_id == 6){
+//         $research_id = ResearchUtilization::where('id', $accomplishment_id)->pluck('research_id')->first();
+//         $research_code = ResearchUtilization::where('id', $accomplishment_id)->pluck('research_code')->first();
+//     }
+
+//     if($report_category_id == 7){
+//         $research_id = ResearchCopyright::where('id', $accomplishment_id)->pluck('research_id')->first();
+//         $research_code = ResearchCopyright::where('id', $accomplishment_id)->pluck('research_code')->first();
+//     }
+// }

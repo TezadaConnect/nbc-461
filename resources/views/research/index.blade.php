@@ -7,21 +7,6 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                {{-- Success Message --}}
-                @if ($message = Session::get('success'))
-                <div class="alert alert-success alert-index">
-                    <i class="bi bi-check-circle"></i> {{ $message }}
-                </div>
-                @elseif ($message = Session::get('code-missing'))
-                <div class="alert alert-danger alert-index">
-                    {{ $message }}
-                </div>
-                @endif
-                @if ($message = Session::get('cannot_access'))
-                    <div class="alert alert-danger alert-index">
-                        {{ $message }}
-                    </div>
-                @endif
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="row">
@@ -48,13 +33,11 @@
                                 <div class="alert alert-info" role="alert">
                                     <i class="bi bi-lightbulb-fill"></i> <strong>Instructions & Reminders: </strong> <br>
                                     <div class="ml-3">
-                                        &#8226; Click on the row to View/Edit/Delete/Submit Research. <br>
-                                        &#8226; Only the <strong>Lead Researcher</strong> can register the research. You must tag your co-researchers to share them the research you encode. <br>
-                                        &#8226; If you are a <strong>Lead Researcher</strong>, tag your co-researchers before submitting. <br>
-                                        <span class="ml-3"><i class="bi bi-arrow-right ml-1"></i></i> Click "Tag Co-researchers" button after you encode and view the research.</span><br>
-                                        &#8226; If you are a <strong>Co-Researcher</strong>, check your <strong>notifications</strong> or click the "Research to Add" button to <strong>confirm and add</strong> the research registered by your Lead Researcher. <br>
+                                        &#8226; <strong>If you registered the research</strong>, tag your co-researchers before submitting. <br>
+                                        <span class="ml-3"><i class="bi bi-arrow-right ml-1"></i></i> On "Other Options", click "Tag Coresearchers".</span><br>
+                                        &#8226; If you are a <strong>Co-Researcher</strong>, click the "Research to Add" button to complete the research details. <br>
                                         &#8226; Once you <strong>submit</strong> an accomplishment, you are <strong>not allowed to edit</strong> until the quarter period ends. <br>
-                                        &#8226; Submit your accomplishments for the <strong>Quarter {{ $currentQuarterYear->current_quarter }}</strong> on or before 
+                                        &#8226; Please ensure submit the accomplishments for the <strong>Quarter {{ $currentQuarterYear->current_quarter }}</strong> on or before 
                                             <?php
                                                 $deadline = strtotime( $currentQuarterYear->deadline );
                                                 $deadline = date( 'F d, Y', $deadline);
@@ -69,28 +52,28 @@
                                                 <th>#</th>
                                                 <th>Research Code</th>
                                                 <th>Research Title</th>
+                                                <th>Researchers</th>
                                                 <th>Status</th>
                                                 <th>College/Branch/ Campus/Office</th>
-                                                <th>Date Modified</th>
-                                                <th>Quarter</th>
-                                                <th>Year</th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($researches as $research)
                                                 <tr role="button">
                                                     <td><a href="{{ route('research.show', $research->id) }}" class="link text-dark">{{ $loop->iteration }}</a></td>
-                                                    <td>{{ $research->research_code }}</td>
-                                                    <td>{{ $research->title }}</td>
-                                                    <td>{{ $research->status_name }}</td>
-                                                    <td>{{ $research->college_name }}</td>
+                                                    <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->research_code }}</td>
+                                                    <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->title }}</td>
+                                                    <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->researchers }}</td>
+                                                    <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->status_name }}</td>
+                                                    <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->college_name }}</td>
                                                     <td>
-                                                        <?php $updated_at = strtotime( $research->updated_at );
-                                                            $updated_at = date( 'M d, Y h:i A', $updated_at ); ?>
-                                                        {{ $updated_at }}
+                                                        <div class="btn-group" role="group" aria-label="button-group">
+                                                            <a class="btn btn-sm btn-primary d-inline-flex align-items-center" href="{{ route('research.show', $research->id) }}">View</a>
+                                                            <a class="btn btn-sm btn-warning d-inline-flex align-items-center" href="{{ route('research.edit', $research->id) }}">Edit</a>
+                                                            @include('research.options', ['research_id' => $research->id, 'research_status' => $research->status, 'involvement' => $research->nature_of_involvement, 'research_code' => $research->research_code, 'firstResearch' => $firstResearch[$research->id], 'isSubmitted' => $isSubmitted ])
+                                                        </div>
                                                     </td>
-                                                    <td class="{{ ($research->report_quarter == $currentQuarterYear->current_quarter && $research->report_year == $currentQuarterYear->current_year) ? 'to-submit' : '' }}">{{ $research->report_quarter }}</td>
-                                                    <td>{{ $research->report_year }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -119,11 +102,6 @@
                 $(this).remove();
             });
         }, 4000);
-    </script>
-    <script>
-         $('#researchTable').on('click', 'tbody td', function(){
-                window.location = $(this).closest('tr').find('td:eq(0) a').attr('href');
-            });
     </script>
     <script>
         var max = new Date().getFullYear();

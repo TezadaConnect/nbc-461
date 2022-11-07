@@ -148,38 +148,9 @@ class AcademicController extends Controller
             }
         }
 
-        return redirect()->route('expert-service-in-academic.index')->with('success', 'Expert service rendered in academic '.strtolower($classification[0]->name).' has been added.');
+        if (!$request->has('document')) return redirect()->route('expert-service-in-academic.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        // if($request->has('document')){
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $fileName = $this->commonService->fileUploadHandler($document, $request->input('description'), 'ESA-', 'expert-service-in-academic.index');
-        //         if(is_string($fileName))  ExpertServiceAcademicDocument::create(['expert_service_academic_id' => $esAcademic->id, 'filename' => $fileName]);
-        //         else return $fileName;
-        //     }
-        // }
-
-        // if($request->has('document')){
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //         if($temporaryFile){
-        //             $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //             $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //             $ext = $info['extension'];
-        //             $fileName = 'ESA-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //             $newPath = "documents/".$fileName;
-        //             Storage::move($temporaryPath, $newPath);
-        //             Storage::deleteDirectory("documents/tmp/".$document);
-        //             $temporaryFile->delete();
-
-        //             ExpertServiceAcademicDocument::create([
-        //                 'expert_service_academic_id' => $esAcademic->id,
-        //                 'filename' => $fileName,
-        //             ]);
-        //         }
-        //     }
-        // }
+        return redirect()->route('expert-service-in-academic.index')->with('save_success', 'Expert service rendered in academic '.strtolower($classification[0]->name).' has been added.');
 
     }
 
@@ -332,37 +303,15 @@ class AcademicController extends Controller
             }
         }
 
-        return redirect()->route('expert-service-in-academic.index')->with('success', 'Expert service rendered in academic '.strtolower($classification[0]->name).' has been updated.');
+        $imageRecord = ExpertServiceAcademicDocument::where('expert_service_academic_id', $expert_service_in_academic->id)->get();
 
-                // if($request->has('document')){
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $fileName = $this->commonService->fileUploadHandler($document, $request->input('description'), 'ESA-', 'expert-service-in-academic.index');
-        //         if(is_string($fileName))  ExpertServiceAcademicDocument::create(['expert_service_academic_id' => $expert_service_in_academic->id, 'filename' => $fileName]);
-        //         else return $fileName;
-        //     }
-        // }
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+        if($imageChecker){
+            return redirect()->route('expert-service-in-academic.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        }
+        
+        return redirect()->route('expert-service-in-academic.index')->with('save_success', 'Expert service rendered in academic '.strtolower($classification[0]->name).' has been updated.');
 
-        // if($request->has('document')){
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //         if($temporaryFile){
-        //             $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //             $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //             $ext = $info['extension'];
-        //             $fileName = 'ESA-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //             $newPath = "documents/".$fileName;
-        //             Storage::move($temporaryPath, $newPath);
-        //             Storage::deleteDirectory("documents/tmp/".$document);
-        //             $temporaryFile->delete();
-        //             ExpertServiceAcademicDocument::create([
-        //                 'expert_service_academic_id' => $expert_service_in_academic->id,
-        //                 'filename' => $fileName,
-        //             ]);
-        //         }
-        //     }
-        // }
     }
 
     /**

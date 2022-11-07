@@ -144,7 +144,12 @@ class PartnershipController extends Controller
                 else return $fileName;
             }
         }
-        return redirect()->route('partnership.index')->with('success', 'Partnership, linkages, and network has been added.');
+
+        $imageChecker = $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+
+        if($imageChecker) return redirect()->route('partnership.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('partnership.index')->with('save_success', 'Partnership, linkages, and network has been added.');
 
     }
 
@@ -296,7 +301,13 @@ class PartnershipController extends Controller
             }
         }
 
-        return redirect()->route('partnership.index')->with('success', 'Partnership, linkages, and network has been updated.');
+        $imageRecord = PartnershipDocument::where('partnership_id', $partnership->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('partnership.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('partnership.index')->with('save_success', 'Partnership, linkages, and network has been updated.');
 
     }
 

@@ -147,7 +147,12 @@ class StudentTrainingController extends Controller
             }
         }
 
-        return redirect()->route('student-training.index')->with('success', 'Student attended seminar and training has been added.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
+        if($imageChecker){
+            return redirect()->route('student-training.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        }
+    
+        return redirect()->route('student-training.index')->with('save_success', 'Student attended seminar and training has been added.');
 
         // if($request->has('document')){
         //     try {
@@ -321,32 +326,13 @@ class StudentTrainingController extends Controller
             }
         }
 
-        return redirect()->route('student-training.index')->with('success', 'Student attended seminar and training has been updated.');
+        $imageRecord = StudentTrainingDocument::where('student_training_id', $student_training->id)->get();
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'ST-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 StudentTrainingDocument::create([
-        //                     'student_training_id' => $student_training->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('student-training.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('student-training.index')->with('save_success', 'Student attended seminar and training has been updated.');
     }
 
     /**

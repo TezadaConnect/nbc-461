@@ -238,6 +238,8 @@ class IpqmsoConsolidatedController extends Controller
         $sectors = [];
         $departmentsResearch = [];
         $departmentsExtension = [];
+        $collegesForAssociate = [];
+        $sectorsForAssistant = [];
 
         $currentQuarterYear = Quarter::find(1);
         $quarter = $currentQuarterYear->current_quarter;

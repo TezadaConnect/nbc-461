@@ -20,25 +20,17 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="quarterFilter" class="mr-2">Quarter Period: </label>
-                                    <div class="d-flex">
-                                        <select id="quarterFilter" class="custom-select" name="quarter">
-                                            <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                            <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                            <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                            <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
-                                        </select>
+                            <form action="{{ route('report.generate.index', $department->id ?? '') }}" method="post">
+                                <div class="col-md-8" style="padding-top: 25px;">
+                                    <div class="form-group">
+                                        @csrf
+                                        <input type="hidden" name="level" value="research">
+                                        <input type="hidden" name="year_generate" id="year_generate" class="form-control" >
+                                        <button id="quarterYearFilter" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
+                                        <button id="export" type="submit" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-8" style="padding-top: 30px;">
-                                <div class="form-group">
-                                    <button id="quarterYearFilter" class="btn btn-primary mr-2">GENERATE</button>
-                                    <button id="export" type="button" class="btn btn-primary" data-target="#GenerateReport" data-toggle="modal">EXPORT</button>
-                                </div>
-                            </div>
+                            </form>
                         </div>
                         <hr>
                         <div class="row">
@@ -413,8 +405,6 @@
             </div>
         </div>
     </div>
-
-    @include('reports.generate.index', ['data' => $department, 'level' => 'college', 'special_type' => ''])
 
     @push('scripts')
         <script type="text/javascript" src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
