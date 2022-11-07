@@ -212,7 +212,17 @@ class IpqmsoConsolidatedController extends Controller
 
     public function notifyPendingOffice($pending)
     {
-        # code...
+        // $findPendingQry = Report::where($this->approvalHolderArr[$pending] ?? 'researcher_approval', 1)->get();
+        // $idHolder = [];
+
+        // $containerId
+
+        // foreach ($findPendingQry as $value) {
+        //     if (!in_array($value[], $idHolder)) {
+
+        //         array_push($idHolder, $value[]);
+        //     }
+        // }
     }
 
     private function AuthenticateUserLogged()
