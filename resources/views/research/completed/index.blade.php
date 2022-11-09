@@ -1,12 +1,6 @@
 <x-app-layout>
     @section('title', 'Research & Book Chapter |')
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                @include('research.navigation-bar', ['research_code' => $research->id, 'research_status' => $research->status])
-            </div>
-        </div>
-
         @if ($value == null)
             <div class="row">
                 <div class="col-md-12">

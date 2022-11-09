@@ -1,11 +1,5 @@
 <x-app-layout>
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                @include('research.navigation-bar', ['research_code' => $research->id, 'research_status' => $research->status])
-            </div>
-        </div>
-
         @if ($research->status < 28)
             <div class="row">
                 <div class="col-md-12">

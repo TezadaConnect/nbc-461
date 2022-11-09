@@ -62,7 +62,7 @@
                 $('#target_date').datepicker('setStartDate', $('#start_date').val());
             });
         </script>
-         <script>
+        <script>
             $("#tagged-collaborators").selectize({
               maxItems: null,
               valueField: 'id',
@@ -70,9 +70,7 @@
               sortField: "fullname",
               searchField: "fullname",
               options: @json($allUsers),
-          });
-
-        
+            });
         </script>
         <script>
             // $('#nature_of_involvement option[value=12]').attr('disabled','disabled');

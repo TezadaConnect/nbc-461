@@ -13,19 +13,20 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                @include('research.edit-navbar', ['research_code' => $research->id, 'research_status' => $research->status, 'noRequisiteRecords' => $noRequisiteRecords])
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
                         <form action="{{ route('research.update', $research->id) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
                             @csrf
                             @method('put')
                             @include('quarter-field')
+                            <div class="form-group">
+                                <label class="font-weight-bold" for="collaborators-tagging">Tag your co-researchers (Tagging PUP employees who use the eQAR system only).</label><br>
+                                <span class="form-notes">If you are independent researcher, leave it blank.</span>
+                                <select name="tagged_collaborators[]" id="tagged-collaborators" class="form-control custom-select">
+                                    <option value="" selected>Choose...</option>
+                                </select>
+                            </div>
                             @include('form', ['formFields' => $researchFields, 'value' => $values, 'colleges' => $colleges, 'collegeOfDepartment' => $collegeOfDepartment])
-
                             <div class="col-md-12">
                                 <div class="mb-0">
                                     <div class="d-flex justify-content-end align-items-baseline">
@@ -153,7 +154,7 @@
         <script src="{{ asset('js/spinner.js') }}"></script>
         <script>
                 $(function() {
-                    $("#status").prop('disable', true);
+                    $('#status').prop('disabled', true);
                 });
                 if ({{ $research->funding_type }} == 23) {
                     //Univ. Funded
@@ -235,6 +236,17 @@
             $('#start_date').on('change', function () {
                 $('#target_date').datepicker('setDate', $('#start_date').val());
                 $('#target_date').datepicker('setStartDate', $('#start_date').val());
+            });
+        </script>
+        <script>
+            $("#tagged-collaborators").selectize({
+              maxItems: null,
+              valueField: 'id',
+              labelField: 'fullname',
+              sortField: "fullname",
+              searchField: "fullname",
+              options: @json($allUsers),
+              items: @json($taggedUserIDs),
             });
         </script>
         <script>

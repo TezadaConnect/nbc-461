@@ -92,10 +92,10 @@
             @enderror
     </div>
 </div>
-{{-- @push('scripts')
+@push('scripts')
 <script src="{{ asset('dist/selectize.min.js') }}"></script>
 <!-- For words separated by (',') -->
-<script>
+<!-- <script>
     $("#keywords").selectize({
         delimiter: ",",
         persist: false,
@@ -128,7 +128,7 @@
         },
     });
 
-</script>
+</script> -->
 <!-- For people names separated by ('/') -->
 <script>
 
@@ -165,37 +165,37 @@
         },
     });
 
-    $("#authors_compilers").selectize({
-        delimiter: "/",
-        persist: false,
-        create: function (input) {
-            return {
-            value: input,
-            text: input,
-            };
-        },
-    });
+    // $("#authors_compilers").selectize({
+    //     delimiter: "/",
+    //     persist: false,
+    //     create: function (input) {
+    //         return {
+    //         value: input,
+    //         text: input,
+    //         };
+    //     },
+    // });
 
-    $("#editor_name").selectize({
-        delimiter: "/",
-        persist: false,
-        create: function (input) {
-            return {
-            value: input,
-            text: input,
-            };
-        },
-    });
+    // $("#editor_name").selectize({
+    //     delimiter: "/",
+    //     persist: false,
+    //     create: function (input) {
+    //         return {
+    //         value: input,
+    //         text: input,
+    //         };
+    //     },
+    // });
 
-    $("#article_author").selectize({
-        delimiter: "/",
-        persist: false,
-        create: function (input) {
-            return {
-            value: input,
-            text: input,
-            };
-        },
-    });
+    // $("#article_author").selectize({
+    //     delimiter: "/",
+    //     persist: false,
+    //     create: function (input) {
+    //         return {
+    //         value: input,
+    //         text: input,
+    //         };
+    //     },
+    // });
 </script>
-@endpush --}}
+@endpush

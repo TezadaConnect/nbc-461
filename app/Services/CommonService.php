@@ -9,12 +9,24 @@
 namespace App\Services;
 
 use Exception;
+use App\Models\Dean;
+use App\Models\User;
+use App\Models\Research;
+use App\Models\Associate;
+use App\Models\SectorHead;
+use App\Models\Chairperson;
+use App\Helpers\LogActivity;
 use App\Models\TemporaryFile;
+use App\Models\ResearchInvite;
+use App\Models\FacultyResearcher;
+use App\Models\FacultyExtensionist;
 use App\Models\Maintenance\College;
 use App\Models\Maintenance\Department;
 use Illuminate\Support\Facades\Storage;
 use App\Models\FormBuilder\DropdownOption;
+use Illuminate\Support\Facades\Notification;
 use App\Http\Controllers\StorageFileController;
+use App\Notifications\ResearchInviteNotification;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
 
@@ -156,13 +168,13 @@ class CommonService {
     /**
      * =============================================================================================
      * 
-     * File upload handler for external database function that returns an object or an associative array. 
+     * A function that gets all the dropdown values by passing the input field names and the values of each field.
      * 
-     * @param Array $formFields this paramenter is contains an array of fields of a form.
+     * @param Object $formFields this paramenter contains the of fields of a form.
      * 
-     * @param Array $formValues this parameter contains the record values.
+     * @param Object $formValues this parameter contains the record values.
      * 
-     * @return Array with key value pair; $formValues.
+     * @return Array $formValues.
      * 
      * =============================================================================================
      */
@@ -195,5 +207,140 @@ class CommonService {
         }
 
         return $formValues;
+    }
+
+    /**
+     * =============================================================================================
+     * 
+     * A function that gets all the assigned office/cluster by passing the roles of a user.
+     * 
+     * @param Array $roles this parameter contains all the roles available to a user.
+     * 
+     * @return Array with key-value pair; $assignment.
+     * 
+     * =============================================================================================
+     */
+    public function getAssignmentsByCurrentRoles($roles){
+        $assignment = array();
+        $assignment[5] = array();
+        $assignment[6] = array();
+        $assignment[7] = array();
+        $assignment[10] = array();
+        $assignment[11] = array();
+        $assignment[12] = array();
+        $assignment[13] = array();
+        
+        if(in_array(5, $roles)){
+            $assignment[5] = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
+                                        ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
+        }
+        if(in_array(6, $roles)){
+            $assignment[6] = Dean::where('deans.user_id', auth()->id())->select('deans.college_id', 'colleges.code')
+                            ->join('colleges', 'colleges.id', 'deans.college_id')->get();
+        }
+        if(in_array(7, $roles)){
+            $assignment[7] = SectorHead::where('sector_heads.user_id', auth()->id())->select('sector_heads.sector_id', 'sectors.code')
+                        ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
+        }
+        if(in_array(10, $roles)){
+            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
+        }
+        if(in_array(11, $roles)){
+            $assignment[11] = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
+                                        ->select('faculty_extensionists.college_id', 'colleges.code')
+                                        ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
+        }
+        if(in_array(12, $roles)){
+            $assignment[12] = Associate::where('associates.user_id', auth()->id())->select('associates.college_id', 'colleges.code')
+                            ->join('colleges', 'colleges.id', 'associates.college_id')->get();
+        }
+        if(in_array(13, $roles)){
+            $assignment[13] = Associate::where('associates.user_id', auth()->id())->select('associates.sector_id', 'sectors.code')
+                        ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
+        }
+
+        return $assignment;
+    }
+
+    /**
+     * =============================================================================================
+     * 
+     * A function that gets all the full names of users; usually used in tagging
+     * 
+     * @return Array with key-value pair; $allUsers.
+     * 
+     * =============================================================================================
+     */
+    public function getAllUserNames(){
+        $allUsers = [];
+        $users = User::all()->except(auth()->id());
+        $i = 0;
+        foreach($users as $user) {
+            if ($user->middle_name != null) {
+                $userFullName = $user->last_name.', '.$user->first_name.' '.substr($user->middle_name, 0, 1).'.';
+                if ($user->suffix != null) 
+                    $userFullName = $user->last_name.', '.$user->first_name.' '.substr($user->middle_name, 0, 1).'. '.$user->suffix;
+            }
+            else {
+                if ($user->suffix != null)
+                    $userFullName = $user->last_name.', '.$user->first_name.' '.$user->suffix;
+                else
+                    $userFullName = $user->last_name.', '.$user->first_name;
+            }
+            $allUsers[$i++] = array("id" => $user->id, 'fullname' => $userFullName);
+        }
+
+        return $allUsers;
+    }
+
+    public function addTaggedUsers($collaborators, $research, $formName){
+        $count = 0;
+        if ($formName == "research"){
+            if ($collaborators != null) {
+                foreach ($collaborators as $collab) {
+                    if ($collab != auth()->id()) {
+                        ResearchInvite::create([
+                            'user_id' => $collab,
+                            'sender_id' => auth()->id(),
+                            'research_id' => $research->id
+                        ]);
+    
+                        $researcher = Research::find($research->id)->researchers;
+                        $researcherExploded = explode("/", $researcher);
+                        $user = User::find($collab);
+                        if ($user->middle_name != '') {
+                            array_push($researcherExploded, $user->last_name.', '.$user->first_name.' '.substr($user->middle_name,0,1).'.');
+                        } else {
+                            array_push($researcherExploded, $user->last_name.', '.$user->first_name);
+                        }
+                        
+                        $research_title = Research::where('id', $research->id)->pluck('title')->first();
+                        $sender = User::join('research', 'research.user_id', 'users.id')
+                                        ->where('research.user_id', auth()->id())
+                                        ->where('research.id', $research->id)
+                                        ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
+                        $url_accept = route('research.invite.confirm', $research->id);
+                        $url_deny = route('research.invite.cancel', $research->id);
+    
+                        $notificationData = [
+                            'receiver' => $user->first_name,
+                            'title' => $research_title,
+                            'sender' => $sender->first_name.' '.$sender->middle_name.' '.$sender->last_name.' '.$sender->suffix,
+                            'url_accept' => $url_accept,
+                            'url_deny' => $url_deny,
+                            'date' => date('F j, Y, g:i a'),
+                            'type' => 'res-invite'
+                        ];
+    
+                        Notification::send($user, new ResearchInviteNotification($notificationData));
+                    }
+                    $count++;
+                    Research::where('id', $research->id)->update([
+                        'researchers' => implode("/", $researcherExploded),
+                    ]);
+                }
+                LogActivity::addToLog('Had added a co-researcher in the research "'.$research_title.'".'); 
+            }     
+        }
     }
 }
