@@ -18,6 +18,8 @@ use App\Models\Chairperson;
 use App\Helpers\LogActivity;
 use App\Models\TemporaryFile;
 use App\Models\ResearchInvite;
+use App\Models\ExtensionInvite;
+use App\Models\ExtensionService;
 use App\Models\FacultyResearcher;
 use App\Models\FacultyExtensionist;
 use App\Models\Maintenance\College;
@@ -27,6 +29,7 @@ use App\Models\FormBuilder\DropdownOption;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Controllers\StorageFileController;
 use App\Notifications\ResearchInviteNotification;
+use App\Notifications\ExtensionInviteNotification;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
 
@@ -293,19 +296,31 @@ class CommonService {
         return $allUsers;
     }
 
-    public function addTaggedUsers($collaborators, $research, $formName){
+    /**
+     * =============================================================================================
+     * 
+     * A function that adds the tagged users as researchers/co-extensionists;
+     * 
+     * @param Array $collaborators this parameter contains the user IDs of tagged users in the form.
+     * 
+     * @param Int $id this parameter is the record id.
+     * 
+     * @param String $formName can have a possible value: 'research' or 'extension'.
+     * =============================================================================================
+     */
+    public function addTaggedUsers($collaborators, $id, $formName){
         $count = 0;
         if ($formName == "research"){
             if ($collaborators != null) {
                 foreach ($collaborators as $collab) {
-                    if ($collab != auth()->id()) {
+                    if ($collab != auth()->id() && ResearchInvite::where('research_id', $id)->where('user_id', $collab)->doesntExist()) {
                         ResearchInvite::create([
                             'user_id' => $collab,
                             'sender_id' => auth()->id(),
-                            'research_id' => $research->id
+                            'research_id' => $id
                         ]);
     
-                        $researcher = Research::find($research->id)->researchers;
+                        $researcher = Research::find($id)->researchers;
                         $researcherExploded = explode("/", $researcher);
                         $user = User::find($collab);
                         if ($user->middle_name != '') {
@@ -314,13 +329,13 @@ class CommonService {
                             array_push($researcherExploded, $user->last_name.', '.$user->first_name);
                         }
                         
-                        $research_title = Research::where('id', $research->id)->pluck('title')->first();
+                        $research_title = Research::where('id', $id)->pluck('title')->first();
                         $sender = User::join('research', 'research.user_id', 'users.id')
                                         ->where('research.user_id', auth()->id())
-                                        ->where('research.id', $research->id)
+                                        ->where('research.id', $id)
                                         ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
-                        $url_accept = route('research.invite.confirm', $research->id);
-                        $url_deny = route('research.invite.cancel', $research->id);
+                        $url_accept = route('research.invite.confirm', $id);
+                        $url_deny = route('research.invite.cancel', $id);
     
                         $notificationData = [
                             'receiver' => $user->first_name,
@@ -333,14 +348,51 @@ class CommonService {
                         ];
     
                         Notification::send($user, new ResearchInviteNotification($notificationData));
+                        Research::where('id', $id)->update([
+                            'researchers' => implode("/", $researcherExploded),
+                        ]);
+                    }
+                }
+                // LogActivity::addToLog('Had added a co-researcher in the research "'.$research_title.'".'); 
+            }     
+        } else{
+            $count = 0;
+            if ($collaborators != null) {
+                foreach ($collaborators as $collab) {
+                    if ($collab != auth()->id() ) {
+                        $eService = ExtensionService::find($id);
+                        ExtensionInvite::create([
+                            'user_id' => $collab,
+                            'sender_id' => auth()->id(),
+                            'extension_service_id' => $id,
+                            'ext_code' => $eService->ext_code
+                        ]);
+        
+                        $user = User::find($collab);
+                        $extension_title = "Extension";
+                        $sender = User::join('extension_services', 'extension_services.user_id', 'users.id')
+                                        ->where('extension_services.user_id', auth()->id())
+                                        ->where('extension_services.id', $id)
+                                        ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
+                        $url_accept = route('extension.invite.confirm', $id);
+                        $url_deny = route('extension.invite.cancel', $id);
+        
+                        $notificationData = [
+                            'receiver' => $user->first_name,
+                            'title' => $extension_title,
+                            'sender' => $sender->first_name.' '.$sender->middle_name.' '.$sender->last_name.' '.$sender->suffix,
+                            'url_accept' => $url_accept,
+                            'url_deny' => $url_deny,
+                            'date' => date('F j, Y, g:i a'),
+                            'type' => 'ext-invite'
+                        ];
+            
+                        Notification::send($user, new ExtensionInviteNotification($notificationData));
                     }
                     $count++;
-                    Research::where('id', $research->id)->update([
-                        'researchers' => implode("/", $researcherExploded),
-                    ]);
                 }
-                LogActivity::addToLog('Had added a co-researcher in the research "'.$research_title.'".'); 
-            }     
+                LogActivity::addToLog('Had added '.$count.' extension partners in an extension program/project/activity.');
+            }
         }
     }
 }

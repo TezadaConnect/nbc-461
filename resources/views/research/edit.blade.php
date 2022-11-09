@@ -20,8 +20,8 @@
                             @method('put')
                             @include('quarter-field')
                             <div class="form-group">
-                                <label class="font-weight-bold" for="collaborators-tagging">Tag your co-researchers (Tagging PUP employees who use the eQAR system only).</label><br>
-                                <span class="form-notes">If you are independent researcher, leave it blank.</span>
+                                <label class="font-weight-bold" for="collaborators-tagging">Tagged co-researchers from PUP (eQAR system users).</label> This is to share 1 research info among other researchers.<br>
+                                <span class="form-notes">To remove a tagged researcher, remove the name from the selected items below.</span>
                                 <select name="tagged_collaborators[]" id="tagged-collaborators" class="form-control custom-select">
                                     <option value="" selected>Choose...</option>
                                 </select>

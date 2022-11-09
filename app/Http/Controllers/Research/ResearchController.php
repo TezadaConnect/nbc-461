@@ -570,8 +570,8 @@ class ResearchController extends Controller
         ]);
 
 
-        $input = $request->except(['_token', '_method', 'document', 'funding_amount']);
-        $inputOtherResearchers = $request->except(['_token', '_method', 'document', 'funding_amount', 'college_id', 'department_id', 'nature_of_involvement']);
+        $input = $request->except(['_token', '_method', 'document', 'funding_amount', 'tagged_collaborators']);
+        $inputOtherResearchers = $request->except(['_token', '_method', 'document', 'funding_amount', 'college_id', 'department_id', 'nature_of_involvement', 'tagged_collaborators']);
         $funding_amount = $request->funding_amount;
         $funding_amount = str_replace( ',' , '', $funding_amount);
 
@@ -613,23 +613,34 @@ class ResearchController extends Controller
         //     }
            
         // }
+        $this->commonService->addTaggedUsers($request->input('tagged_collaborators'), $research->id, 'research');
+        $taggedUsersID = ResearchInvite::where('research_id', $research->id)->pluck('user_id')->all();
+        foreach($taggedUsersID as $taggedID){
+            if (!in_array($taggedID, $request->input('tagged_collaborators'))){
+                ResearchInvite::where('research_id', $research->id)->where('user_id', $taggedID)->delete();
+                $researcher = Research::find($research->id)->researchers;
+                $researchersArray = explode("/", $researcher);
+                $user = User::find($taggedID);
+                $middle = '';
+                if ($user->middle_name != null) {
+                    $middle = substr($user->middle_name,0,1).'.';
+                    $researcherToRemove = $user->last_name.', '.$user->first_name.' '.$middle;
+                }
+                else {
+                    $researcherToRemove = $user->last_name.', '.$user->first_name;
+                }
 
-        $researchersExplode = explode("/", $research->researchers);
-        foreach($researchersExplode as $key => $researcher){
-            if ($researcher == $researcherToRemove) {
-                    unset($researchersExplode[$key]); 
+                foreach($researchersArray as $key => $researcher){
+                    if ($researcher == $researcherToRemove)
+                        unset($researchersArray[$key]); 
+                }
+
+                Research::where('research_code', $research->research_code)->update([
+                    'researchers' => implode("/", $researchersArray)
+                ]);
             }
         }
 
-        Research::where('research_code', $research->research_code)->update([
-            'researchers' => implode("/", $researchersExplode)
-        ]);
-
-                ResearchInvite::where('research_id', $research_id)->where('user_id', $request->input('user_id'))->delete();
-
-        LogActivity::addToLog('Had updated the details of research "'.$research->title.'".');
-
-        
         if(!empty($request->file(['document']))){      
             foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RR-", 'research.index');

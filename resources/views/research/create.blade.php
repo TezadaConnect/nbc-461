@@ -17,7 +17,7 @@
                             @csrf
                             @include('quarter-field')
                             <div class="form-group">
-                                <label class="font-weight-bold" for="collaborators-tagging">Tag your co-researchers (Tagging PUP employees who use the eQAR system only).</label><br>
+                                <label class="font-weight-bold" for="collaborators-tagging">Tag co-researchers from PUP (eQAR system users). This is to share 1 research info among other researchers.</label><br>
                                 <span class="form-notes">If you are independent researcher, leave it blank.</span>
                                 <select name="tagged_collaborators[]" id="tagged-collaborators" class="form-control custom-select">
                                     <option value="" selected>Choose...</option>
