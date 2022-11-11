@@ -53,7 +53,8 @@
                     {{-- Researchers --}}
                     @if (in_array(10, $roles))
                         @forelse ( $departmentsResearch as $row)
-                            <a href="{{ route('reports.consolidate.research', $row->cluster_id) }}" class="submission-menu {{ isset($id) ? ($row->cluster_id == $id && request()->routeIs('reports.consolidate.research') ? 'active' : '') : '' }}">
+                            <a href="{{ route('reports.consolidate.research', $row->college_id) }}" class="submission-menu {{ isset($id) ? ($row->college_id == $id && request()->routeIs('reports.consolidate.research') ? 'active' : '') : '' }}">
+                            <!-- <a href="{{ route('reports.consolidate.research', $row->cluster_id) }}" class="submission-menu {{ isset($id) ? ($row->cluster_id == $id && request()->routeIs('reports.consolidate.research') ? 'active' : '') : '' }}"> -->
                             Research - {{ $row->name }}
                             </a><br>
                         @empty
