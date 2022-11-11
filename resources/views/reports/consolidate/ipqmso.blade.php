@@ -672,12 +672,12 @@
         <script>
             $('#filter').on('click', function () {
                 var year_reported = $('#yearFilter').val();
-                var quarter = $('#quarterFilter').val();
-                var link = "{{ url('reports/consolidate/all/:year/:quarter') }}";
-                var newLink = link.replace(':year', year_reported).replace(':quarter', quarter);
+                var quarter1 = $('#quarterFilter').val();
+                var quarter2 = $('#quarterFilter2').val();
+                var link = "{{ url('reports/consolidate/all/:year/:quarter1/:quarter2') }}";
+                var newLink = link.replace(':year', year_reported).replace(':quarter1', quarter1).replace(':quarter2', quarter2);
                 window.location.replace(newLink);
             });
-
             $('#export').on('click', function() {
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedQuarter2 = $('#quarterFilter2').val();
@@ -686,7 +686,6 @@
                 $('#to_quarter_generate2').val(selectedQuarter2);
                 $('#year_generate2').val(selectedYear);
             })
-
             $('#pending').on('click', function () {
                 var pendingSelected = $('#pendingFilter').val() ?? null;
                 var link = "{{ url('reports/consolidate/all/:pending') }}";

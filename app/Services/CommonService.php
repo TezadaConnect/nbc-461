@@ -11,8 +11,10 @@ namespace App\Services;
 use Exception;
 use App\Models\Dean;
 use App\Models\User;
+use App\Models\Report;
 use App\Models\Research;
 use App\Models\Associate;
+use App\Models\DenyReason;
 use App\Models\SectorHead;
 use App\Models\Chairperson;
 use App\Helpers\LogActivity;
@@ -246,7 +248,8 @@ class CommonService {
                         ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
         }
         if(in_array(10, $roles)){
-            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
+            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
+            // $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
         }
         if(in_array(11, $roles)){
             $assignment[11] = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
@@ -393,6 +396,33 @@ class CommonService {
                 }
                 LogActivity::addToLog('Had added '.$count.' extension partners in an extension program/project/activity.');
             }
+        }
+    }
+
+
+    /**
+     * =============================================================================================
+     * 
+     * A function that returns the report to the submitter.
+     * 
+     * @param Int $reportID this parameter contains the primary ID of the submitted report.
+     * 
+     * @param String $reviewerPosition this parameter is the position of the reviewer who returns the report.
+     * 
+     * @param String $remarks is the note or reason for return.
+     * =============================================================================================
+     */
+    public function returnReport($reportID, $reviewerPosition, $remarks){
+        if ($reviewerPosition == 'chairperson'){
+            DenyReason::create([
+                'report_id' => $reportID,
+                'user_id' => auth()->id(),
+                'position_name' => $reviewerPosition,
+                'reason' => $remarks,
+            ]);
+            Report::where('id', $reportID)->update([
+                'chairperson_approval' => 0
+            ]);
         }
     }
 }

@@ -253,7 +253,7 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::get('/research/remove-document/{filename}', [\App\Http\Controllers\Research\ResearchController::class, 'removeDoc'])->name('research.removedoc');
     Route::get('/research/citations/{research_id}/{action_keyword}', [\App\Http\Controllers\Research\CitationController::class, 'showAll'])->name('research.citation.showAll');
     Route::get('/research/utilizations/{research_id}/{action_keyword}', [\App\Http\Controllers\Research\UtilizationController::class, 'showAll'])->name('research.utilization.showAll');
-    Route::post('/research/mark-as-ongoing/{id}', [\App\Http\Controllers\Research\ResearchController::class, 'markAsOngoing'])->name('research.mark-as-ongoing');
+    Route::get('/research/mark-as-ongoing/{id}', [\App\Http\Controllers\Research\ResearchController::class, 'markAsOngoing'])->name('research.mark-as-ongoing');
 
     // Use Research By Co-Researchers
     Route::post('/research/with-code', [\App\Http\Controllers\Research\ResearchController::class, 'useResearchCode'])->name('research.code');
