@@ -28,10 +28,10 @@
                         <option value="4" {{$quarter== 4 ? 'selected' : ''}} class="quarter">4</option>
                     </select>
                     <select hidden name="to_quarter_generate" id="to_quarter_generate" class="form-control">
-                        <option value="1" {{$quarter== 1 ? 'selected' : ''}} class="quarter">1</option>
-                        <option value="2" {{$quarter== 2 ? 'selected' : ''}} class="quarter">2</option>
-                        <option value="3" {{$quarter== 3 ? 'selected' : ''}} class="quarter">3</option>
-                        <option value="4" {{$quarter== 4 ? 'selected' : ''}} class="quarter">4</option>
+                        <option value="1" {{$quarter2== 1 ? 'selected' : ''}} class="quarter">1</option>
+                        <option value="2" {{$quarter2== 2 ? 'selected' : ''}} class="quarter">2</option>
+                        <option value="3" {{$quarter2== 3 ? 'selected' : ''}} class="quarter">3</option>
+                        <option value="4" {{$quarter2== 4 ? 'selected' : ''}} class="quarter">4</option>
                     </select>
                     <select hidden name="year_generate2" id="year_generate2" class="form-control" >
                     </select>

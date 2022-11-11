@@ -67,11 +67,17 @@
         @endif
         @if ($research_status >= '30')
             @if ($researchRecords['citation'][$research_id])
-            <a href="{{ route('research.citation.index', $research_id) }}" class="dropdown-item"><i class="bi bi-pencil-square"></i> Edit Citation Records</a>
+            <a href="{{ route('research.citation.showAll', [$research_id, 'for-updates']) }}" class="dropdown-item"><i class="bi bi-pencil-square"></i> Edit Citation Records</a>
+            @php
+                $submissions = 0;
+            @endphp
             @endif
         @endif
         @if ($researchRecords['utilization'][$research_id])
-        <a href="{{ route('research.utilization.index', $research_id) }}" class="dropdown-item"><i class="bi bi-pencil-square"></i> Edit Utilization Records</a>
+        <a href="{{ route('research.utilization.showAll', [$research_id, 'for-updates']) }}" class="dropdown-item"><i class="bi bi-pencil-square"></i> Edit Utilization Records</a>
+            @php
+                $submissions = 0;
+            @endphp
         @endif
 
         @if ($submissions == 1)
@@ -86,32 +92,35 @@
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="optionDropdownMenuButton">
     @switch($research_status)
         @case('26')
+            @if ($isSubmitted['regi'][$research_id] == false)
             <a class="dropdown-item" href="{{ route('research.mark-as-ongoing', $research_id) }}"><i class="bi bi-check2-circle"></i> Mark as Ongoing</a>
+            @endif
+            @break
         @case('27')
             <a class="dropdown-item" href="{{ route('research.completed.create', $research_id) }}"><i class="bi bi-check2-circle"></i> Mark as Completed</a>
             @break
         @case('28')
-            <a class="dropdown-item" href="{{ route('research.presentation', $research_id ) }}"><i class="bi bi-laptop"></i> Mark as Presented</a>
-            <a class="dropdown-item" href="{{ route('research.publication', $research_id ) }}"><i class="bi bi-paperclip"></i> Mark as Published</a>
+            <a class="dropdown-item" href="{{ route('research.presentation.create', $research_id ) }}"><i class="bi bi-laptop"></i> Mark as Presented</a>
+            <a class="dropdown-item" href="{{ route('research.publication.create', $research_id ) }}"><i class="bi bi-paperclip"></i> Mark as Published</a>
             @if ($researchRecords['copyright'][$research->id] == null)
-                <a class="dropdown-item" href="{{ route('research.copyright', $research_id ) }}"><i class="bi bi-c-circle"></i> Add Copyright Details</a>
+                <a class="dropdown-item" href="{{ route('research.copyrighted.index', $research_id ) }}"><i class="bi bi-c-circle"></i> Add Copyright Details</a>
             @endif
             @break
         @case('29')
-            <a class="dropdown-item" href="{{ route('research.publication', $research_id ) }}"><i class="bi bi-paperclip"></i> Mark as Published</a>
-            <a class="dropdown-item" href="{{ route('research.copyright', $research_id ) }}"><i class="bi bi-c-circle"></i> Add Copyright Details</a>
+            <a class="dropdown-item" href="{{ route('research.publication.create', $research_id ) }}"><i class="bi bi-paperclip"></i> Mark as Published</a>
+            <a class="dropdown-item" href="{{ route('research.copyrighted.index', $research_id ) }}"><i class="bi bi-c-circle"></i> Add Copyright Details</a>
             @break
         @case('30')
-            <a class="dropdown-item" href="{{ route('research.presentation', $research_id ) }}"><i class="bi bi-laptop"></i> Mark as Presented</a>
+            <a class="dropdown-item" href="{{ route('research.presentation.create', $research_id ) }}"><i class="bi bi-laptop"></i> Mark as Presented</a>
             @if ($researchRecords['copyright'][$research->id] == null)
-                <a class="dropdown-item" href="{{ route('research.copyright', $research_id ) }}"><i class="bi bi-c-circle"></i> Add Copyright Details</a>
+                <a class="dropdown-item" href="{{ route('research.copyrighted.index', $research_id ) }}"><i class="bi bi-c-circle"></i> Add Copyright Details</a>
             @endif
             <a class="dropdown-item" href="{{ route('research.citation.create', $research_id) }}"><i class="bi bi-blockquote-left"></i> Add Citation</a>
             @break
             @case('31')
             {{-- Presented.Published --}}
             @if ($researchRecords['copyright'][$research->id] == null)
-                <a class="dropdown-item" href="{{ route('research.copyright', $research_id ) }}"><i class="bi bi-c-circle"></i> Add Copyright Details</a>
+                <a class="dropdown-item" href="{{ route('research.copyrighted.index', $research_id ) }}"><i class="bi bi-c-circle"></i> Add Copyright Details</a>
             @endif
             <a class="dropdown-item" href="{{ route('research.citation.create', $research_id) }}"><i class="bi bi-blockquote-left"></i> Add Citation</a>
             @break
@@ -234,10 +243,11 @@
                 <p class="text-center h4">{{ $research->title }}</p>
                 <form action="{{ route('research.destroy', $research->id) }}" method="POST">
                     @csrf
+                    @method('delete')
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mb-2" data-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-danger mb-2 mr-2">Delete</button>
+                <button type="submit" class="btn btn-danger mb-2 mr-2">Defer</button>
             </form>
             </div>
         </div>

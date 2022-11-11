@@ -132,10 +132,6 @@ class ExtensionConsolidatedController extends Controller
             $collegesForAssociate = [];
             $sectorsForAssistant = [];
 
-            $currentQuarterYear = Quarter::find(1);
-            $quarter = $currentQuarterYear->current_quarter;
-            $year = $currentQuarterYear->current_year;
-
             if(in_array(5, $roles)){
                 $departments = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
                                             ->join('departments', 'departments.id', 'chairpeople.department_id')->get();

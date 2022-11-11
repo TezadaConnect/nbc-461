@@ -126,6 +126,7 @@
         <script src="{{ asset('js/spinner.js') }}"></script>
         <script>
             $('#classification').attr('disabled', true);
+            $('#discipline').attr('disabled', true);
             $('#category').attr('disabled', true);
             $('#agenda').attr('disabled', true);
             $('#nature_of_involvement option[value=11]').attr('disabled','disabled');
