@@ -450,7 +450,7 @@ Route::group(['middleware' => ['auth', 'account']], function() {
     Route::get('/reports/consolidate/department/reportYearFilter/{dept}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\DepartmentConsolidatedController::class, 'departmentReportYearFilter'])->name('reports.consolidate.department.reportYearFilter');
     Route::get('/reports/consolidate/college/reportYearFilter/{college}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\CollegeConsolidatedController::class, 'collegeReportYearFilter'])->name('reports.consolidate.college.reportYearFilter');
     Route::get('/reports/consolidate/sector/reportYearFilter/{sector}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'sectorReportYearFilter'])->name('reports.consolidate.sector.reportYearFilter');
-    Route::get('/reports/consolidate/all/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
+    Route::get('/reports/consolidate/all/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
 
     /* GENERATE/EXPORT REPORT */
     Route::post('/reports/export/individual-export/{source_type}/{report_format}/{source_generate}/{year_generate}/{quarter_generate}/{id}', [\App\Http\Controllers\Reports\GenerateController::class, 'individualExport'])->name('report.individual.export');
