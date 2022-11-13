@@ -40,23 +40,20 @@
                             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                                     <button class="button" aria-selected="false">Download</button>
                             </ul>
-
-
                             <div class="card">
                                 <div class="card-body">
                                     <p class="card-title" style="font-size:25px">Frequency of Download</p>
-                                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist"></ul>
-                                    <form>
-                                        <div class = "text-center">
-                                            <input class="radio-input" type="radio" name="test" value="yes" />
+                                    <form method="post" action="{{ route ('saveFrequency') }}" accept-charset="UTF-8">
+                                    @csrf
+                                            <input class="radio-input" type="radio" name="freq" value="daily" />
                                             <label class="radio-label">Daily</label>
-                                            <input class="radio-input" type="radio" name="test" value="yes" />
+                                            <input class="radio-input" type="radio" name="freq" value="weekly" />
                                             <label class="radio-label">Weekly</label>
-                                            <input class="radio-input" type="radio" name="test" value="yes" />
+                                            <input class="radio-input" type="radio" name="freq" value="monthly" />
                                             <label class="radio-label">Monthly</label>
-                                            <input style = "color:#f5f0ec; margin:10px; background-color:#3490dc; 
-                                            border:none; border-color:none" type="submit" value="Submit">
-                                        </div>
+                                            <button type="submit" style = "color:#f5f0ec; margin:10px;
+                                            background-color:#3490dc;
+                                            border:none; border-color:none">SUBMIT</button>
                                     </form>
                                 </div>
                             </div>

@@ -232,6 +232,7 @@ Route::group(['middleware' => ['auth', 'account']], function() {
 
     /* SPATTIE */
     Route::get('/spatie', [\App\Http\Controllers\SpatieController::class, 'index'])->name('spatie');
+    Route::post('/saveFrequency', [\App\Http\Controllers\SpatieController::class, 'saveFrequency'])->name('saveFrequency');
 
     /* RESEARCH ACCOMPLISHMENTS */
     Route::resource('research', \App\Http\Controllers\Research\ResearchController::class);
