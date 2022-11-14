@@ -54,7 +54,6 @@ class IndividualAccomplishmentReportExport implements FromView, WithEvents
 
         $this->user = $user;
     }
-
     public function view(): View
     {
         $tableFormat;
@@ -394,8 +393,8 @@ class IndividualAccomplishmentReportExport implements FromView, WithEvents
                 }
                 $count = $count + 2;
                 $event->sheet->setCellValue('A'.$count, 'Prepared By:');
-                $event->sheet->setCellValue('C'.$count, 'Certified Correct:');
-                $event->sheet->setCellValue('E'.$count, 'Approved By:');
+                $event->sheet->setCellValue('C'.$count, 'Validated By:');
+                // $event->sheet->setCellValue('E'.$count, 'Approved By:');
                 $event->sheet->getStyle('A'.$count.':E'.$count)->applyFromArray([
                     'font' => [
                         'name' => 'Arial',
@@ -466,6 +465,4 @@ class IndividualAccomplishmentReportExport implements FromView, WithEvents
             }
         ];
     }
-
-
 }
