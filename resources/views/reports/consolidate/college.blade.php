@@ -43,9 +43,9 @@
                                         <input type="hidden" id="cw_quarter" name="cw_quarter" value="">
                                         <input type="hidden" id="cw_year" name="cw_year" value="">
                                         <input type="hidden" id="college_id" name="college_id" value="{{ $college['id'] }}">
-                                        <button id="filter" type="button" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
-                                        <button id="export" type="button" class="btn btn-warning mr-2" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export College/Office QAR File</button>
-                                        <button id="exportLevel" type="button" class="btn btn-warning"><i class="bi bi-filetype-xlsx"></i> Export QAR Filled-in by Dean/Director</button>
+                                        <button id="filter" type="button" class="btn btn-primary mr-2">GENERATE</button>
+                                        <button id="export" type="button" class="btn btn-primary mr-2" data-target="#GenerateReport" data-toggle="modal">EXPORT</button>
+                                        <button id="exportLevel" type="button" class="btn btn-primary">EXPORT (QAR FILLED IN BY DEAN/DIRECTOR)</button>
                                     </div>
                                 </form>
                             </div>

@@ -194,7 +194,8 @@ class IpqmsoConsolidatedController extends Controller
                 'users.middle_name',
                 'users.suffix'
             )
-            ->whereIn($this->approvalHolderArr[$pending] ?? 'researcher_approval', [0])
+            ->where($this->approvalHolderArr[$pending] ?? 'researcher_approval', null)
+            ->where('format', 'f')
             ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
             ->join('users', 'users.id', 'reports.user_id')
             ->where('reports.report_year', $year)
