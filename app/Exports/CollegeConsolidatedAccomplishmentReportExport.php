@@ -153,7 +153,8 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
             foreach ($tableFormat as $format){
                 if($format->is_table == "0" || $format->report_category_id == null)
                     $tableContents[$format->id] = [];
-                else
+                else{
+
                     $tableContents[$format->id] = Report::
                         // ->where('user_roles.role_id', 1)
                         whereIn('reports.cluster_', ['a', 'x'])
@@ -172,6 +173,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                         ->orderBy('departments.name')
                         ->orderBy('users.last_name')
                         ->get()->toArray();
+                }
             }
         }
 
@@ -406,7 +408,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                     }
                 }
                 $count = $count + 2;
-                $event->sheet->setCellValue('A'.$count, 'Prepared By:');
+                $event->sheet->setCellValue('A'.$count, 'Validated By:');
                 $event->sheet->getStyle('A'.$count)->applyFromArray([
                     'font' => [
                         'name' => 'Arial',
@@ -415,28 +417,14 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                     ],
                 ]);
                 $count = $count + 5;
-                if ($this->researcherSignature != null) {
-                    $path = storage_path('app/documents/'. $this->researcherSignature);
+                if ($this->signature != null) {
+                    $path = storage_path('app/documents/'. $this->signature);
                     $coordinates = 'A'.$count-4;
                     $sheet = $event->sheet->getDelegate();
                     echo $this->addImage($path, $coordinates, $sheet);
                 }
-                if ($this->extensionistSignature != null) {
-                    $path = storage_path('app/documents/'. $this->extensionistSignature);
-                    $coordinates = 'C'.$count-4;
-                    $sheet = $event->sheet->getDelegate();
-                    echo $this->addImage($path, $coordinates, $sheet);
-                }
-                if ($this->signature != null) {
-                    $path = storage_path('app/documents/'. $this->signature);
-                    $coordinates = 'E'.$count-4;
-                    $sheet = $event->sheet->getDelegate();
-                    echo $this->addImage($path, $coordinates, $sheet);
-                }
 
-                $event->sheet->setCellValue('A'.$count, $this->researcherName);
-                $event->sheet->setCellValue('C'.$count, $this->extensionistName);
-                $event->sheet->setCellValue('E'.$count, $this->arrangedName);
+                $event->sheet->setCellValue('A'.$count, $this->arrangedName);
                 $event->sheet->getStyle('A'.$count.':'.'E'.$count)->applyFromArray([
                     'font' => [
                         'name' => 'Arial',
@@ -445,16 +433,12 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                     ],
                 ]);
                 $event->sheet->getStyle('A'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $event->sheet->getStyle('C'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $event->sheet->getStyle('E'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
                 $count = $count + 1;
-                    $event->sheet->setCellValue('A'.$count, 'Researcher, '.$this->collegeName);
-                    $event->sheet->setCellValue('C'.$count, 'Extensionist, '.$this->collegeName);
                     if ($this->type == "academic")
-                        $event->sheet->setCellValue('E'.$count, 'Dean/Director, '.$this->collegeName);
+                        $event->sheet->setCellValue('A'.$count, 'Dean/Director, '.$this->collegeName);
                     elseif ($this->type == "admin")
-                        $event->sheet->setCellValue('E'.$count, 'Director, '.$this->collegeName);
+                        $event->sheet->setCellValue('A'.$count, 'Director, '.$this->collegeName);
 
                 $event->sheet->getStyle('A'.$count.':'.'E'.$count)->applyFromArray([
                     'font' => [
@@ -467,16 +451,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                 $event->sheet->getStyle('A'.$count)->getAlignment()->setWrapText(true);
                 $event->sheet->getStyle('A'.$count)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
                 $event->sheet->getStyle('A'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-
-                $event->sheet->getStyle('C'.$count)->getAlignment()->setWrapText(true);
-                $event->sheet->getStyle('C'.$count)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-                $event->sheet->getStyle('C'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-
-                $event->sheet->getStyle('E'.$count)->getAlignment()->setWrapText(true);
-                $event->sheet->getStyle('E'.$count)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-                $event->sheet->getStyle('E'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
             }
-
         ];
     }
 
