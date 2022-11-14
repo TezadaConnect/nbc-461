@@ -253,6 +253,7 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::get('/research/remove-document/{filename}', [\App\Http\Controllers\Research\ResearchController::class, 'removeDoc'])->name('research.removedoc');
     Route::get('/research/citations/{research_id}/{action_keyword}', [\App\Http\Controllers\Research\CitationController::class, 'showAll'])->name('research.citation.showAll');
     Route::get('/research/utilizations/{research_id}/{action_keyword}', [\App\Http\Controllers\Research\UtilizationController::class, 'showAll'])->name('research.utilization.showAll');
+    Route::get('/research/mark-as-ongoing/{id}', [\App\Http\Controllers\Research\ResearchController::class, 'markAsOngoing'])->name('research.mark-as-ongoing');
 
     // Use Research By Co-Researchers
     Route::post('/research/with-code', [\App\Http\Controllers\Research\ResearchController::class, 'useResearchCode'])->name('research.code');
@@ -450,13 +451,15 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::get('/reports/consolidate/sector/{id}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'index'])->name('reports.consolidate.sector');
     Route::get('/reports/consolidate/all', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'index'])->name('reports.consolidate.ipqmso');
     Route::get('/reports/consolidate/my-accomplishments/reportYearFilter/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\MyAccomplishmentController::class, 'individualReportYearFilter'])->name('reports.consolidate.myaccomplishments.reportYearFilter');
-    Route::get('/reports/consolidate/extension/reportYearFilter/{dept}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\ExtensionConsolidatedController::class, 'departmentExtReportYearFilter'])->name('reports.consolidate.extension.reportYearFilter');
-    Route::get('/reports/consolidate/research/reportYearFilter/{dept}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\ResearchConsolidatedController::class, 'departmentResReportYearFilter'])->name('reports.consolidate.research.reportYearFilter');
+    Route::get('/reports/consolidate/extension/reportYearFilter/{clusterID}/{year}', [\App\Http\Controllers\Reports\Consolidate\ExtensionConsolidatedController::class, 'departmentExtReportYearFilter'])->name('reports.consolidate.extension.reportYearFilter');
+    Route::get('/reports/consolidate/research/reportYearFilter/{clusterID}/{year}', [\App\Http\Controllers\Reports\Consolidate\ResearchConsolidatedController::class, 'departmentResReportYearFilter'])->name('reports.consolidate.research.reportYearFilter');
 
     Route::get('/reports/consolidate/department/reportYearFilter/{dept}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\DepartmentConsolidatedController::class, 'departmentReportYearFilter'])->name('reports.consolidate.department.reportYearFilter');
     Route::get('/reports/consolidate/college/reportYearFilter/{college}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\CollegeConsolidatedController::class, 'collegeReportYearFilter'])->name('reports.consolidate.college.reportYearFilter');
     Route::get('/reports/consolidate/sector/reportYearFilter/{sector}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'sectorReportYearFilter'])->name('reports.consolidate.sector.reportYearFilter');
     // Route::get('/reports/consolidate/all/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
+    // Route::get('/reports/consolidate/sector/reportYearFilter/{sector}/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'sectorReportYearFilter'])->name('reports.consolidate.sector.reportYearFilter');
+    Route::get('/reports/consolidate/all/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
     Route::get('/reports/consolidate/all/{pending?}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'generatePendingList'])->name('reports.consolidate.ipo.reportYearFilter');
     Route::get('/reports/consolidate/all/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
 

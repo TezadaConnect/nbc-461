@@ -66,7 +66,7 @@ class CollegeLevelConsolidatedExport implements FromView, WithEvents
                             ->where(function($query) {
                                 $query->where('reports.researcher_approval', 1)
                                     ->orWhere('reports.extensionist_approval', 1)
-                                    ->orWhere('reports.dean_approval', 1);
+                                    ->orWhereIn('reports.dean_approval', ['1', '2']);
                             })
                             ->select('reports.*')
                             ->get()->toArray();

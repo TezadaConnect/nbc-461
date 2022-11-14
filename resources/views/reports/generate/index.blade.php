@@ -38,7 +38,6 @@
                             <option value="" selected disabled>Choose...</option>
                             <option value="academic">Academic</option>
                             <option value="admin">Admin</option>
-                            <option value="research">Research</option>
                         </select>
                     </div>
                     @endif

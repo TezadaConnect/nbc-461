@@ -3,7 +3,7 @@
     <div class="form-group">
         <label class="font-weight-bold form-label" for="{{ $fieldInfo->name }}">{{ $fieldInfo->label }}</label><span>{{ ($fieldInfo->dropdown_id != null) ? "^" : '' }}</span><span style='color: red'>{{ ($fieldInfo->required == 1) ? " *" : '' }}</span>
         @if ($fieldInfo->name == 'researchers')
-            Add your <strong>co-researchers from outside PUP, if any.</strong> No need to include the co-researchers you already tagged above.
+            Tag <strong>co-researchers who may be students or outside PUP.</strong> No need to include the researchers being tagged above.
         @endif
         <br>
             
@@ -82,7 +82,7 @@
             
             @if ($fieldInfo->name == 'researchers')
                 <span class="form-notes">
-                    <i class="bi bi-exclamation-circle-fill text-info"></i> {{ $fieldInfo->name == 'researchers' ? 'Type their names beside your name.' : '' }}
+                    <i class="bi bi-exclamation-circle-fill text-warning"></i> {{ $fieldInfo->name == 'researchers' ? 'Type the names at the side of your name.' : '' }}
                 </span>
             @endif
             @error($fieldInfo->name)
@@ -92,10 +92,10 @@
             @enderror
     </div>
 </div>
-{{-- @push('scripts')
+@push('scripts')
 <script src="{{ asset('dist/selectize.min.js') }}"></script>
 <!-- For words separated by (',') -->
-<script>
+<!-- <script>
     $("#keywords").selectize({
         delimiter: ",",
         persist: false,
@@ -128,7 +128,7 @@
         },
     });
 
-</script>
+</script> -->
 <!-- For people names separated by ('/') -->
 <script>
 
@@ -165,37 +165,37 @@
         },
     });
 
-    $("#authors_compilers").selectize({
-        delimiter: "/",
-        persist: false,
-        create: function (input) {
-            return {
-            value: input,
-            text: input,
-            };
-        },
-    });
+    // $("#authors_compilers").selectize({
+    //     delimiter: "/",
+    //     persist: false,
+    //     create: function (input) {
+    //         return {
+    //         value: input,
+    //         text: input,
+    //         };
+    //     },
+    // });
 
-    $("#editor_name").selectize({
-        delimiter: "/",
-        persist: false,
-        create: function (input) {
-            return {
-            value: input,
-            text: input,
-            };
-        },
-    });
+    // $("#editor_name").selectize({
+    //     delimiter: "/",
+    //     persist: false,
+    //     create: function (input) {
+    //         return {
+    //         value: input,
+    //         text: input,
+    //         };
+    //     },
+    // });
 
-    $("#article_author").selectize({
-        delimiter: "/",
-        persist: false,
-        create: function (input) {
-            return {
-            value: input,
-            text: input,
-            };
-        },
-    });
+    // $("#article_author").selectize({
+    //     delimiter: "/",
+    //     persist: false,
+    //     create: function (input) {
+    //         return {
+    //         value: input,
+    //         text: input,
+    //         };
+    //     },
+    // });
 </script>
-@endpush --}}
+@endpush

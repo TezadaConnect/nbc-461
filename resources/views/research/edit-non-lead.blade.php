@@ -10,11 +10,6 @@
         <h3 class="font-weight-bold mr-2">Edit Registration Details {{ isset($research->title) ? 'of '.$research->title : '' }}</h3>
         <div class="row">
             <div class="col-md-12">
-                @include('research.edit-navbar', ['research_code' => $research->id, 'research_status' => $research->status, 'noRequisiteRecords' => $noRequisiteRecords])
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
                         <form action="{{ route('research.update-non-lead', $research->id) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
@@ -131,6 +126,7 @@
         <script src="{{ asset('js/spinner.js') }}"></script>
         <script>
             $('#classification').attr('disabled', true);
+            $('#discipline').attr('disabled', true);
             $('#category').attr('disabled', true);
             $('#agenda').attr('disabled', true);
             $('#nature_of_involvement option[value=11]').attr('disabled','disabled');

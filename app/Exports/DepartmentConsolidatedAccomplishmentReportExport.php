@@ -167,7 +167,10 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
                 ]);
 
                 // Name
+                if ($this->type == "academic")
                     $event->sheet->setCellValue('B3', 'CHAIRPERSON:');
+                if ($this->type == "admin")
+                    $event->sheet->setCellValue('B3', 'CHIEF:');
                 $event->sheet->getStyle('B3')->applyFromArray([
                     'font' => [
                         'size' => 16,
@@ -337,7 +340,7 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
                     }
                 }
                 $count = $count + 2;
-                    $event->sheet->setCellValue('A'.$count, 'Prepared By:');
+                    $event->sheet->setCellValue('A'.$count, 'Validated By:');
                     $event->sheet->getStyle('A'.$count)->applyFromArray([
                         'font' => [
                             'name' => 'Arial',
@@ -367,7 +370,10 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
 
 
                     $count = $count + 1;
-                    $event->sheet->setCellValue('A'.$count, 'Chairperson, '.$this->departmentName);
+                    if ($this->type == "academic")
+                        $event->sheet->setCellValue('A'.$count, 'Chairperson, '.$this->departmentName);
+                    if ($this->type == "admin")
+                        $event->sheet->setCellValue('A'.$count, 'Chief, '.$this->departmentName);
                     $event->sheet->getStyle('A'.$count)->applyFromArray([
                         'font' => [
                             'name' => 'Arial',

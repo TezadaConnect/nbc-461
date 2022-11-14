@@ -2899,6 +2899,17 @@ fieldset:disabled a.btn {
     box-shadow: 0 0 0 0.2rem rgba(82, 88, 93, 0.5);
 }
 
+.btn-purple {
+    color: #fff;
+    background-color: #9d73af;
+    border-color: #9d73af;
+}
+.btn-purple:hover {
+    color: #fff;
+    background-color: #9367a7;
+    border-color: #c5aad2;
+}
+
 .btn-outline-primary {
     color: #3490dc;
     border-color: #3490dc;

@@ -89,7 +89,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                             ->where(function($query) {
                                 $query->where('reports.researcher_approval', 1)
                                     ->orWhere('reports.extensionist_approval', 1)
-                                    ->orWhere('reports.dean_approval', 1);
+                                    ->orWhereIn('reports.dean_approval', ['1', '2']);
                             })
                             ->where('reports.report_year', $this->yearGenerate)
                             ->where('reports.report_quarter', $this->quarterGenerate)
@@ -125,7 +125,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                             ->where(function($query) {
                                 $query->where('reports.researcher_approval', 1)
                                     ->orWhere('reports.extensionist_approval', 1)
-                                    ->orWhere('reports.dean_approval', 1);
+                                    ->orWhereIn('reports.dean_approval', ['1', '2']);
                             })
                             ->where('reports.report_year', $this->yearGenerate)
                             ->where('reports.report_quarter', $this->quarterGenerate)
@@ -140,41 +140,41 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
 
         }
         elseif($this->type == "research"){
-                $tableFormat = GenerateTable::whereIn('id', [15,16,17,18,19,20,21])->get(); //Research tables
-                $tableColumns = [];
-                foreach ($tableFormat as $format){
-                    if($format->is_table == "0")
-                        $tableColumns[$format->id] = [];
-                    else
-                        $tableColumns[$format->id] = GenerateColumn::where('table_id', $format->id)->orderBy('order')->get()->toArray();
-                }
-
-                $tableContents = [];
-                foreach ($tableFormat as $format){
-                    if($format->is_table == "0" || $format->report_category_id == null)
-                        $tableContents[$format->id] = [];
-                    else
-                        $tableContents[$format->id] = Report::
-                            // ->where('user_roles.role_id', 1)
-                            whereIn('reports.cluster_', ['a', 'x'])
-                            ->where('reports.report_category_id', $format->report_category_id)
-                            ->where('reports.college_id', $this->collegeID)
-                            ->where(function($query) {
-                                $query->where('reports.researcher_approval', 1)
-                                    ->orWhere('reports.extensionist_approval', 1)
-                                    ->orWhere('reports.dean_approval', 1);
-                            })
-                            ->where('reports.report_year', $this->yearGenerate)
-                            ->where('reports.report_quarter', $this->quarterGenerate)
-                            ->join('users', 'users.id', 'reports.user_id')
-                            ->join('departments', 'departments.id', 'reports.department_id')
-                            ->select('reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
-                            ->orderBy('departments.name')
-                            ->orderBy('users.last_name')
-                            ->get()->toArray();
-                }
+            $tableFormat = GenerateTable::whereIn('id', [15,16,17,18,19,20,21])->get(); //Research tables
+            $tableColumns = [];
+            foreach ($tableFormat as $format){
+                if($format->is_table == "0")
+                    $tableColumns[$format->id] = [];
+                else
+                    $tableColumns[$format->id] = GenerateColumn::where('table_id', $format->id)->orderBy('order')->get()->toArray();
             }
 
+            $tableContents = [];
+            foreach ($tableFormat as $format){
+                if($format->is_table == "0" || $format->report_category_id == null)
+                    $tableContents[$format->id] = [];
+                else{
+
+                    $tableContents[$format->id] = Report::
+                        // ->where('user_roles.role_id', 1)
+                        whereIn('reports.cluster_', ['a', 'x'])
+                        ->where('reports.report_category_id', $format->report_category_id)
+                        ->where('reports.college_id', $this->collegeID)
+                        ->where(function($query) {
+                            $query->where('reports.researcher_approval', 1)
+                                ->orWhere('reports.extensionist_approval', 1)
+                                ->orWhereIn('reports.dean_approval', ['1', '2']);
+                        })
+                        ->where('reports.report_year', $this->yearGenerate)
+                        ->where('reports.report_quarter', $this->quarterGenerate)
+                        ->join('users', 'users.id', 'reports.user_id')
+                        ->join('departments', 'departments.id', 'reports.department_id')
+                        ->select('reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
+                        ->orderBy('departments.name')
+                        ->orderBy('users.last_name')
+                        ->get()->toArray();
+                }
+            }
         }
 
         $this->tableFormat = $tableFormat;
@@ -408,7 +408,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                     }
                 }
                 $count = $count + 2;
-                $event->sheet->setCellValue('A'.$count, 'Prepared By:');
+                $event->sheet->setCellValue('A'.$count, 'Validated By:');
                 $event->sheet->getStyle('A'.$count)->applyFromArray([
                     'font' => [
                         'name' => 'Arial',
@@ -417,28 +417,14 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                     ],
                 ]);
                 $count = $count + 5;
-                if ($this->researcherSignature != null) {
-                    $path = storage_path('app/documents/'. $this->researcherSignature);
+                if ($this->signature != null) {
+                    $path = storage_path('app/documents/'. $this->signature);
                     $coordinates = 'A'.$count-4;
                     $sheet = $event->sheet->getDelegate();
                     echo $this->addImage($path, $coordinates, $sheet);
                 }
-                if ($this->extensionistSignature != null) {
-                    $path = storage_path('app/documents/'. $this->extensionistSignature);
-                    $coordinates = 'C'.$count-4;
-                    $sheet = $event->sheet->getDelegate();
-                    echo $this->addImage($path, $coordinates, $sheet);
-                }
-                if ($this->signature != null) {
-                    $path = storage_path('app/documents/'. $this->signature);
-                    $coordinates = 'E'.$count-4;
-                    $sheet = $event->sheet->getDelegate();
-                    echo $this->addImage($path, $coordinates, $sheet);
-                }
 
-                $event->sheet->setCellValue('A'.$count, $this->researcherName);
-                $event->sheet->setCellValue('C'.$count, $this->extensionistName);
-                $event->sheet->setCellValue('E'.$count, $this->arrangedName);
+                $event->sheet->setCellValue('A'.$count, $this->arrangedName);
                 $event->sheet->getStyle('A'.$count.':'.'E'.$count)->applyFromArray([
                     'font' => [
                         'name' => 'Arial',
@@ -447,16 +433,12 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                     ],
                 ]);
                 $event->sheet->getStyle('A'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $event->sheet->getStyle('C'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $event->sheet->getStyle('E'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
                 $count = $count + 1;
-                    $event->sheet->setCellValue('A'.$count, 'Researcher, '.$this->collegeName);
-                    $event->sheet->setCellValue('C'.$count, 'Extensionist, '.$this->collegeName);
                     if ($this->type == "academic")
-                        $event->sheet->setCellValue('E'.$count, 'Dean/Director, '.$this->collegeName);
+                        $event->sheet->setCellValue('A'.$count, 'Dean/Director, '.$this->collegeName);
                     elseif ($this->type == "admin")
-                        $event->sheet->setCellValue('E'.$count, 'Director, '.$this->collegeName);
+                        $event->sheet->setCellValue('A'.$count, 'Director, '.$this->collegeName);
 
                 $event->sheet->getStyle('A'.$count.':'.'E'.$count)->applyFromArray([
                     'font' => [
@@ -469,16 +451,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                 $event->sheet->getStyle('A'.$count)->getAlignment()->setWrapText(true);
                 $event->sheet->getStyle('A'.$count)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
                 $event->sheet->getStyle('A'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-
-                $event->sheet->getStyle('C'.$count)->getAlignment()->setWrapText(true);
-                $event->sheet->getStyle('C'.$count)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-                $event->sheet->getStyle('C'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-
-                $event->sheet->getStyle('E'.$count)->getAlignment()->setWrapText(true);
-                $event->sheet->getStyle('E'.$count)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-                $event->sheet->getStyle('E'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
             }
-
         ];
     }
 

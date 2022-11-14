@@ -36,10 +36,10 @@
                             <label for="quarterFilterSector2" class="mr-2">Quarter End: </label>
                             <div class="d-flex">
                                 <select id="quarterFilterSector2" class="custom-select" name="quarter2">
-                                    <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                    <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                    <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                    <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
+                                    <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarter">1</option>
+                                    <option value="2" {{ $quarter2 == 2 ? 'selected' : ''  }} class="quarter">2</option>
+                                    <option value="3" {{ $quarter2 == 3 ? 'selected' : ''  }} class="quarter">3</option>
+                                    <option value="4" {{ $quarter2 == 4 ? 'selected' : ''  }} class="quarter">4</option>
                                 </select>
                             </div>
                         </div>
@@ -514,9 +514,10 @@
         <script>
             $('#filter').on('click', function () {
                 var year_reported = $('#yearFilterSector').val();
-                var quarter = $('#quarterFilterSector').val();
-                var link = "{{ url('reports/consolidate/sector/reportYearFilter/:sector/:year/:quarter') }}";
-                var newLink = link.replace(':sector', "{{$sectors[0]->sector_id}}").replace(':year', year_reported).replace(':quarter', quarter);
+                var quarter1 = $('#quarterFilterSector').val();
+                var quarter2 = $('#quarterFilterSector2').val();
+                var link = "{{ url('reports/consolidate/sector/reportYearFilter/:sector/:year/:quarter1/:quarter2') }}";
+                var newLink = link.replace(':sector', "{{$sector['id']}}").replace(':year', year_reported).replace(':quarter1', quarter1).replace(':quarter2', quarter2);
                 window.location.replace(newLink);
             });
         </script>

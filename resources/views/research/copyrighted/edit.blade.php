@@ -17,11 +17,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        @include('research.edit-navbar', ['research_code' => $research->id, 'research_status' => $research->status, 'noRequisiteRecords' => $noRequisiteRecords])
-                    </div>
-                </div>
                 <div class="card">
                     <div class="card-body">
                         <form action="{{ route('research.copyrighted.update', [$research['id'], $value['id']]) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
