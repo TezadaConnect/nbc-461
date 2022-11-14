@@ -89,7 +89,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                             ->where(function($query) {
                                 $query->where('reports.researcher_approval', 1)
                                     ->orWhere('reports.extensionist_approval', 1)
-                                    ->orWhere('reports.dean_approval', 1);
+                                    ->orWhereIn('reports.dean_approval', ['1', '2']);
                             })
                             ->where('reports.report_year', $this->yearGenerate)
                             ->where('reports.report_quarter', $this->quarterGenerate)
@@ -125,7 +125,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                             ->where(function($query) {
                                 $query->where('reports.researcher_approval', 1)
                                     ->orWhere('reports.extensionist_approval', 1)
-                                    ->orWhere('reports.dean_approval', 1);
+                                    ->orWhereIn('reports.dean_approval', ['1', '2']);
                             })
                             ->where('reports.report_year', $this->yearGenerate)
                             ->where('reports.report_quarter', $this->quarterGenerate)
@@ -163,7 +163,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                         ->where(function($query) {
                             $query->where('reports.researcher_approval', 1)
                                 ->orWhere('reports.extensionist_approval', 1)
-                                ->orWhere('reports.dean_approval', 1);
+                                ->orWhereIn('reports.dean_approval', ['1', '2']);
                         })
                         ->where('reports.report_year', $this->yearGenerate)
                         ->where('reports.report_quarter', $this->quarterGenerate)
