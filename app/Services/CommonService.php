@@ -501,15 +501,15 @@ class CommonService
         }
 
         if ($type == $this->approvalHolderArr[3]) { // Dean/Director
-            if ($item[$this->approvalHolderArr[3]] == null && $item[$this->approvalHolderArr[2]] != 0 && $item[$this->approvalHolderArr[2]] != null) return $item;
+            if ($item[$this->approvalHolderArr[3]] === null && $item[$this->approvalHolderArr[2]] != 0 && $item[$this->approvalHolderArr[2]] != null) return $item;
         }
 
         if ($type == $this->approvalHolderArr[4]) { // Sector Head
-            if ($item[$this->approvalHolderArr[4]] == null && $item[$this->approvalHolderArr[3]] != 0 && $item[$this->approvalHolderArr[3]] != null) return $item;
+            if ($item[$this->approvalHolderArr[4]] === null && $item[$this->approvalHolderArr[3]] != 0 && $item[$this->approvalHolderArr[3]] != null) return $item;
         }
 
         if ($type == $this->approvalHolderArr[5]) { // IPO
-            if ($item[$this->approvalHolderArr[5]] == null && $item[$this->approvalHolderArr[4]] != 0 && $item[$this->approvalHolderArr[4]] != null) return $item;
+            if ($item[$this->approvalHolderArr[5]] === null && $item[$this->approvalHolderArr[4]] != 0 && $item[$this->approvalHolderArr[4]] != null) return $item;
         }
 
         return null;
