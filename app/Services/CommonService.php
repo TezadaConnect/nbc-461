@@ -477,11 +477,13 @@ class CommonService
 
     private function itemStatusChecker($item, $type)  // Check the status of the item and return the item if pending is true otherwise return null || used in getStatusOfIPO method
     {
-        if ($type == $this->approvalHolderArr[0] || $type == $this->approvalHolderArr[1]) { // Both Reasercher ad extensionist
-            if ($item->format == 'f') {
-                if ($item[$this->approvalHolderArr[0]] == null || $item[$this->approvalHolderArr[1]] == null) {
-                    return $item;
-                }
+        if ($type == $this->approvalHolderArr[0] && $item[$this->approvalHolderArr[0]] == null) { // Both Reasercher ad extensionist
+            if ($item->format == 'f' && $item->report_category_id >= 1 && $item->report_category_id <= 8) return $item;
+        }
+
+        if ($type == $this->approvalHolderArr[1] && $item[$this->approvalHolderArr[1]] == null) { // Both Reasercher ad extensionist
+            if (($item->report_category_id >= 12 && $item->report_category_id <= 14) || ($item->report_category_id >= 34 && $item->report_category_id <= 37) || $item->report_category_id == 22 || $item->report_category_id == 23) {
+                if ($item->format == 'f') return $item;
             }
         }
 

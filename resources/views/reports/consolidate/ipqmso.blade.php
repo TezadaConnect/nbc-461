@@ -169,7 +169,7 @@
                                                     <td class="report-view button-view" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">{{ $college_names[$row->id] ?? '-' }}</td>
                                                     <td class="report-view button-view" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">{{ $department_names[$row->id] ?? '-' }}</td>
                                                     <td class="report-view button-view text-center" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">
-                                                        @if ($row->report_category_id >= 1 && $row->report_category_id <= 8)  {{-- Research --}}
+                                                        @if ($row->report_category_id >= 1 && $row->report_category_id <= 8)  {{-- Researcher --}}
                                                             @if ($row->researcher_approval === null)
                                                                 @if ($row->format == 'f')
                                                                     Receiving...
