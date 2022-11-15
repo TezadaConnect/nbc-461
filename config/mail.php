@@ -85,7 +85,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'qarsystem@outlook.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'noreply@pup.edu.ph'),
         'name' => env('MAIL_FROM_NAME', 'PUP eQAR'),
     ],
 
