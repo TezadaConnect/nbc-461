@@ -35,11 +35,22 @@ use App\Notifications\ExtensionInviteNotification;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
 
-class CommonService {
+class CommonService
+{
 
     private $storageFileController;
 
-    public function __construct(StorageFileController $storageFileController){
+    private $approvalHolderArr = [
+        'researcher_approval',
+        'extensionist_approval',
+        'chairperson_approval',
+        'dean_approval',
+        'sector_approval',
+        'ipqmso_approval'
+    ];
+
+    public function __construct(StorageFileController $storageFileController)
+    {
         $this->storageFileController = $storageFileController;
     }
 
@@ -60,15 +71,16 @@ class CommonService {
      * 
      * =============================================================================================
      */
-    public function fileUploadHandler($file, $description, $additiveName, $route){
+    public function fileUploadHandler($file, $description, $additiveName, $route)
+    {
         $fileDesc = $description == "" ? "" : $this->storageFileController->abbrev($description);
         $fileName = "";
         try {
-            $fileName = $additiveName . $fileDesc . '-' . now()->timestamp.uniqid() . '.' .  $file->extension();
+            $fileName = $additiveName . $fileDesc . '-' . now()->timestamp . uniqid() . '.' .  $file->extension();
             $file->storeAs('documents', $fileName, 'local');
             return $fileName;
         } catch (\Throwable $error) {
-            return redirect()->route($route)->with('error', 'Unable to upload the file/s, please try again later.');  
+            return redirect()->route($route)->with('error', 'Unable to upload the file/s, please try again later.');
         }
     }
 
@@ -87,9 +99,10 @@ class CommonService {
      * 
      * =============================================================================================
      */
-    public function fileUploadHandlerForExternal($request, $requestName, $description = null){
+    public function fileUploadHandlerForExternal($request, $requestName, $description = null)
+    {
         try {
-            if($request->has($requestName)){
+            if ($request->has($requestName)) {
                 $datastring = file_get_contents($request->file([$requestName]));
                 $mimetype = $request->file($requestName)->getMimeType();
                 $imagedata = unpack("H*hex", $datastring);
@@ -108,7 +121,6 @@ class CommonService {
                     'mimetype' => null,
                 ];
             }
-            
         } catch (Exception $error) {
             return [
                 'isError' => true,
@@ -120,14 +132,15 @@ class CommonService {
         }
     }
 
-    public function imageCheckerWithResponseMsg($type, $imagesRecord = [], $request){
-        if($type == 0){
+    public function imageCheckerWithResponseMsg($type, $imagesRecord = [], $request)
+    {
+        if ($type == 0) {
             if (!$request->has('document')) return true;
         }
 
-        if($type == 1){
-            if(!$request->has('document')){
-                if(count($imagesRecord) == 0) return true;
+        if ($type == 1) {
+            if (!$request->has('document')) {
+                if (count($imagesRecord) == 0) return true;
             }
         }
 
@@ -148,22 +161,22 @@ class CommonService {
      * =============================================================================================
      */
 
-    public function getSubmissionStatus($primaryId, $reportCategoryId){
+    public function getSubmissionStatus($primaryId, $reportCategoryId)
+    {
         $submissionStatus = array();
         $submitRole = array();
         $submitRole[$primaryId] = 0;
         $reportdata = new ReportDataController;
-            if (LockController::isLocked($primaryId, $reportCategoryId)) {
-                $submissionStatus[$reportCategoryId][$primaryId] = 1;
-                $submitRole[$primaryId] = ReportDataController::getSubmitRole($primaryId, $reportCategoryId);
-            }
-            else
-                $submissionStatus[$reportCategoryId][$primaryId] = 0;
-            if (empty($reportdata->getDocuments($reportCategoryId, $primaryId)))
-                $submissionStatus[$reportCategoryId][$primaryId] = 2;
-            
-            if ($submissionStatus[$reportCategoryId][$primaryId] == null)
-                $submissionStatus[$reportCategoryId][$primaryId] = null;
+        if (LockController::isLocked($primaryId, $reportCategoryId)) {
+            $submissionStatus[$reportCategoryId][$primaryId] = 1;
+            $submitRole[$primaryId] = ReportDataController::getSubmitRole($primaryId, $reportCategoryId);
+        } else
+            $submissionStatus[$reportCategoryId][$primaryId] = 0;
+        if (empty($reportdata->getDocuments($reportCategoryId, $primaryId)))
+            $submissionStatus[$reportCategoryId][$primaryId] = 2;
+
+        if ($submissionStatus[$reportCategoryId][$primaryId] == null)
+            $submissionStatus[$reportCategoryId][$primaryId] = null;
         return [
             'submissionStatus' => $submissionStatus[$reportCategoryId][$primaryId],
             'submitRole' => $submitRole[$primaryId]
@@ -183,28 +196,25 @@ class CommonService {
      * 
      * =============================================================================================
      */
-    public function getDropdownValues($formFields, $formValues) {
-        foreach($formFields as $field){
-            if($field->field_type_name == "dropdown"){
+    public function getDropdownValues($formFields, $formValues)
+    {
+        foreach ($formFields as $field) {
+            if ($field->field_type_name == "dropdown") {
                 $dropdownOptions = DropdownOption::where('id', $formValues[$field->name])->where('is_active', 1)->pluck('name')->first();
-                if($dropdownOptions == null)
+                if ($dropdownOptions == null)
                     $dropdownOptions = "-";
                 $formValues[$field->name] = $dropdownOptions;
-            }
-            elseif($field->field_type_name == "college"){
-                if($formValues[$field->name] == '0'){
+            } elseif ($field->field_type_name == "college") {
+                if ($formValues[$field->name] == '0') {
                     $formValues[$field->name] = 'N/A';
-                }
-                else{
+                } else {
                     $college = College::where('id', $formValues[$field->name])->pluck('name')->first();
                     $formValues[$field->name] = $college;
                 }
-            }
-            elseif($field->field_type_name == "department"){
-                if($formValues[$field->name] == '0'){
+            } elseif ($field->field_type_name == "department") {
+                if ($formValues[$field->name] == '0') {
                     $formValues[$field->name] = 'N/A';
-                }
-                else{
+                } else {
                     $department = Department::where('id', $formValues[$field->name])->pluck('name')->first();
                     $formValues[$field->name] = $department;
                 }
@@ -225,7 +235,8 @@ class CommonService {
      * 
      * =============================================================================================
      */
-    public function getAssignmentsByCurrentRoles($roles){
+    public function getAssignmentsByCurrentRoles($roles)
+    {
         $assignment = array();
         $assignment[5] = array();
         $assignment[6] = array();
@@ -234,35 +245,35 @@ class CommonService {
         $assignment[11] = array();
         $assignment[12] = array();
         $assignment[13] = array();
-        
-        if(in_array(5, $roles)){
+
+        if (in_array(5, $roles)) {
             $assignment[5] = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
-                                        ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
+                ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
         }
-        if(in_array(6, $roles)){
+        if (in_array(6, $roles)) {
             $assignment[6] = Dean::where('deans.user_id', auth()->id())->select('deans.college_id', 'colleges.code')
-                            ->join('colleges', 'colleges.id', 'deans.college_id')->get();
+                ->join('colleges', 'colleges.id', 'deans.college_id')->get();
         }
-        if(in_array(7, $roles)){
+        if (in_array(7, $roles)) {
             $assignment[7] = SectorHead::where('sector_heads.user_id', auth()->id())->select('sector_heads.sector_id', 'sectors.code')
-                        ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
+                ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
         }
-        if(in_array(10, $roles)){
+        if (in_array(10, $roles)) {
             $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
             // $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
         }
-        if(in_array(11, $roles)){
+        if (in_array(11, $roles)) {
             $assignment[11] = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
-                                        ->select('faculty_extensionists.college_id', 'colleges.code')
-                                        ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
+                ->select('faculty_extensionists.college_id', 'colleges.code')
+                ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
         }
-        if(in_array(12, $roles)){
+        if (in_array(12, $roles)) {
             $assignment[12] = Associate::where('associates.user_id', auth()->id())->select('associates.college_id', 'colleges.code')
-                            ->join('colleges', 'colleges.id', 'associates.college_id')->get();
+                ->join('colleges', 'colleges.id', 'associates.college_id')->get();
         }
-        if(in_array(13, $roles)){
+        if (in_array(13, $roles)) {
             $assignment[13] = Associate::where('associates.user_id', auth()->id())->select('associates.sector_id', 'sectors.code')
-                        ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
+                ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
         }
 
         return $assignment;
@@ -277,21 +288,21 @@ class CommonService {
      * 
      * =============================================================================================
      */
-    public function getAllUserNames(){
+    public function getAllUserNames()
+    {
         $allUsers = [];
         $users = User::all()->except(auth()->id());
         $i = 0;
-        foreach($users as $user) {
+        foreach ($users as $user) {
             if ($user->middle_name != null) {
-                $userFullName = $user->last_name.', '.$user->first_name.' '.substr($user->middle_name, 0, 1).'.';
-                if ($user->suffix != null) 
-                    $userFullName = $user->last_name.', '.$user->first_name.' '.substr($user->middle_name, 0, 1).'. '.$user->suffix;
-            }
-            else {
+                $userFullName = $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.';
                 if ($user->suffix != null)
-                    $userFullName = $user->last_name.', '.$user->first_name.' '.$user->suffix;
+                    $userFullName = $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '. ' . $user->suffix;
+            } else {
+                if ($user->suffix != null)
+                    $userFullName = $user->last_name . ', ' . $user->first_name . ' ' . $user->suffix;
                 else
-                    $userFullName = $user->last_name.', '.$user->first_name;
+                    $userFullName = $user->last_name . ', ' . $user->first_name;
             }
             $allUsers[$i++] = array("id" => $user->id, 'fullname' => $userFullName);
         }
@@ -311,9 +322,10 @@ class CommonService {
      * @param String $formName can have a possible value: 'research' or 'extension'.
      * =============================================================================================
      */
-    public function addTaggedUsers($collaborators, $id, $formName){
+    public function addTaggedUsers($collaborators, $id, $formName)
+    {
         $count = 0;
-        if ($formName == "research"){
+        if ($formName == "research") {
             if ($collaborators != null) {
                 foreach ($collaborators as $collab) {
                     if ($collab != auth()->id() && ResearchInvite::where('research_id', $id)->where('user_id', $collab)->doesntExist()) {
@@ -322,34 +334,34 @@ class CommonService {
                             'sender_id' => auth()->id(),
                             'research_id' => $id
                         ]);
-    
+
                         $researcher = Research::find($id)->researchers;
                         $researcherExploded = explode("/", $researcher);
                         $user = User::find($collab);
                         if ($user->middle_name != '') {
-                            array_push($researcherExploded, $user->last_name.', '.$user->first_name.' '.substr($user->middle_name,0,1).'.');
+                            array_push($researcherExploded, $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.');
                         } else {
-                            array_push($researcherExploded, $user->last_name.', '.$user->first_name);
+                            array_push($researcherExploded, $user->last_name . ', ' . $user->first_name);
                         }
-                        
+
                         $research_title = Research::where('id', $id)->pluck('title')->first();
                         $sender = User::join('research', 'research.user_id', 'users.id')
-                                        ->where('research.user_id', auth()->id())
-                                        ->where('research.id', $id)
-                                        ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
+                            ->where('research.user_id', auth()->id())
+                            ->where('research.id', $id)
+                            ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
                         $url_accept = route('research.invite.confirm', $id);
                         $url_deny = route('research.invite.cancel', $id);
-    
+
                         $notificationData = [
                             'receiver' => $user->first_name,
                             'title' => $research_title,
-                            'sender' => $sender->first_name.' '.$sender->middle_name.' '.$sender->last_name.' '.$sender->suffix,
+                            'sender' => $sender->first_name . ' ' . $sender->middle_name . ' ' . $sender->last_name . ' ' . $sender->suffix,
                             'url_accept' => $url_accept,
                             'url_deny' => $url_deny,
                             'date' => date('F j, Y, g:i a'),
                             'type' => 'res-invite'
                         ];
-    
+
                         Notification::send($user, new ResearchInviteNotification($notificationData));
                         Research::where('id', $id)->update([
                             'researchers' => implode("/", $researcherExploded),
@@ -357,12 +369,12 @@ class CommonService {
                     }
                 }
                 // LogActivity::addToLog('Had added a co-researcher in the research "'.$research_title.'".'); 
-            }     
-        } else{
+            }
+        } else {
             $count = 0;
             if ($collaborators != null) {
                 foreach ($collaborators as $collab) {
-                    if ($collab != auth()->id() ) {
+                    if ($collab != auth()->id()) {
                         $eService = ExtensionService::find($id);
                         ExtensionInvite::create([
                             'user_id' => $collab,
@@ -370,31 +382,31 @@ class CommonService {
                             'extension_service_id' => $id,
                             'ext_code' => $eService->ext_code
                         ]);
-        
+
                         $user = User::find($collab);
                         $extension_title = "Extension";
                         $sender = User::join('extension_services', 'extension_services.user_id', 'users.id')
-                                        ->where('extension_services.user_id', auth()->id())
-                                        ->where('extension_services.id', $id)
-                                        ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
+                            ->where('extension_services.user_id', auth()->id())
+                            ->where('extension_services.id', $id)
+                            ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
                         $url_accept = route('extension.invite.confirm', $id);
                         $url_deny = route('extension.invite.cancel', $id);
-        
+
                         $notificationData = [
                             'receiver' => $user->first_name,
                             'title' => $extension_title,
-                            'sender' => $sender->first_name.' '.$sender->middle_name.' '.$sender->last_name.' '.$sender->suffix,
+                            'sender' => $sender->first_name . ' ' . $sender->middle_name . ' ' . $sender->last_name . ' ' . $sender->suffix,
                             'url_accept' => $url_accept,
                             'url_deny' => $url_deny,
                             'date' => date('F j, Y, g:i a'),
                             'type' => 'ext-invite'
                         ];
-            
+
                         Notification::send($user, new ExtensionInviteNotification($notificationData));
                     }
                     $count++;
                 }
-                LogActivity::addToLog('Had added '.$count.' extension partners in an extension program/project/activity.');
+                LogActivity::addToLog('Had added ' . $count . ' extension partners in an extension program/project/activity.');
             }
         }
     }
@@ -412,8 +424,9 @@ class CommonService {
      * @param String $remarks is the note or reason for return.
      * =============================================================================================
      */
-    public function returnReport($reportID, $reviewerPosition, $remarks){
-        if ($reviewerPosition == 'chairperson'){
+    public function returnReport($reportID, $reviewerPosition, $remarks)
+    {
+        if ($reviewerPosition == 'chairperson') {
             DenyReason::create([
                 'report_id' => $reportID,
                 'user_id' => auth()->id(),
@@ -424,5 +437,81 @@ class CommonService {
                 'chairperson_approval' => 0
             ]);
         }
+    }
+
+    /**
+     * =============================================================================================
+     * 
+     * A function that returns an array of pending reports based on the approval role.
+     * 
+     * @param Array $data is an array/collection of reports.
+     * 
+     * @param String $type is the role approval.
+     * =============================================================================================
+     */
+    public function getStatusOfIPO($data, $type)
+    {
+        $newListStatus = [];
+        foreach ($data as $item) {
+            if ($type == $this->approvalHolderArr[0]) {
+                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
+            }
+            if ($type == $this->approvalHolderArr[1]) {
+                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
+            }
+            if ($type == $this->approvalHolderArr[2]) {
+                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
+            }
+            if ($type == $this->approvalHolderArr[3]) {
+                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
+            }
+            if ($type == $this->approvalHolderArr[4]) {
+                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
+            }
+            if ($type == $this->approvalHolderArr[5]) {
+                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
+            }
+        }
+        return $newListStatus;
+    }
+
+    private function itemStatusChecker($item, $type)  // Check the status of the item and return the item if pending is true otherwise return null || used in getStatusOfIPO method
+    {
+        if ($type == $this->approvalHolderArr[0] && $item[$this->approvalHolderArr[0]] == null) { // Both Reasercher ad extensionist
+            if ($item->format == 'f' && $item->report_category_id >= 1 && $item->report_category_id <= 8) return $item;
+        }
+
+        if ($type == $this->approvalHolderArr[1] && $item[$this->approvalHolderArr[1]] == null) { // Both Reasercher ad extensionist
+            if (($item->report_category_id >= 12 && $item->report_category_id <= 14) || ($item->report_category_id >= 34 && $item->report_category_id <= 37) || $item->report_category_id == 22 || $item->report_category_id == 23) {
+                if ($item->format == 'f') return $item;
+            }
+        }
+
+        if ($type == $this->approvalHolderArr[2]) { // Chair/Chief
+            if ($item->department_id != $item->college_id) {
+                if ($item[$this->approvalHolderArr[2]] == null) {
+                    if ($item->format == 'f') {
+                        return $item;
+                    }
+                    if ($item->format == 'a') {
+                        return $item;
+                    }
+                }
+            }
+        }
+
+        if ($type == $this->approvalHolderArr[3]) { // Dean/Director
+            if ($item[$this->approvalHolderArr[3]] === null && $item[$this->approvalHolderArr[2]] != 0 && $item[$this->approvalHolderArr[2]] != null) return $item;
+        }
+
+        if ($type == $this->approvalHolderArr[4]) { // Sector Head
+            if ($item[$this->approvalHolderArr[4]] === null && $item[$this->approvalHolderArr[3]] != 0 && $item[$this->approvalHolderArr[3]] != null) return $item;
+        }
+
+        if ($type == $this->approvalHolderArr[5]) { // IPO
+            if ($item[$this->approvalHolderArr[5]] === null && $item[$this->approvalHolderArr[4]] != 0 && $item[$this->approvalHolderArr[4]] != null) return $item;
+        }
+
+        return null;
     }
 }

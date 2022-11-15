@@ -19,6 +19,7 @@ use App\Models\{
     Maintenance\Department,
     Maintenance\Quarter,
 };
+use App\Services\CommonService;
 use App\Services\ManageConsolidatedReportAuthorizationService;
 
 class IpqmsoConsolidatedController extends Controller
@@ -32,6 +33,13 @@ class IpqmsoConsolidatedController extends Controller
         'sector_approval',
         'ipqmso_approval'
     ];
+
+    private $commonService;
+
+    public function __construct(CommonService $commonService)
+    {
+        $this->commonService = $commonService;
+    }
 
     public function index()
     {
@@ -193,7 +201,6 @@ class IpqmsoConsolidatedController extends Controller
                 'users.middle_name',
                 'users.suffix'
             )
-            ->whereIn($this->approvalHolderArr[$pending] ?? 'researcher_approval', [0])
             ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
             ->join('users', 'users.id', 'reports.user_id')
             ->where('reports.report_year', $year)
@@ -202,6 +209,9 @@ class IpqmsoConsolidatedController extends Controller
 
 
         $sector_names = Sector::all();
+
+
+        $ipqmso_accomps = $this->commonService->getStatusOfIPO($ipqmso_accomps, $this->approvalHolderArr[$pending] ?? 'researcher_approval');
 
         return view(
             'reports.consolidate.ipqmso',

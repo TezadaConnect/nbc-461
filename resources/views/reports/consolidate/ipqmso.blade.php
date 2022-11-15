@@ -169,7 +169,7 @@
                                                     <td class="report-view button-view" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">{{ $college_names[$row->id] ?? '-' }}</td>
                                                     <td class="report-view button-view" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">{{ $department_names[$row->id] ?? '-' }}</td>
                                                     <td class="report-view button-view text-center" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">
-                                                        @if ($row->report_category_id >= 1 && $row->report_category_id <= 8)
+                                                        @if ($row->report_category_id >= 1 && $row->report_category_id <= 8)  {{-- Researcher --}}
                                                             @if ($row->researcher_approval === null)
                                                                 @if ($row->format == 'f')
                                                                     Receiving...
@@ -186,7 +186,7 @@
                                                         @endif
                                                     </td>
                                                     <td class="report-view button-view text-center" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">
-                                                        @if (($row->report_category_id >= 12 && $row->report_category_id <= 14) || ($row->report_category_id >= 34 && $row->report_category_id <= 37) || $row->report_category_id == 22 || $row->report_category_id == 23)
+                                                        @if (($row->report_category_id >= 12 && $row->report_category_id <= 14) || ($row->report_category_id >= 34 && $row->report_category_id <= 37) || $row->report_category_id == 22 || $row->report_category_id == 23)  {{-- Extensionist --}}
                                                             @if ($row->extensionist_approval === null)
                                                                 @if ($row->format == 'f')
                                                                     Receiving...
@@ -203,7 +203,7 @@
                                                         @endif
                                                     </td>
                                                     <td class="report-view button-view text-center" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">
-                                                        @if ($row->format == 'a')
+                                                        @if ($row->format == 'a') {{-- Chair/Chief --}}
                                                             @if ($row->report_category_id >= 1 && $row->report_category_id <= 8)
                                                                 @if ($row->chairperson_approval === null)
                                                                     @if ($row->department_id == $row->college_id)
@@ -242,7 +242,7 @@
                                                                         N/A
                                                                     @else
                                                                         Receiving...
-                                                                    @endif
+                                                                    @endif 
                                                                 @elseif ($row->chairperson_approval === 0)
                                                                     <span class="text-danger font-weight-bold">Returned</span>
                                                                 @else
@@ -290,7 +290,7 @@
                                                         @endif
                                                     </td>
                                                     <td class="report-view button-view text-center" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">
-                                                        @if ($row->chairperson_approval === 0)
+                                                        @if ($row->chairperson_approval === 0) {{-- Dean/Director --}}
                                                             -
                                                         @elseif ($row->chairperson_approval === null)
                                                             -
@@ -307,7 +307,7 @@
                                                         @endif
                                                     </td>
                                                     <td class="report-view button-view text-center" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">
-                                                        @if ($row->dean_approval === 0)
+                                                        @if ($row->dean_approval === 0) {{-- Sector Head --}}
                                                             -
                                                         @elseif ($row->dean_approval === null)
                                                             -
@@ -670,7 +670,7 @@
             }
         </script> -->
         <script>
-            $('#filter').on('click', function () {
+                        $('#filter').on('click', function () {
                 var year_reported = $('#yearFilter').val();
                 var quarter1 = $('#quarterFilter').val();
                 var quarter2 = $('#quarterFilter2').val();
@@ -678,6 +678,7 @@
                 var newLink = link.replace(':year', year_reported).replace(':quarter1', quarter1).replace(':quarter2', quarter2);
                 window.location.replace(newLink);
             });
+
             $('#export').on('click', function() {
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedQuarter2 = $('#quarterFilter2').val();
@@ -686,6 +687,7 @@
                 $('#to_quarter_generate2').val(selectedQuarter2);
                 $('#year_generate2').val(selectedYear);
             })
+
             $('#pending').on('click', function () {
                 var pendingSelected = $('#pendingFilter').val() ?? null;
                 var link = "{{ url('reports/consolidate/all/:pending') }}";
