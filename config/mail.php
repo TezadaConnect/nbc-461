@@ -36,11 +36,12 @@ return [
     'mailers' => [
         'smtp' => [
             'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp-mail.outlook.com'),
+            'host' => env('MAIL_HOST', '192.168.4.7'),
             'port' => env('MAIL_PORT', 587),
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
+            'from' => env('MAIL_FROM'),
             'timeout' => null,
             'auth_mode' => null,
         ],
