@@ -38,7 +38,7 @@ return [
             'transport' => 'smtp',
             'host' => env('MAIL_HOST', "192.168.4.7"),
             'port' => env('MAIL_PORT', 587),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            // 'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             // 'username' => env('MAIL_USERNAME'),
             // 'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
