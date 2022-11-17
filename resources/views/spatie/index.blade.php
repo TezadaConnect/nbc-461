@@ -37,8 +37,8 @@
                 <div class="col-md-200">
                     <div class="card">
                         <div class="card-body">
-                            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                                    <button class="button" aria-selected="false">Download</button>
+                            <ul class="nav nav-pills mb-3">
+                                <a href="{{ route('downloadBackup') }}" class="btn btn-sm btn-primary"><i class="fa fa-download"></i>Download Backup</a>
                             </ul>
                             <div class="card">
                                 <div class="card-body">

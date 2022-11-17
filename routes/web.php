@@ -232,6 +232,7 @@ Route::group(['middleware' => ['auth', 'account']], function() {
 
     /* SPATTIE */
     Route::get('/spatie', [\App\Http\Controllers\SpatieController::class, 'index'])->name('spatie');
+    Route::get('/downloadBackup', [\App\Http\Controllers\SpatieController::class, 'downloadBackup'])->name('downloadBackup');
     Route::post('/saveFrequency', [\App\Http\Controllers\SpatieController::class, 'saveFrequency'])->name('saveFrequency');
 
     /* RESEARCH ACCOMPLISHMENTS */

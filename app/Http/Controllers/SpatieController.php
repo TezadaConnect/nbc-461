@@ -33,4 +33,25 @@ class SpatieController extends Controller
     private function deleteExistingFrequency() {
         BackupDatabase::truncate();
     }
+
+    /**
+     * This method runs the spatie backup command
+     */
+    public function downloadBackup() {
+        \Artisan::call('config:cache');
+        \Artisan::call('backup:run --only-db');
+        // $path = storage_path('app/backups/*');
+        // $latest_ctime = 0;
+        // $latest_filename = '';
+        // $files = glob($path);
+        // foreach($files as $file)
+        // {
+        //         if (is_file($file) && filectime($file) > $latest_ctime)
+        //         {
+        //                 $latest_ctime = filectime($file);
+        //                 $latest_filename = $file;
+        //         }
+        // }
+        //return redirect()->route('spatie');
+    }
 }

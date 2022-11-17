@@ -4,6 +4,8 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Models\BackupDatabase;
+use Illuminate\Support\Facades\DB;
 
 class Kernel extends ConsoleKernel
 {
@@ -30,6 +32,44 @@ class Kernel extends ConsoleKernel
         $schedule->command('research:weekly')->weekly();
         $schedule->command('deadline:weekly')->weekly();
         $schedule->command('deadline:daily')->daily();
+
+        /**
+         * Added this line for the Spatie DB Backup scheduling
+         * The scheduler will run based on the frequency saved in
+         * BackupDatabase table
+         */
+        $frequency= DB::table('backup_databases')->pluck('frequency');
+        \Log::info($frequency);
+        $schedule->command('backup:run --only-db')->daily()->when(function () {
+            if ($frequency == 'daily'){
+                return true;
+            }
+            else {
+                return false;
+             }
+    
+        });
+
+        $schedule->command('backup:run --only-db')->weekly()->when(function () {
+            if ($frequency == 'weekly'){
+                return true;
+            }
+            else {
+                return false;
+             }
+    
+        });
+
+        $schedule->command('backup:run --only-db')->monthly()->everyMinute(function () {
+            if ($frequency == 'monthly'){
+                return true;
+            }
+            else {
+                return false;
+             }
+    
+        });
+
     }
 
     /**
