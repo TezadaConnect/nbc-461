@@ -43,42 +43,6 @@ class IpqmsoConsolidatedController extends Controller
 
     public function index()
     {
-
-        // $ipqmso_accomps =
-        //     Report::select(
-        //         'reports.*',
-        //         'report_categories.name as report_category',
-        //         'users.last_name',
-        //         'users.first_name',
-        //         'users.middle_name',
-        //         'users.suffix'
-        //     )
-        //     ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
-        //     ->join('users', 'users.id', 'reports.user_id')
-        //     ->where('reports.report_year', $year)
-        //     ->where('reports.report_quarter', $quarter)
-        //     ->orderBy('reports.updated_at', 'DESC')
-        //     ->get();
-
-        // //get_department_and_college_name
-        // $college_names = [];
-        // $department_names = [];
-        // foreach ($ipqmso_accomps as $row) {
-        //     $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
-        //     $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
-        //     $row->report_details = json_decode($row->report_details, false);
-
-        //     if ($temp_college_name == null)
-        //         $college_names[$row->id] = '-';
-        //     else
-        //         $college_names[$row->id] = $temp_college_name->name;
-        //     if ($temp_department_name == null)
-        //         $department_names[$row->id] = '-';
-        //     else
-        //         $department_names[$row->id] = $temp_department_name->name;
-        // }
-
-        // 'ipqmso_accomps' , 'college_names'
         $authenticateUser = $this->AuthenticateUserLogged();
         $roles = $authenticateUser['roles'];
         $departments = $authenticateUser['departments'];
@@ -88,8 +52,6 @@ class IpqmsoConsolidatedController extends Controller
         $departmentsExtension = $authenticateUser['departmentsExtension'];
         $quarter = $authenticateUser['quarter'];
         $year = $authenticateUser['year'];
-
-
 
         $sector_names = Sector::all();
         // 
@@ -207,9 +169,7 @@ class IpqmsoConsolidatedController extends Controller
             ->where('reports.report_quarter', $quarter)
             ->get();
 
-
         $sector_names = Sector::all();
-
 
         $ipqmso_accomps = $this->commonService->getStatusOfIPO($ipqmso_accomps, $this->approvalHolderArr[$pending] ?? 'researcher_approval');
 
@@ -217,21 +177,6 @@ class IpqmsoConsolidatedController extends Controller
             'reports.consolidate.ipqmso',
             compact('ipqmso_accomps', 'sector_names', 'roles', 'departments', 'colleges', 'sectors', 'departmentsResearch',  'departmentsExtension', 'quarter',  'year', 'pending')
         );
-    }
-
-    public function notifyPendingOffice($pending)
-    {
-        // $findPendingQry = Report::where($this->approvalHolderArr[$pending] ?? 'researcher_approval', 1)->get();
-        // $idHolder = [];
-
-        // $containerId
-
-        // foreach ($findPendingQry as $value) {
-        //     if (!in_array($value[], $idHolder)) {
-
-        //         array_push($idHolder, $value[]);
-        //     }
-        // }
     }
 
     private function AuthenticateUserLogged()
