@@ -63,13 +63,14 @@
                                 </div>
                             </div>
                         </div>
+                        @php $isEmployeeRecordEmpty = 0; @endphp
                         <div class="row">
                             <div class="col-md-12">
                                 <table class="table table-hover table-bordered">
                                     <thead>
                                         <tr>
                                             <th>Reporting Role/Designee</th>
-                                            <th>Designation</th>
+                                            <th>College/Branch/Campus/Office of Designation</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -80,23 +81,26 @@
                                             <td>
                                                 @forelse ($designations[$employee->type] as $college)
                                                     @if ($loop->last)
-                                                        {{ $college }}
+                                                        {{ $college->name }}
                                                     @else
-                                                        {{ $college }},
+                                                        {{ $college->name }},
                                                     @endif
                                                 @empty
                                                     -
                                                 @endforelse
                                             </td>
                                             <td>
-                                                <a href="{{ route('offices.create') }}" type="button" class="btn btn-warning mr-2">Edit</a>
-                                                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-designation="{{ $employee->type }}">Delete</button>
+                                                <div class="btn-group" role="group" aria-label="button-group">
+                                                    <a href="{{ route('offices.create') }}" type="button" class="btn btn-warning btn-sm">Edit College/Office</a>
+                                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-designation="{{ $employee->type }}">Delete</button>
+                                                </div>
                                             </td>
                                         </tr>
                                         @empty
+                                        @php $isEmployeeRecordEmpty = 1; @endphp
                                         <tr>
                                             <td>
-                                                <a href="{{ route('offices.create') }}" type="button" class="btn btn-success mr-2">Add Designation</a>
+                                                <a href="{{ route('offices.create') }}" type="button" class="btn btn-success mr-2">Add College/Office Designation</a>
                                             </td>
                                         </tr>
                                         @endforelse
@@ -104,6 +108,42 @@
                                 </table>
                             </div>
                         </div>
+                        @if ($isEmployeeRecordEmpty == 0)
+                        @php $isDeptRecordEmpty = 0; @endphp
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="table table-hovered table-bordered">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Departments/Sections where to commit QAR</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>@forelse ($departmentNames as $dept)
+                                                        @if ($loop->last)
+                                                            {{ $dept->name }}
+                                                        @else
+                                                            {{ $dept->name }},
+                                                        @endif
+                                                    @empty
+                                                        @php $isDeptRecordEmpty = 1; @endphp
+                                                        <a href="{{ route('offices.addDepartment') }}" type="button" class="btn btn-success">Add Department/Section</a>
+                                                    @endforelse</td>
+                                                <td>
+                                                    @if ($isDeptRecordEmpty == 0)
+                                                    <a href="{{ route('offices.addDepartment') }}" type="button" class="btn btn-warning btn-sm">Edit Department/Section</a>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                         <hr>
                         <form action="{{ route('account.signature.save') }}" method="post">
                             @csrf
@@ -142,25 +182,6 @@
         </div>
     </div>
 
-    @if (Session::has('incomplete_account'))
-        <div class="modal fade" id="accountModal" tabindex="-1" aria-labelledby="accountModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title w-100 text-center" id="accountModalLabel">Welcome to PUP eQAR!</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                            <h5 class="text-center">Set up your account.</h5>
-                            <p id="itemToDelete2" class="text-center font-weight-bold">PUP eQAR needs to know your college, branch, campus, <br> or office of designation.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <a href="{{ route('offices.create') }}" type="button" class="btn btn-primary mb-2">OK</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -169,7 +190,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                        <h5 class="text-center">Are you sure you want to remove your designation?</h5>
+                        <h5 class="text-center">Are you sure you want to remove your designation record? This action cannot be undone.</h5>
                         <h5 id="designation" class="text-center font-weight-bold"></h5>
                         <form action="" id="delete_item" method="POST">
                             @csrf

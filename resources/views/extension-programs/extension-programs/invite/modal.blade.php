@@ -1,8 +1,8 @@
-<div class="modal fade" id="invitesModal" data-backdrop="static" tabindex="-1" aria-labelledby="invitesModalLabel" aria-hidden="true">
+<div class="modal fade" id="tagsModal" data-backdrop="static" tabindex="-1" aria-labelledby="tagsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="invitesModalLabel">Extension Tagged by Partner</h5>
+                <h5 class="modal-title" id="tagsModalLabel">Extension Tagged by Partner</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -19,7 +19,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($invites as $row)
+                            @foreach ($tags as $row)
                             <tr>
                                 <td>{{ $row->last_name.', '.$row->first_name.' '.$row->middle_name.' '.$row->suffix }}</td>
                                 <td>{{ $row->ext_code }}</td>

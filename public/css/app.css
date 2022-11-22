@@ -14633,3 +14633,7 @@ span.form-notes {
 .to-submit {
     background-color: lightskyblue;
 }
+
+.btn-disabled {
+  pointer-events: none;
+}

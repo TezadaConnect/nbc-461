@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        @include('reports.navigation', compact('roles', 'departments', 'colleges', 'sectors'))
+        @include('reports.navigation', compact('roles', 'assignments'))
     </x-slot>
 
     <div class="container">
@@ -25,7 +25,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        <label for="quarterFilter" class="mr-2">Quarter Start: </label>
+                                        <label for="quarterFilter" class="mr-2">Quarter Period: </label>
                                         <div class="d-flex">
                                             <select id="quarterFilter" class="custom-select" name="quarter">
                                                 <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
@@ -38,7 +38,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group m-0">
-                                        <label for="quarterFilter2" class="mr-2">Quarter End: </label>
+                                        <label for="quarterFilter2" class="mr-2"></label>
                                         <div class="d-flex">
                                             <select id="quarterFilter2" class="custom-select" name="quarter2">
                                                 <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
@@ -49,13 +49,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6" style="padding-top: 25px;">
-                                    <div class="form-group">
-                                        <button id="filter" class="btn btn-primary">GENERATE</button>
-                                        <button id="export" type="button" class="btn btn-primary ml-2" data-target="#GenerateIPOLevel" data-toggle="modal">EXPORT</button>
-                                        <button id="pending" type="button" class="btn btn-danger ml-2">PENDING</button>
-                                    </div>
+                                <div class="form-group">
+                                    <button id="filter" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
+                                    <button id="export" type="button" class="btn btn-warning" data-target="#GenerateIPOLevel" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
+                                    <button id="pending" type="button" class="btn btn-danger ml-2">PENDING</button>
                                 </div>
+                                <hr>
                             </div>
                         @endif
 
@@ -394,7 +393,7 @@
         </div>
     </div>
 
-    @include('reports.generate.ipo', ['sectors' => $sector_names])
+    @include('reports.generate.ipo', ['sectors' => $sectors])
 
     <div class="modal fade" id="viewReport" tabindex="-1" aria-labelledby="viewReportLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -604,12 +603,6 @@
             $(function(){
                 $('#college_accomplishments_table').DataTable();
             });
-            // auto hide alert
-            window.setTimeout(function() {
-                $(".alert").fadeTo(500, 0).slideUp(500, function(){
-                    $(this).remove();
-                });
-            }, 4000);
         </script>
         <script>
             var max = {!! json_encode($year) !!};
@@ -670,7 +663,7 @@
             }
         </script> -->
         <script>
-            $('#filter').on('click', function () {
+                $('#filter').on('click', function () {
                 var year_reported = $('#yearFilter').val();
                 var quarter1 = $('#quarterFilter').val();
                 var quarter2 = $('#quarterFilter2').val();
@@ -683,8 +676,8 @@
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedQuarter2 = $('#quarterFilter2').val();
                 var selectedYear = $('#yearFilter').val();
-                $('#from_quarter_generate2').val(selectedQuarter);
-                $('#to_quarter_generate2').val(selectedQuarter2);
+                $('#from_quarter_generate').val(selectedQuarter);
+                $('#to_quarter_generate').val(selectedQuarter2);
                 $('#year_generate2').val(selectedYear);
             })
 

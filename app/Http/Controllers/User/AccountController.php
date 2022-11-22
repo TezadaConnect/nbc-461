@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\{
     User,
+    DepartmentEmployee,
     Employee,
 };
 use App\Models\Authentication\UserRole;
@@ -35,17 +36,38 @@ class AccountController extends Controller
                             ->select('employees.id', 'colleges.name as collegeName')
                             ->get();
         $employeeTypeOfUser = Employee::where('user_id', auth()->id())->groupBy('type')->oldest()->get();
-
+// dd($employeeTypeOfUser);
         $designations = [];
         foreach($employeeTypeOfUser as $employee) {
             $designations[$employee->type] = Employee::where('user_id', auth()->id())
                 ->where('employees.type', $employee->type)
                 ->join('colleges', 'colleges.id', 'employees.college_id')
-                ->pluck('colleges.name')
-                ->all();
+                ->select('colleges.name', 'colleges.id')
+                ->get();
         }
-
+        $employeeTypeByOrder = Employee::where('user_id', auth()->id())->orderBy('type')->oldest()->get();
+        // $departmentNames = array();
+        // $i = 0;
+        // foreach($employeeTypeByOrder as $row){
+        //     $departmentNames[$row->type] = DepartmentEmployee::join('departments', 'departments.id', 'department_employees.department_id')->where('departments.college_id', $row->college_id)->pluck('departments.name')->all();
+        //     foreach($departmentNames[$row->type] as $deptName){
+        //         // $departmentNames[$row->type] = $deptName;
+        //         array_push($departmentNames[$row->type], $deptName);
+        //     }
+        //     $i++;
+        // }
+        // dd($departmentNames);
+        $departmentNames = [];
+        foreach($employeeTypeOfUser as $employee) {
+            foreach($employeeTypeByOrder as $employeeRecord){
+                $departmentNames = DepartmentEmployee::where('user_id', auth()->id())
+                    ->join('departments', 'departments.id', 'department_employees.department_id')
+                    ->select('departments.name', 'departments.id')
+                    ->get();
+            }
+        }
+        // dd($departmentNames);
         return view('account', compact('accountDetail', 'employeeDetail', 'roles', 'employeeSectorsCbcoDepartment', 'user',
-            'employeeTypeOfUser', 'designations'));
+            'employeeTypeOfUser', 'designations', 'departmentNames'));
     }
 }

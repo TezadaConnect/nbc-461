@@ -11,19 +11,17 @@ use App\Http\Controllers\{
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
     DB,
-    Storage,
 };
 use App\Models\{
     Research,
+    Researcher,
     ResearchCitation,
     ResearchDocument,
-    TemporaryFile,
     FormBuilder\DropdownOption,
     FormBuilder\ResearchForm,
     Maintenance\Quarter,
 };
 use App\Services\CommonService;
-use Exception;
 
 class CitationController extends Controller
 {
@@ -45,20 +43,14 @@ class CitationController extends Controller
         $this->authorize('viewAny', ResearchCitation::class);
 
         $currentQuarterYear = Quarter::find(1);
-
-        $citationRecords = ResearchCitation::where('research_code', $research->research_code)->orderBy('updated_at', 'desc')->get();
-
-        $research = Research::where('research_code', $research->research_code)->where('user_id', auth()->id())
-                    ->join('dropdown_options', 'dropdown_options.id', 'research.status')
-                    ->select('research.*', 'dropdown_options.name as status_name')->first();
-
+        $citationRecords = ResearchCitation::where('research_id', $research->id)->orderBy('updated_at', 'desc')->get();
         $submissionStatus = array();
         $submitRole = array();
         foreach ($citationRecords as $citation) {
             $submissionStatus[5][$citation->id] = $this->commonService->getSubmissionStatus($citation->id, 5)['submissionStatus'];
             $submitRole[$citation->id] = $this->commonService->getSubmissionStatus($citation->id, 5)['submitRole'];
         }
-        $firstResearch = Research::where('research_code', $research->research_code)->first();
+        $firstResearch = Research::where('id', $research->id)->first();
         
         return view('research.citation.index', compact('research', 'citationRecords',
             'currentQuarterYear', 'submissionStatus', 'submitRole'));
@@ -108,15 +100,8 @@ class CitationController extends Controller
             return view('inactive');
 
         $currentQuarterYear = Quarter::find(1);
-
-        $request->merge([
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-            'research_id' => $research->id,
-        ]);
-
+        $request->merge(['research_id' => $research->id,]);
         $input = $request->except(['_token', '_method', 'document']);
-
         $citation = ResearchCitation::create($input);
 
         if(!empty($request->file(['document']))){      
@@ -124,7 +109,6 @@ class CitationController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCT-", 'research.citation.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 5,
                         'research_citation_id' => $citation->id,
@@ -150,10 +134,6 @@ class CitationController extends Controller
      */
     public function show(Research $research, ResearchCitation $citation)
     {
-
-        if (auth()->id() !== $research->user_id)
-            abort(403);
-
         $this->authorize('view', ResearchCitation::class);
         if(ResearchForm::where('id', 1)->pluck('is_active')->first() == 0)
             return view('inactive');
@@ -163,10 +143,6 @@ class CitationController extends Controller
         $citationFields = DB::select("CALL get_research_fields_by_form_id('5')");
 
         $citationDocuments = ResearchDocument::where('research_citation_id', $citation->id)->get()->toArray();
-
-        $research= Research::where('research_code', $research->research_code)->where('user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'research.status')
-                ->select('research.*', 'dropdown_options.name as status_name')->first();
-
         $citationRecord = ResearchCitation::find($citation->id);
 
         $values = array_merge($research->toArray(), $citationRecord->toArray());
@@ -185,8 +161,7 @@ class CitationController extends Controller
     public function edit(Research $research, ResearchCitation $citation)
     {
         $currentQuarter = Quarter::find(1)->current_quarter;
-
-        if (auth()->id() !== $research->user_id)
+        if (Researcher::where('research_id', $research->id)->first()->is_registrant == 0)
             abort(403);
 
         $this->authorize('update', ResearchCitation::class);
@@ -210,15 +185,8 @@ class CitationController extends Controller
 
             }
         }
-
         $researchDocuments = ResearchDocument::where('research_citation_id', $citation->id)->get()->toArray();
-
-        $research= Research::where('research_code', $research->research_code)->join('dropdown_options', 'dropdown_options.id', 'research.status')
-                ->select('research.*', 'dropdown_options.name as status_name')->first();
-
-
         $values = ResearchCitation::find($citation->id);
-
         $values = array_merge($research->toArray(), $values->toArray());
 
         return view('research.citation.edit', compact('research', 'researchFields', 'values', 'researchDocuments', 'dropdown_options', 'currentQuarter'));
@@ -241,23 +209,14 @@ class CitationController extends Controller
         if(ResearchForm::where('id', 5)->pluck('is_active')->first() == 0)
             return view('inactive');
 
-        $request->merge([
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-        ]);
-
         $input = $request->except(['_token', '_method', 'document']);
-
         $citation->update(['description' => '-clear']);
-
         $citation->update($input);
-
         if(!empty($request->file(['document']))){      
             foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCT-", 'research.citation.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 5,
                         'research_citation_id' => $citation->id,
@@ -318,11 +277,11 @@ class CitationController extends Controller
         $currentQuarterYear = Quarter::find(1);
 
         $research = Research::find($researchId);
-        $citationRecords = ResearchCitation::where('research_code', $research->research_code)->orderBy('updated_at', 'desc')->get();
+        $citationRecords = ResearchCitation::where('research_id', $research->id)->orderBy('updated_at', 'desc')->get();
 
-        $research = Research::where('research_code', $research->research_code)->where('user_id', auth()->id())
-                    ->join('dropdown_options', 'dropdown_options.id', 'research.status')
-                    ->select('research.*', 'dropdown_options.name as status_name')->first();
+        $research = Research::where('research.id', $research->id)->join('researchers', 'researchers.research_id', 'research.id')
+            ->join('dropdown_options', 'dropdown_options.id', 'research.status')
+            ->select('research.*', 'dropdown_options.name as status_name', 'researchers.*')->first();
 
         $submissionStatus = array();
         $submitRole = array();

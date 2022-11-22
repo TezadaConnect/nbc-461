@@ -10,6 +10,11 @@
         @else
         <div class="row">
             <div class="col-md-12">
+                @include('research.navigation-bar', ['research_code' => $research->id, 'research_status' => $research->status, 'research' => $value])
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
                 {{-- Success Message --}}
                 @if ($message = Session::get('success'))
                 <div class="alert alert-success alert-index">

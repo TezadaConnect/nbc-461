@@ -23,6 +23,9 @@ $table_format_json = json_encode($table_format, JSON_FORCE_OBJECT);
             <table class="table table-bordered table-hover table-sm">
                 <thead> 
                     <tr>
+                        @if ($level == "research")
+                        <th>Research Code</th>
+                        @endif
                         <th>Quarter</th>
                         <th>Sector</th>
                         <th>Delivery Unit</th>
@@ -41,6 +44,9 @@ $table_format_json = json_encode($table_format, JSON_FORCE_OBJECT);
                             $documents =  json_decode($content['report_documents'], true);
                         @endphp
                         <tr>
+                            @if ($level == "research")
+                            <th>{{ $content['report_code'] }}</th>
+                            @endif
                             <td>{{ $content['report_quarter'] }}</td>
                             <td>{{ $content['sector_name'] }}</td>
                             <td>{{ $content['college_name'] }}</td>

@@ -21,7 +21,7 @@ class ResearchAccomplishmentReportExport implements FromView, WithEvents
 {
     function __construct($clusterID, $clusterName, $level, $year){
         $this->clusterID = $clusterID;
-        $this->clusterName = $clusterName;
+    $this->clusterName = $clusterName;
         $this->level = $level;
         $this->year = $year;
     }
@@ -35,7 +35,7 @@ class ResearchAccomplishmentReportExport implements FromView, WithEvents
         if ($this->level == "research")
             $table_format = GenerateTable::where('type_id', 2)->whereIn('report_category_id', [1,2,3,4,5,6,7])->get();
         else 
-            $table_format = GenerateTable::where('type_id', 2)->whereIn('report_category_id', [12, 13, 14, 22, 23, 34, 35, 36, 37])->get();
+            $table_format = GenerateTable::whereIn('type_id', [2,4])->whereIn('report_category_id', [12, 13, 14, 22, 23, 34, 35, 36, 37])->get(); // type_ids 2 and 4 pertain to academic and college-wide tables
 
         //get the table columns/headers
         foreach ($table_format as $format) {
@@ -54,28 +54,29 @@ class ResearchAccomplishmentReportExport implements FromView, WithEvents
                     $table_contents[$format->id] =
                         Report::where('reports.research_cluster_id', $this->clusterID)
                             ->where('reports.format', 'f')
+                            ->where('reports.researcher_approval', 1)
+                            ->where('reports.report_year', $this->year)
                             ->select('reports.*',
                             DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"),
                                 'sectors.name as sector_name',
                                 'colleges.name as college_name'
                             )->where('reports.report_category_id', $format->report_category_id)
-                            ->where('reports.researcher_approval', 1)
-                            ->where('reports.report_year', $this->year)
                             ->join('users', 'users.id', 'reports.user_id')
                             ->join('sectors', 'sectors.id', 'reports.sector_id')
                             ->join('colleges', 'colleges.id', 'reports.college_id')
+                            ->orderBy('reports.report_code')
                             ->get()->toArray();
                 } else{
                     $table_contents[$format->id] =
                         Report::where('reports.college_id', $this->clusterID)
-                            ->where('reports.format', 'f')
+                            ->whereIn('reports.format', ['f', 'x'])
+                            ->where('reports.extensionist_approval', 1)
+                            ->where('reports.report_year', $this->year)
                             ->select('reports.*',
                             DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"),
                                 'sectors.name as sector_name',
                                 'colleges.name as college_name'
                             )->where('reports.report_category_id', $format->report_category_id)
-                            ->where('reports.extensionist_approval', 1)
-                            ->where('reports.report_year', $this->year)
                             ->join('users', 'users.id', 'reports.user_id')
                             ->join('sectors', 'sectors.id', 'reports.sector_id')
                             ->join('colleges', 'colleges.id', 'reports.college_id')
@@ -137,7 +138,6 @@ class ResearchAccomplishmentReportExport implements FromView, WithEvents
                 $table_columns = $this->table_columns;
                 $table_contents = $this->table_contents;
                 foreach ($table_format as $format) {
-
                     if ($format->is_table == '1') {
                         //columns
                         $columnTWO = Coordinate::stringFromColumnIndex(3);
@@ -196,6 +196,9 @@ class ResearchAccomplishmentReportExport implements FromView, WithEvents
                                 ],
                             ],
                         ]);
+                        
+                        // $event->sheet->getDelegate()->setAutoFilter( 'A'.$count.':'.$letter.$count);
+
                         $count++;
 
                         //contents

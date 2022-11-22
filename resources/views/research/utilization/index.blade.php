@@ -33,8 +33,7 @@
                                                 <th>#</th>
                                                 <th>Agency/Organization that Utilized the Research Output</th>
                                                 <th>Brief Description of Research Utilization</th>
-                                                <th>Quarter</th>
-                                                <th>Year</th>
+                                                <th>Date Added</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -45,10 +44,7 @@
                                                     <td>{{ $utilization->organization }}</a></td>
                                                     <td>{{ $utilization->utilization_description }}</td>
                                                     <td class="{{ ($utilization->report_quarter == $currentQuarterYear->current_quarter && $utilization->report_year == $currentQuarterYear->current_year) ? 'to-submit' : '' }}">
-                                                        {{ $utilization->report_quarter}}
-                                                    </td>
-                                                    <td>
-                                                        {{ $utilization->report_year}}
+                                                        {{ date( 'M d, Y h:i A', strtotime($utilization->created_at) ) }}
                                                     </td>
                                                     <td>
                                                         <div class="btn-group" role="group" aria-label="button-group">

@@ -5,7 +5,7 @@
         </div>
         <div class="row">
             <p class="ml-3">
-                <a class="back_link" href="{{ route('extension-service.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Extension Programs/Projects/Activities</a>
+                <a class="back_link" href="{{ route('extension-programs.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Extension Programs/Projects/Activities</a>
             </p>
         </div>
 
@@ -32,7 +32,7 @@
                         <div class="row">
                             <div class="col-md-6">
                             <p>
-                                <a class="back_link" href="{{ route('extension-service.show', $extension->id) }}"><i class="bi bi-chevron-double-left"></i>Back to the accomplishment</a>
+                                <a class="back_link" href="{{ route('extension-programs.show', $extension->id) }}"><i class="bi bi-chevron-double-left"></i>Back to the accomplishment</a>
                             </p>
                                 <h4>Tagged Extension Partners for {{ ($extension->title_of_extension_program != null ? $extension->title_of_extension_program : ($extension->title_of_extension_project != null ? $extension->title_of_extension_project : ($extension->title_of_extension_activity != null ? $extension->title_of_extension_activity : ''))) }}</h4>
                             </div>

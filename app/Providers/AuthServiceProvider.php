@@ -23,7 +23,7 @@ use App\Models\{
     ExpertServiceAcademic,
     ExpertServiceConference,
     ExpertServiceConsultant,
-    ExtensionService,
+    ExtensionProgram,
     Mobility,
     OtherAccomplishment,
     OtherDeptAccomplishment,
@@ -77,7 +77,7 @@ use App\Policies\Invention\InventionPolicy;
 use App\Policies\ExtensionProgram\ExpertService\AcademicPolicy;
 use App\Policies\ExtensionProgram\ExpertService\ConferencePolicy;
 use App\Policies\ExtensionProgram\ExpertService\ConsultantPolicy;
-use App\Policies\ExtensionProgram\ExtensionServicePolicy;
+use App\Policies\ExtensionProgram\ExtensionProgramPolicy;
 use App\Policies\ExtensionProgram\MobilityPolicy;
 use App\Policies\ExtensionProgram\OutreachProgramPolicy;
 use App\Policies\ExtensionProgram\PartnershipPolicy;
@@ -166,7 +166,7 @@ class AuthServiceProvider extends ServiceProvider
         ExpertServiceConference::class => ConferencePolicy::class,
         ExpertServiceConsultant::class => ConsultantPolicy::class,
         //Extension Programs
-        ExtensionService::class => ExtensionServicePolicy::class,
+        ExtensionProgram::class => ExtensionProgramPolicy::class,
         Mobility::class => MobilityPolicy::class,
         OutreachProgram::class => OutreachProgramPolicy::class,
         Partnership::class => PartnershipPolicy::class,

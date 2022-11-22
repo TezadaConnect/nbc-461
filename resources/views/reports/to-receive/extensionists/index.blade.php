@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        @include('reports.navigation', compact('roles', 'departments', 'colleges', 'sectors', 'departmentsResearch','departmentsExtension'))
+        @include('reports.navigation', compact('roles', 'assignments'))
     </x-slot>
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h2 class="font-weight-bold mb-2">Review College Extensions</h2>
+                <h2 class="font-weight-bold mb-2">Review Extensions</h2>
             </div>
         </div>
         <div class="row">

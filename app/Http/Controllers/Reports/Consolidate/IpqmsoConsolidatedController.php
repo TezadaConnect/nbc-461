@@ -18,6 +18,7 @@ use App\Models\{
     Maintenance\College,
     Maintenance\Department,
     Maintenance\Quarter,
+    User,
 };
 use App\Services\CommonService;
 use App\Services\ManageConsolidatedReportAuthorizationService;
@@ -36,33 +37,52 @@ class IpqmsoConsolidatedController extends Controller
 
     private $commonService;
 
-    public function __construct(CommonService $commonService)
-    {
+    public function __construct(CommonService $commonService){
         $this->commonService = $commonService;
     }
 
-    public function index()
-    {
-        $authenticateUser = $this->AuthenticateUserLogged();
-        $roles = $authenticateUser['roles'];
-        $departments = $authenticateUser['departments'];
-        $colleges = $authenticateUser['colleges'];
-        $sectors = $authenticateUser['sectors'];
-        $departmentsResearch = $authenticateUser['departmentsResearch'];
-        $departmentsExtension = $authenticateUser['departmentsExtension'];
-        $quarter = $authenticateUser['quarter'];
-        $year = $authenticateUser['year'];
+    public function index(){
+        $authorize = (new ManageConsolidatedReportAuthorizationService())->authorizeManageAllConsolidatedReports();
+        if (!($authorize)) {
+            abort(403, 'Unauthorized action.');
+        }
 
-        $sector_names = Sector::all();
+        $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
+
+        $currentQuarterYear = Quarter::find(1);
+        $quarter = $currentQuarterYear->current_quarter;
+        $year = $currentQuarterYear->current_year;
+        $quarter2 = 0;
+
+        $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
+        $ipqmso_accomps =
+            Report::select(
+                            'reports.*',
+                            'report_categories.name as report_category',
+                            'users.last_name',
+                            'users.first_name',
+                            'users.middle_name',
+                            'users.suffix'
+                          )
+                ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
+                ->join('users', 'users.id', 'reports.user_id')
+                ->where('reports.report_year', $year)
+                ->where('reports.report_quarter', $quarter)
+                ->orderBy('reports.updated_at', 'DESC')
+                ->get();
+
+        $employees = User::all();
+        $departments = Department::all();
+        $colleges = College::get();
+        $sectors = Sector::all();
         // 
         return view(
-            'reports.consolidate.ipqmso',
-            compact('sector_names', 'roles', 'departments', 'colleges', 'sectors', 'departmentsResearch',  'departmentsExtension', 'quarter',  'year')
-        );
+                    'reports.consolidate.ipqmso', compact('roles', 'ipqmso_accomps',
+                    'year', 'quarter', 'quarter2', 'employees', 'departments', 'colleges', 'sectors', 'assignments')
+                );
     }
 
-    public function reportYearFilter($year, $quarter)
-    {
+    public function reportYearFilter($year, $quarter, $quarter2) {
         $authorize = (new ManageConsolidatedReportAuthorizationService())->authorizeManageAllConsolidatedReports();
         if (!($authorize)) {
             abort(403, 'Unauthorized action.');
@@ -72,49 +92,23 @@ class IpqmsoConsolidatedController extends Controller
             return redirect()->route('reports.consolidate.ipqmso');
         } else {
             $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-            $departments = [];
-            $colleges = [];
-            $sectors = [];
-            $departmentsResearch = [];
-            $departmentsExtension = [];
 
-            if (in_array(5, $roles)) {
-                $departments = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
-                    ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
-            }
-            if (in_array(6, $roles)) {
-                $colleges = Dean::where('deans.user_id', auth()->id())->select('deans.college_id', 'colleges.code')
-                    ->join('colleges', 'colleges.id', 'deans.college_id')->get();
-            }
-            if (in_array(7, $roles)) {
-                $sectors = SectorHead::where('sector_heads.user_id', auth()->id())->select('sector_heads.sector_id', 'sectors.code')
-                    ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
-            }
-            if (in_array(10, $roles)) {
-                $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())
-                    ->select('faculty_researchers.college_id', 'colleges.code')
-                    ->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
-            }
-            if (in_array(11, $roles)) {
-                $departmentsExtension = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
-                    ->select('faculty_extensionists.college_id', 'colleges.code')
-                    ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
-            }
+            $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
 
             $ipqmso_accomps =
-                Report::select(
-                    'reports.*',
-                    'report_categories.name as report_category',
-                    'users.last_name',
-                    'users.first_name',
-                    'users.middle_name',
-                    'users.suffix'
-                )
-                ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
-                ->join('users', 'users.id', 'reports.user_id')
-                ->where('reports.report_year', $year)
-                ->where('reports.report_quarter', $quarter)
-                ->get();
+                Report::where('reports.report_year', $year)
+                    ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
+                    ->select(
+                                'reports.*',
+                                'report_categories.name as report_category',
+                                'users.last_name',
+                                'users.first_name',
+                                'users.middle_name',
+                                'users.suffix'
+                            )
+                    ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
+                    ->join('users', 'users.id', 'reports.user_id')
+                    ->get();
 
             //get_department_and_college_name
             $college_names = [];
@@ -137,8 +131,8 @@ class IpqmsoConsolidatedController extends Controller
         $sector_names = Sector::all();
 
         return view(
-            'reports.consolidate.ipqmso',
-            compact('roles', 'departments', 'colleges', 'ipqmso_accomps', 'department_names', 'college_names', 'sectors', 'departmentsResearch', 'departmentsExtension', 'year', 'quarter', 'sector_names')
+            'reports.consolidate.ipqmso', compact('roles', 'ipqmso_accomps', 'department_names', 'college_names',
+            'year', 'quarter', 'quarter2', 'sector_names', 'assignments')
         );
     }
 
