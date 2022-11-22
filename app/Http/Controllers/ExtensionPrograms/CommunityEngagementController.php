@@ -35,7 +35,8 @@ class CommunityEngagementController extends Controller
     protected $storageFileController;
     private $commonService;
 
-    public function __construct(StorageFileController $storageFileController, CommonService $commonService){
+    public function __construct(StorageFileController $storageFileController, CommonService $commonService)
+    {
         $this->storageFileController = $storageFileController;
         $this->commonService = $commonService;
     }
@@ -52,9 +53,9 @@ class CommunityEngagementController extends Controller
         $currentQuarterYear = Quarter::find(1);
 
         $communityEngagements = CommunityEngagement::where('user_id', auth()->id())
-                                ->join('colleges', 'colleges.id', 'community_engagements.college_id')
-                                ->select(DB::raw('community_engagements.*, colleges.name as college_name'))
-                                ->orderBy('updated_at', 'desc')->get();
+            ->join('colleges', 'colleges.id', 'community_engagements.college_id')
+            ->select(DB::raw('community_engagements.*, colleges.name as college_name'))
+            ->orderBy('updated_at', 'desc')->get();
 
         $submissionStatus = array();
         $reportdata = new ReportDataController;
@@ -67,8 +68,11 @@ class CommunityEngagementController extends Controller
                 $submissionStatus[37][$communityEngagement->id] = 2;
         }
 
-        return view('extension-programs.community-engagements.index', compact('communityEngagements', 'currentQuarterYear',
-            'submissionStatus'));
+        return view('extension-programs.community-engagements.index', compact(
+            'communityEngagements',
+            'currentQuarterYear',
+            'submissionStatus'
+        ));
     }
 
     /**
@@ -81,16 +85,15 @@ class CommunityEngagementController extends Controller
         $this->authorize('manage', CommunityEngagement::class);
         $currentQuarter = Quarter::find(1)->current_quarter;
 
-        if(ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
+        if (ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
             return view('inactive');
         $communityEngagementFields = DB::select("CALL get_extension_program_fields_by_form_id('9')");
 
         $dropdown_options = [];
-        foreach($communityEngagementFields as $field){
-            if($field->field_type_name == "dropdown" || $field->field_type_name == "text"){
+        foreach ($communityEngagementFields as $field) {
+            if ($field->field_type_name == "dropdown" || $field->field_type_name == "text") {
                 $dropdownOptions = DropdownOption::where('dropdown_id', $field->dropdown_id)->where('is_active', 1)->get();
                 $dropdown_options[$field->name] = $dropdownOptions;
-
             }
         }
 
@@ -99,7 +102,7 @@ class CommunityEngagementController extends Controller
         $colleges = array_merge($deans, $chairpersons);
 
         $colleges = College::whereIn('id', array_values($colleges))
-                    ->select('colleges.*')->get();
+            ->select('colleges.*')->get();
 
         return view('extension-programs.community-engagements.create', compact('communityEngagementFields', 'colleges', 'dropdown_options', 'currentQuarter'));
     }
@@ -125,28 +128,27 @@ class CommunityEngagementController extends Controller
             'report_year' => $currentQuarterYear->current_year,
         ]);
 
-        if(ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
+        if (ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
             return view('inactive');
         $input = $request->except(['_token', '_method', 'document']);
 
         $communityEngagement = CommunityEngagement::create($input);
         $communityEngagement->update(['user_id' => auth()->id()]);
 
-        
+
         LogActivity::addToLog('Had added a community engagement conducted by college/department.');
 
-        if(!empty($request->file(['document']))){      
-            foreach($request->file(['document']) as $document){
+        if (!empty($request->file(['document']))) {
+            foreach ($request->file(['document']) as $document) {
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'CEC-', 'community-engagement.index');
-                if(is_string($fileName)) CommunityEngagementDocument::create(['community_engagement_id' => $communityEngagement->id, 'filename' => $fileName]);
+                if (is_string($fileName)) CommunityEngagementDocument::create(['community_engagement_id' => $communityEngagement->id, 'filename' => $fileName]);
                 else return $fileName;
             }
         }
 
-
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        if($imageChecker) return redirect()->route('community-engagement.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if ($imageChecker) return redirect()->route('community-engagement.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
         return redirect()->route('community-engagement.index')->with('save_success', 'Community engagement conducted by college/department has been added.');
     }
@@ -162,9 +164,9 @@ class CommunityEngagementController extends Controller
         $this->authorize('manage', CommunityEngagement::class);
 
         if (auth()->id() !== $communityEngagement->user_id)
-        abort(403);
+            abort(403);
 
-        if(ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
+        if (ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
             return view('inactive');
         $communityEngagementFields = DB::select("CALL get_extension_program_fields_by_form_id('9')");
 
@@ -172,27 +174,23 @@ class CommunityEngagementController extends Controller
 
         $values = $communityEngagement->toArray();
 
-        foreach($communityEngagementFields as $field){
-            if($field->field_type_name == "dropdown"){
+        foreach ($communityEngagementFields as $field) {
+            if ($field->field_type_name == "dropdown") {
                 $dropdownOptions = DropdownOption::where('id', $values[$field->name])->where('is_active', 1)->pluck('name')->first();
-                if($dropdownOptions == null)
+                if ($dropdownOptions == null)
                     $dropdownOptions = "-";
                 $values[$field->name] = $dropdownOptions;
-            }
-            elseif($field->field_type_name == "college"){
-                if($values[$field->name] == '0'){
+            } elseif ($field->field_type_name == "college") {
+                if ($values[$field->name] == '0') {
                     $values[$field->name] = 'N/A';
-                }
-                else{
+                } else {
                     $college = College::where('id', $values[$field->name])->pluck('name')->first();
                     $values[$field->name] = $college;
                 }
-            }
-            elseif($field->field_type_name == "department"){
-                if($values[$field->name] == '0'){
+            } elseif ($field->field_type_name == "department") {
+                if ($values[$field->name] == '0') {
                     $values[$field->name] = 'N/A';
-                }
-                else{
+                } else {
                     $department = Department::where('id', $values[$field->name])->pluck('name')->first();
                     $values[$field->name] = $department;
                 }
@@ -216,27 +214,26 @@ class CommunityEngagementController extends Controller
         if (auth()->id() !== $communityEngagement->user_id)
             abort(403);
 
-        if(LockController::isLocked($communityEngagement->id, 37)){
+        if (LockController::isLocked($communityEngagement->id, 37)) {
             return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
         }
 
-        if(ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
+        if (ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
             return view('inactive');
         $communityEngagementFields = DB::select("CALL get_extension_program_fields_by_form_id('9')");
 
         $dropdown_options = [];
-        foreach($communityEngagementFields as $field){
-            if($field->field_type_name == "dropdown" || $field->field_type_name == "text"){
+        foreach ($communityEngagementFields as $field) {
+            if ($field->field_type_name == "dropdown" || $field->field_type_name == "text") {
                 $dropdownOptions = DropdownOption::where('dropdown_id', $field->dropdown_id)->where('is_active', 1)->get();
                 $dropdown_options[$field->name] = $dropdownOptions;
-
             }
         }
 
         $collegeAndDepartment = Department::join('colleges', 'colleges.id', 'departments.college_id')
-                ->where('colleges.id', $communityEngagement->college_id)
-                ->select('colleges.name AS college_name', 'departments.name AS department_name')
-                ->first();
+            ->where('colleges.id', $communityEngagement->college_id)
+            ->select('colleges.name AS college_name', 'departments.name AS department_name')
+            ->first();
 
         $values = $communityEngagement->toArray();
 
@@ -245,12 +242,20 @@ class CommunityEngagementController extends Controller
         $colleges = array_merge($deans, $chairpersons);
 
         $colleges = College::whereIn('id', array_values($colleges))
-                    ->select('colleges.*')->get();
+            ->select('colleges.*')->get();
 
         $documents = CommunityEngagementDocument::where('community_engagement_id', $communityEngagement->id)->get()->toArray();
 
-        return view('extension-programs.community-engagements.edit', compact('communityEngagement', 'communityEngagementFields', 'documents', 'values', 'colleges', 'collegeAndDepartment',
-            'dropdown_options', 'currentQuarter'));
+        return view('extension-programs.community-engagements.edit', compact(
+            'communityEngagement',
+            'communityEngagementFields',
+            'documents',
+            'values',
+            'colleges',
+            'collegeAndDepartment',
+            'dropdown_options',
+            'currentQuarter'
+        ));
     }
 
     /**
@@ -276,7 +281,7 @@ class CommunityEngagementController extends Controller
         ]);
 
 
-        if(ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
+        if (ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
             return view('inactive');
         $input = $request->except(['_token', '_method', 'document']);
 
@@ -284,27 +289,27 @@ class CommunityEngagementController extends Controller
 
         $communityEngagement->update($input);
 
-        
+
         LogActivity::addToLog('Had updated a community engagement conducted by college/department.');
 
-        if(!empty($request->file(['document']))){      
-            foreach($request->file(['document']) as $document){
+        if (!empty($request->file(['document']))) {
+            foreach ($request->file(['document']) as $document) {
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'CEC-', 'community-engagement.index');
-                if(is_string($fileName)) CommunityEngagementDocument::create(['community_engagement_id' => $communityEngagement->id, 'filename' => $fileName]);
+                if (is_string($fileName)) CommunityEngagementDocument::create(['community_engagement_id' => $communityEngagement->id, 'filename' => $fileName]);
                 else return $fileName;
             }
         }
 
-        
+
         $imageRecord = CommunityEngagementDocument::where('community_engagement_id', $communityEngagement->id)->get();
 
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
 
-        if($imageChecker) return redirect()->route('community-engagement.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if ($imageChecker) return redirect()->route('community-engagement.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
         return redirect()->route('community-engagement.index')->with('save_success', 'Community engagement conducted by college/department has been updated.');
 
-                // if($request->has('document')){
+        // if($request->has('document')){
         //     try {
         //         $documents = $request->input('document');
         //         foreach($documents as $document){
@@ -328,7 +333,7 @@ class CommunityEngagementController extends Controller
         //     } catch (Exception $th) {
         //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
         //     }
-            
+
         // }
     }
 
@@ -342,11 +347,11 @@ class CommunityEngagementController extends Controller
     {
         $this->authorize('manage', CommunityEngagement::class);
 
-        if(LockController::isLocked($communityEngagement->id, 37)){
+        if (LockController::isLocked($communityEngagement->id, 37)) {
             return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
         }
 
-        if(ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
+        if (ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
             return view('inactive');
         CommunityEngagementDocument::where('community_engagement_id', $communityEngagement->id)->delete();
         $communityEngagement->delete();
@@ -356,10 +361,11 @@ class CommunityEngagementController extends Controller
         return redirect()->route('community-engagement.index')->with('success', 'Community engagement conducted by college/department has been deleted.');
     }
 
-    public function removeDoc($filename){
+    public function removeDoc($filename)
+    {
         $this->authorize('manage', CommunityEngagement::class);
 
-        if(ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
+        if (ExtensionProgramForm::where('id', 9)->pluck('is_active')->first() == 0)
             return view('inactive');
         CommunityEngagementDocument::where('filename', $filename)->delete();
 

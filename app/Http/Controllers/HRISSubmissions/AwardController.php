@@ -130,6 +130,8 @@ class AwardController extends Controller
 
         $document = $this->commonService->fileUploadHandlerForExternal($request, 'document');
 
+        $document = $this->commonService->fileUploadHandlerForExternal($request, 'document');
+
         $value = [
             0, //EmployeeOutstandingAchievementID
             $emp_code, //EmpCode
