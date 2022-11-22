@@ -34,7 +34,6 @@ class DashboardController extends Controller
 {
     public function index() {
         $user = User::where('id', auth()->id())->first();
-
         $roles = (new UserRoleService())->getRolesOfUser(auth()->id());
 
         $roleNames = Role::whereIn('id', $roles)->pluck('name')->all();

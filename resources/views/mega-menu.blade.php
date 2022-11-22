@@ -56,8 +56,8 @@
         <div class="col-md-3">
             <ul>
                 
-                @can('viewAny', \App\Models\ExtensionService::class)
-                <li><a class="{{ request()->routeIs('extension-service.*') ? 'active' : '' }}" href="{{ route('extension-service.index') }}">Extension Program/Project/Activity</a></li>
+                @can('viewAny', \App\Models\ExtensionProgram::class)
+                <li><a class="{{ request()->routeIs('extension-programs.*') ? 'active' : '' }}" href="{{ route('extension-programs.index') }}">Extension Program/Project/Activity</a></li>
                 @endcan
                 @can('viewAny', \App\Models\Mobility::class)
                 <li><a class="{{ request()->routeIs('mobility.*') ? 'active' : '' }}" href="{{ route('mobility.index') }}">Inter-country Mobility^</a></li>

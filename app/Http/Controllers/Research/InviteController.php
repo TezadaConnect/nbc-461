@@ -120,7 +120,7 @@ class InviteController extends Controller
         
         LogActivity::addToLog('Had denied as a co-researcher of a research.');
 
-        return redirect()->route('research.index')->with('success', 'Invitation cancelled.');
+        return redirect()->route('research.index')->with('success', 'Removed the research which you are not a co-researcher.');
     }
 
     public function remove($research_id, Request $request){

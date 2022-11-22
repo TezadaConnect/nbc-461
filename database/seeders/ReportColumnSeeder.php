@@ -15,14 +15,14 @@ class ReportColumnSeeder extends Seeder
     public function run()
     {
         ReportColumn::truncate();
-        ReportColumn::insert([
-            'report_category_id' => 1,
-            'name' => 'Code',
-            'table' => 'research',
-            'column' => 'research_code',
-            'is_active' => 1,
-            'order' => 1,
-        ]);
+        // ReportColumn::insert([
+        //     'report_category_id' => 1,
+        //     'name' => 'Code',
+        //     'table' => 'research',
+        //     'column' => 'research_code',
+        //     'is_active' => 1,
+        //     'order' => 1,
+        // ]);
         ReportColumn::insert([
             'report_category_id' => 1,
             'name' => 'Research Classification',
@@ -177,14 +177,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         // Research Completed
-        ReportColumn::insert([
-            'report_category_id' => 2,
-            'name' => 'Code',
-            'table' => 'research',
-            'column' => 'research_code',
-            'is_active' => 1,
-            'order' => 1,
-        ]);
+        // ReportColumn::insert([
+        //     'report_category_id' => 2,
+        //     'name' => 'Code',
+        //     'table' => 'research',
+        //     'column' => 'research_code',
+        //     'is_active' => 1,
+        //     'order' => 1,
+        // ]);
         ReportColumn::insert([
             'report_category_id' => 2,
             'name' => 'Research Classification',
@@ -331,14 +331,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         //Research Publication
-        ReportColumn::insert([
-            'report_category_id' => 3,
-            'name' => 'Code',
-            'table' => 'research',
-            'column' => 'research_code',
-            'is_active' => 1,
-            'order' => 1,
-        ]);
+        // ReportColumn::insert([
+        //     'report_category_id' => 3,
+        //     'name' => 'Code',
+        //     'table' => 'research',
+        //     'column' => 'research_code',
+        //     'is_active' => 1,
+        //     'order' => 1,
+        // ]);
         ReportColumn::insert([
             'report_category_id' => 3,
             'name' => 'Research Classification',
@@ -557,14 +557,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         // Research Presentations
-        ReportColumn::insert([
-            'report_category_id' => 4,
-            'name' => 'Code',
-            'table' => 'research',
-            'column' => 'research_code',
-            'is_active' => 1,
-            'order' => 1,
-        ]);
+        // ReportColumn::insert([
+        //     'report_category_id' => 4,
+        //     'name' => 'Code',
+        //     'table' => 'research',
+        //     'column' => 'research_code',
+        //     'is_active' => 1,
+        //     'order' => 1,
+        // ]);
         ReportColumn::insert([
             'report_category_id' => 4,
             'name' => 'Research Classification',
@@ -743,14 +743,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         // Research Citation
-        ReportColumn::insert([
-            'report_category_id' => 5,
-            'name' => 'Code',
-            'table' => 'research',
-            'column' => 'research_code',
-            'is_active' => 1,
-            'order' => 1,
-        ]);
+        // ReportColumn::insert([
+        //     'report_category_id' => 5,
+        //     'name' => 'Code',
+        //     'table' => 'research',
+        //     'column' => 'research_code',
+        //     'is_active' => 1,
+        //     'order' => 1,
+        // ]);
         ReportColumn::insert([
             'report_category_id' => 5,
             'name' => 'Research Classification',
@@ -961,14 +961,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         // Research Utilization
-        ReportColumn::insert([
-            'report_category_id' => 6,
-            'name' => 'Code',
-            'table' => 'research',
-            'column' => 'research_code',
-            'is_active' => 1,
-            'order' => 1,
-        ]);
+        // ReportColumn::insert([
+        //     'report_category_id' => 6,
+        //     'name' => 'Code',
+        //     'table' => 'research',
+        //     'column' => 'research_code',
+        //     'is_active' => 1,
+        //     'order' => 1,
+        // ]);
         ReportColumn::insert([
             'report_category_id' => 6,
             'name' => 'Research Classification',
@@ -1131,14 +1131,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         // Copyrighted Research Output
-        ReportColumn::insert([
-            'report_category_id' => 7,
-            'name' => 'Code',
-            'table' => 'research',
-            'column' => 'research_code',
-            'is_active' => 1,
-            'order' => 1,
-        ]);
+        // ReportColumn::insert([
+        //     'report_category_id' => 7,
+        //     'name' => 'Code',
+        //     'table' => 'research',
+        //     'column' => 'research_code',
+        //     'is_active' => 1,
+        //     'order' => 1,
+        // ]);
         ReportColumn::insert([
             'report_category_id' => 7,
             'name' => 'Research Classification',

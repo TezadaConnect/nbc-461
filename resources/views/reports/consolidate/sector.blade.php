@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        @include('reports.navigation', compact('roles', 'departments', 'colleges', 'sectors'))
+        @include('reports.navigation', compact('roles', 'assignments'))
     </x-slot>
     <div class="container">
         <div class="row">
@@ -11,16 +11,14 @@
         <div class="card mb-3">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col-md-12">
                         <div class="form-group">
                             <label for="yearFilterSector" class="mr-2">Year Reported: </label>
                             <select id="yearFilterSector" class="custom-select">
                             </select>
                         </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group m-0">
-                            <label for="quarterFilterSector" class="mr-2">Quarter Start: </label>
+                        <div class="form-group">
+                            <label for="quarterFilterSector" class="mr-2">Quarter Period: </label>
                             <div class="d-flex">
                                 <select id="quarterFilterSector" class="custom-select" name="quarter">
                                     <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
@@ -30,10 +28,7 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group m-0">
-                            <label for="quarterFilterSector2" class="mr-2">Quarter End: </label>
+                        <div class="form-group">
                             <div class="d-flex">
                                 <select id="quarterFilterSector2" class="custom-select" name="quarter2">
                                     <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarter">1</option>
@@ -43,8 +38,6 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6" style="padding-top: 25px;">
                         <div class="form-group">
                             <button id="filter" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
                             <button id="export" type="button" class="btn btn-warning" data-target="#generateSectorLevel" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>

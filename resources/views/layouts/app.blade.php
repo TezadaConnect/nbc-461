@@ -34,8 +34,7 @@
         <script src="https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.min.js"></script>
         <script src="{{ asset('lightbox2/dist/js/lightbox.js') }}"></script>
         <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
-         <!-- JavaScript Bundle with Popper -->
-         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+        <!-- JavaScript Bundle with Popper -->
         <script src="{{ asset('js/app.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 
@@ -82,7 +81,13 @@
         <div id="fb-root"></div><!-- Messenger Chat Plugin Code -->
         <div id="fb-customer-chat" class="fb-customerchat"></div><!-- Your Chat Plugin code -->
 
-        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.2/js/bootstrap.bundle.min.js" integrity="sha512-BOsvKbLb0dB1IVplOL9ptU1EYA+LuCKEluZWRUYG73hxqNBU85JBIBhPGwhQl7O633KtkjMv8lvxZcWP+N3V3w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
     </body>
 </html>
 
@@ -202,6 +207,18 @@
             icon: "success"
         });
     }
+
+    if("{{ Session::has('incomplete_account'); }}"){
+        Swal.fire({
+            title: "Welcome to PUP eQAR!",
+            text: "Before you explore, PUP eQAR needs to know your college, branch, campus, or office of designation.",
+            confirmButtonColor: '#38c172',
+            icon: "success"
+        }).then(function() {
+        // Redirect the user
+        window.location.href = "{{ route('offices.create') }}";
+        });
+    }
   
     if("{{ Session::has('cannot_access'); }}"){
         Swal.fire({
@@ -212,7 +229,6 @@
         });
     }
 </script>
-
 
 {{-- SUCCESS POPUP --}}
 {{-- <div class="row">

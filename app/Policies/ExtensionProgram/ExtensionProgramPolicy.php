@@ -2,13 +2,13 @@
 
 namespace App\Policies\ExtensionProgram;
 
-use App\Models\ExtensionService;
+use App\Models\ExtensionProgram;
 use App\Models\User;
 use App\Models\Authentication\RolePermission;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Support\Facades\DB;
 
-class ExtensionServicePolicy
+class ExtensionProgramPolicy
 {
     use HandlesAuthorization;
 
@@ -37,7 +37,7 @@ class ExtensionServicePolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\ExtensionService  $extensionService
+     * @param  \App\Models\ExtensionProgram  $extensionService
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function view(User $user)
@@ -61,7 +61,7 @@ class ExtensionServicePolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\ExtensionService  $extensionService
+     * @param  \App\Models\ExtensionProgram  $extensionService
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function update(User $user)
@@ -74,7 +74,7 @@ class ExtensionServicePolicy
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\ExtensionService  $extensionService
+     * @param  \App\Models\ExtensionProgram  $extensionService
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function delete(User $user)
@@ -87,7 +87,7 @@ class ExtensionServicePolicy
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\ExtensionService  $extensionService
+     * @param  \App\Models\ExtensionProgram  $extensionService
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function restore(User $user)
@@ -100,7 +100,7 @@ class ExtensionServicePolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\ExtensionService  $extensionService
+     * @param  \App\Models\ExtensionProgram  $extensionService
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function forceDelete(User $user)

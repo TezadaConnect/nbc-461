@@ -11,20 +11,19 @@ use App\Http\Controllers\{
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
     DB,
-    Storage,
 };
 use App\Models\{
     Research,
+    Researcher,
     ResearchDocument,
     ResearchPresentation,
     ResearchPublication,
-    TemporaryFile,
     FormBuilder\ResearchForm,
     FormBuilder\DropdownOption,
     Maintenance\Quarter,
 };
 use App\Services\CommonService;
-use Exception;
+use App\Services\DateContentService;
 
 class PublicationController extends Controller
 {
@@ -49,9 +48,8 @@ class PublicationController extends Controller
 
         $publicationFields = DB::select("CALL get_research_fields_by_form_id('3')");
 
-        $publicationDocuments = ResearchDocument::where('research_code', $research->research_code)->where('research_form_id', 3)->get()->toArray();
-
-        $publicationRecord = ResearchPublication::where('research_code', $research->research_code)->first();
+        $publicationDocuments = ResearchDocument::where('research_id', $research->id)->where('research_form_id', 3)->get()->toArray();
+        $publicationRecord = ResearchPublication::where('research_id', $research->id)->first();
 
         if($publicationRecord == null){
             if ($research->status >= 28)
@@ -62,7 +60,7 @@ class PublicationController extends Controller
             }
         }
 
-        $publicationValues = array_merge(collect($publicationRecord)->except(['research_code'])->toArray(), collect($research)->except(['description'])->toArray());
+        $publicationValues = array_merge(collect($publicationRecord)->toArray(), collect($research)->except(['description'])->toArray());
 
         $submissionStatus[3][$publicationValues['id']] = $this->commonService->getSubmissionStatus($publicationValues['id'], 3)['submissionStatus'];
         $submitRole[$publicationValues['id']] = $this->commonService->getSubmissionStatus($publicationValues['id'], 3)['submitRole'];
@@ -108,7 +106,7 @@ class PublicationController extends Controller
         $value = $value->except(['description', 'status']);
         $value = $value->toArray();
 
-        $presentationChecker = ResearchPresentation::where('research_code', $research->research_code)->first();
+        $presentationChecker = ResearchPresentation::where('research_id', $research->id)->first();
 
         if($presentationChecker == null){
             $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', 30)->first();
@@ -134,41 +132,25 @@ class PublicationController extends Controller
         if(ResearchForm::where('id', 3)->pluck('is_active')->first() == 0)
             return view('inactive');
 
-        $publish_date = date("Y-m-d", strtotime($request->input('publish_date')));
+        $publish_date = (new DateContentService())->checkDateContent($request, "publish_date");
         $currentQuarterYear = Quarter::find(1);
-
-        $request->merge([
-            'publish_date' => $publish_date,
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-            'research_id' => $research->id,
-        ]);
+        $request->merge(['publish_date' => $publish_date, 'research_id' => $research->id,]);
 
         $input = $request->except(['_token', '_method', 'status', 'document']);
-
-
-        $presentationChecker = ResearchPresentation::where('research_code', $research->research_code)->first();
-
-        if($presentationChecker == null){
+        $presentationChecker = ResearchPresentation::where('research_id', $research->id)->first();
+        if($presentationChecker == null)
             $researchStatus = 30;
-        }
-        else{
+        else
             $researchStatus = 31;
-        }
-
-        Research::where('research_code', $research->research_code)->update([
-            'status' => $researchStatus
-        ]);
-
+        
+        $research->update([ 'status' => $researchStatus]);
         $publication = ResearchPublication::create($input);
-
         LogActivity::addToLog('Had marked the research "'.$research->title.'" as presented.');
         if(!empty($request->file(['document']))){      
             foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RPUB-", 'research.publication.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 3,
                         'filename' => $fileName,
@@ -206,7 +188,7 @@ class PublicationController extends Controller
         $currentQuarter = Quarter::find(1)->current_quarter;
         $this->authorize('update', ResearchPublication::class);
 
-        if (auth()->id() !== $research->user_id)
+        if (Researcher::where('research_id', $research->id)->first()->is_registrant == 0)
             abort(403);
 
         if(LockController::isLocked($publication->id, 3)){
@@ -229,7 +211,7 @@ class PublicationController extends Controller
         }
 
         // $research = array_merge($research->toArray(), $publication->toArray());
-        $researchDocuments = ResearchDocument::where('research_code', $research['research_code'])->where('research_form_id', 3)->get()->toArray();
+        $researchDocuments = ResearchDocument::where('research_id', $research['id'])->where('research_form_id', 3)->get()->toArray();
 
         $value = $research->toArray();
         $value = collect($research);
@@ -237,7 +219,7 @@ class PublicationController extends Controller
         $value = $value->toArray();
         $value = array_merge($value, $publication->toArray());
 
-        $presentationChecker = ResearchPresentation::where('research_code', $research->research_code)->first();
+        $presentationChecker = ResearchPresentation::where('research_id', $research->id)->first();
 
         if($presentationChecker == null){
             $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', 30)->first();
@@ -270,13 +252,8 @@ class PublicationController extends Controller
         if(ResearchForm::where('id', 3)->pluck('is_active')->first() == 0)
             return view('inactive');
 
-        $publish_date = date("Y-m-d", strtotime($request->input('publish_date')));
-
-        $request->merge([
-            'publish_date' => $publish_date,
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-        ]);
+        $publish_date = (new DateContentService())->checkDateContent($request, "publish_date");
+        $request->merge(['publish_date' => $publish_date,]);
 
         $input = $request->except(['_token', '_method', 'status', 'document']);
 
@@ -291,7 +268,6 @@ class PublicationController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RPUB-", 'research.publication.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 3,
                         'filename' => $fileName,

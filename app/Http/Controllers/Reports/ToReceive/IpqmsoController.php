@@ -23,10 +23,16 @@ use App\Models\{
 };
 use App\Notifications\ReceiveNotification;
 use App\Notifications\ReturnNotification;
+use App\Services\CommonService;
 use App\Services\ToReceiveReportAuthorizationService;
 
 class IpqmsoController extends Controller
 {
+    private $commonService;
+
+    public function __construct(CommonService $commonService){
+        $this->commonService = $commonService;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -54,42 +60,7 @@ class IpqmsoController extends Controller
 
         //role and department/ college id
         $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-        $departments = [];
-        $colleges = [];
-        $sectors = [];
-        $departmentsResearch = [];
-        $departmentsExtension = [];
-
-        if(in_array(5, $roles)){
-            $departments = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
-                                        ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
-        }
-        if(in_array(6, $roles)){
-            $colleges = Dean::where('deans.user_id', auth()->id())->select('deans.college_id', 'colleges.code')
-                            ->join('colleges', 'colleges.id', 'deans.college_id')->get();
-        }
-        if(in_array(7, $roles)){
-            $sectors = SectorHead::where('sector_heads.user_id', auth()->id())->select('sector_heads.sector_id', 'sectors.code')
-                        ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
-        }
-        if(in_array(10, $roles)){
-            $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())
-                                        ->select('faculty_researchers.college_id', 'colleges.code')
-                                        ->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
-        }
-        if(in_array(11, $roles)){
-            $departmentsExtension = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
-                                        ->select('faculty_extensionists.college_id', 'colleges.code')
-                                        ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
-        }
-        if(in_array(12, $roles)){
-            $colleges = Associate::where('associates.user_id', auth()->id())->select('associates.college_id', 'colleges.code')
-                            ->join('colleges', 'colleges.id', 'associates.college_id')->get();
-        }
-        if(in_array(13, $roles)){
-            $sectors = Associate::where('associates.user_id', auth()->id())->select('associates.sector_id', 'sectors.code')
-                        ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
-        }
+        $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
 
         $college_names = [];
         $department_names = [];
@@ -108,7 +79,7 @@ class IpqmsoController extends Controller
                 $department_names[$row->id] = $temp_department_name;
         }
 
-        return view('reports.to-receive.ipqmso.index', compact('reportsToReview', 'roles', 'departments', 'colleges', 'college_names', 'department_names', 'sectors', 'departmentsResearch','departmentsExtension'));
+        return view('reports.to-receive.ipqmso.index', compact('reportsToReview', 'roles', 'college_names', 'department_names', 'assignments'));
     }
 
     /**

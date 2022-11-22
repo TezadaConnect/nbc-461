@@ -24,12 +24,13 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEvents
 {
-    function __construct($level, $type, $quarterGenerate, $yearGenerate,
-         $collegeID, $collegeName, $facultyResearcher, $facultyExtensionist) {
+    function __construct($level, $type, $yearGenerate, $quarterGenerate, 
+        $quarterGenerate2, $collegeID, $collegeName) {
         $this->level = $level;
         $this->type = $type;
-        $this->quarterGenerate = $quarterGenerate;
         $this->yearGenerate = $yearGenerate;
+        $this->quarterGenerate = $quarterGenerate;
+        $this->quarterGenerate2 = $quarterGenerate2;
         $this->collegeID = $collegeID;
         $this->collegeName = $collegeName;
 
@@ -40,21 +41,6 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
             $this->signature = '';
 
         $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
-        if ($facultyResearcher != null) {
-            $this->researcherSignature = User::where('id', $facultyResearcher['user_id'])->pluck('users.signature')->first();
-            $this->researcherName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($facultyResearcher, "Researcher");
-        } else {
-            $this->researcherName = '';
-            $this->researcherSignature = '';
-        }
-
-        if ($facultyExtensionist != null) {
-            $this->extensionistSignature = User::where('id', $facultyExtensionist['user_id'])->pluck('users.signature')->first();
-            $this->extensionistName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($facultyExtensionist, "Extensionist");
-        } else {
-            $this->extensionistName = '';
-            $this->extensionistSignature = '';
-        }
     }
 
     public function view(): View
@@ -92,7 +78,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                                     ->orWhereIn('reports.dean_approval', ['1', '2']);
                             })
                             ->where('reports.report_year', $this->yearGenerate)
-                            ->where('reports.report_quarter', $this->quarterGenerate)
+                            ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
                             ->join('users', 'users.id', 'reports.user_id')
                             ->select('reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
                             ->orderBy('users.last_name')
@@ -128,7 +114,7 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                                     ->orWhereIn('reports.dean_approval', ['1', '2']);
                             })
                             ->where('reports.report_year', $this->yearGenerate)
-                            ->where('reports.report_quarter', $this->quarterGenerate)
+                            ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
                             ->join('users', 'users.id', 'reports.user_id')
                             ->join('departments', 'departments.id', 'reports.department_id')
                             ->select('reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
@@ -137,46 +123,8 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                             ->get()->toArray();
                 }
             }
-
         }
-        elseif($this->type == "research"){
-            $tableFormat = GenerateTable::whereIn('id', [15,16,17,18,19,20,21])->get(); //Research tables
-            $tableColumns = [];
-            foreach ($tableFormat as $format){
-                if($format->is_table == "0")
-                    $tableColumns[$format->id] = [];
-                else
-                    $tableColumns[$format->id] = GenerateColumn::where('table_id', $format->id)->orderBy('order')->get()->toArray();
-            }
-
-            $tableContents = [];
-            foreach ($tableFormat as $format){
-                if($format->is_table == "0" || $format->report_category_id == null)
-                    $tableContents[$format->id] = [];
-                else{
-
-                    $tableContents[$format->id] = Report::
-                        // ->where('user_roles.role_id', 1)
-                        whereIn('reports.cluster_', ['a', 'x'])
-                        ->where('reports.report_category_id', $format->report_category_id)
-                        ->where('reports.college_id', $this->collegeID)
-                        ->where(function($query) {
-                            $query->where('reports.researcher_approval', 1)
-                                ->orWhere('reports.extensionist_approval', 1)
-                                ->orWhereIn('reports.dean_approval', ['1', '2']);
-                        })
-                        ->where('reports.report_year', $this->yearGenerate)
-                        ->where('reports.report_quarter', $this->quarterGenerate)
-                        ->join('users', 'users.id', 'reports.user_id')
-                        ->join('departments', 'departments.id', 'reports.department_id')
-                        ->select('reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
-                        ->orderBy('departments.name')
-                        ->orderBy('users.last_name')
-                        ->get()->toArray();
-                }
-            }
-        }
-
+        
         $this->tableFormat = $tableFormat;
         $this->tableColumns = $tableColumns;
         $this->tableContents = $tableContents;
@@ -262,7 +210,10 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
                     ]
                 ]);
                 $event->sheet->getStyle('C3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $event->sheet->setCellValue('D3', $this->quarterGenerate);
+                if ($this->quarterGenerate == $this->quarterGenerate2)
+                    $event->sheet->setCellValue('D3', $this->quarterGenerate);
+                else
+                    $event->sheet->setCellValue('D3', $this->quarterGenerate.' - '.$this->quarterGenerate2);
                 $event->sheet->getStyle('D3')->applyFromArray([
                     'font' => [
                         'size' => 16,

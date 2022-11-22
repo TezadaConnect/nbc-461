@@ -140,6 +140,4 @@ class DepartmentController extends Controller
     public function getDepartmentName($id){
         return Department::where('id', $id)->pluck('name')->first();
     }
-
-    
 }

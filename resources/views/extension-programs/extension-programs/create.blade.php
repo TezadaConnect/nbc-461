@@ -5,14 +5,14 @@
             <div class="col-md-12">
                 <h3 class="font-weight-bold mr-2">Add Extension Program/ Project/Activity</h3>
                 <div class="mb-3">
-                    <a class="back_link" href="{{ route('extension-service.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Extension Programs/Projects/Activities</a>
+                    <a class="back_link" href="{{ route('extension-programs.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Extension Programs/Projects/Activities</a>
                 </div>
                 <div class="alert alert-info" role="alert">
                     You can still tag other extension partner/s in this extension after you save this extension.
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('extension-service.store' ) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
+                        <form action="{{ route('extension-programs.store' ) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
                             <div class="mt-2 mb-3">
                                 <i class="bi bi-pencil-square mr-1"></i><strong>Instructions: </strong> Please fill in the necessary details. No abbreviations. All inputs with the symbol (<strong style="color: red;">*</strong>) are required. Tag your extension partners to share them what you encoded.
                             </div>    
@@ -22,13 +22,13 @@
                             <div class="form-group">
                                 <label class="font-weight-bold" for="collaborators-tagging">Tag your extension partners/persons from PUP that participated in the extension (eQAR system users).</label><br>
                                 <span class="form-notes">If none, leave it blank.</span>
-                                <select name="tagged_collaborators[]" id="tagged-collaborators" class="form-control custom-select">
+                                <select name="extensionists[]" id="extensionists" class="form-control custom-select">
                                     <option value="" selected>Choose...</option>
                                 </select>
                             </div>
-                            @include('extension-programs.extension-services.form', ['formFields' => $extensionServiceFields, 'colleges' => $colleges])
-                            @include('extension-programs.extension-services.no-of-beneficiaries', ['value' => ''])
-                            @include('extension-programs.extension-services.form2', ['formFields' => $extensionServiceFields])
+                            @include('extension-programs.extension-programs.form', ['formFields' => $extensionServiceFields, 'colleges' => $colleges])
+                            @include('extension-programs.extension-programs.no-of-beneficiaries', ['value' => ''])
+                            @include('extension-programs.extension-programs.form2', ['formFields' => $extensionServiceFields])
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-0">
@@ -53,7 +53,7 @@
         <script>
             $(function() {
                 $('#status').val(105);
-                $('#tagged-collaborators')[0].selectize.removeOption("{{auth()->id()}}");
+                $('#extensionists')[0].selectize.removeOption("{{auth()->id()}}");
             });
         </script>
         <script>
@@ -90,7 +90,7 @@
             });
         </script>
          <script>
-            $("#tagged-collaborators").selectize({
+            $("#extensionists").selectize({
               maxItems: null,
               valueField: 'id',
               labelField: 'fullname',

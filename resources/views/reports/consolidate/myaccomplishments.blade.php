@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        @include('reports.navigation', compact('roles', 'departments', 'colleges', 'sectors'))
+        @include('reports.navigation', compact('roles', 'assignments'))
     </x-slot>
 
     <div class="container">
@@ -14,33 +14,25 @@
             <div class="col-md-12">
                 <div class="card mb-3">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="yearFilter" class="mr-2">Year Reported: </label>
-                                    <select id="yearFilter" class="custom-select">
-                                    </select>
-                                </div>
+                        <div class="form-group">
+                            <label for="yearFilter" class="mr-2">Year Reported: </label>
+                            <select id="yearFilter" class="custom-select">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quarterFilter" class="mr-2">Quarter: </label>
+                            <div class="d-flex">
+                                <select id="quarterFilter" class="custom-select" name="quarter">
+                                    <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
+                                    <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
+                                    <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
+                                    <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
+                                </select>
                             </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="quarterFilter" class="mr-2">Quarter Period: </label>
-                                    <div class="d-flex">
-                                        <select id="quarterFilter" class="custom-select" name="quarter">
-                                            <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                            <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                            <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                            <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-8" style="padding-top: 25px;">
-                                <div class="form-group">
-                                    <button id="filter" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
-                                    <button id="export" type="button" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button id="filter" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
+                            <button id="export" type="button" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
                         </div>
                         <hr>
                         <div class="row">

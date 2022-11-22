@@ -8,6 +8,9 @@
         </div>
         @endif
         <h3 class="font-weight-bold mr-2">Edit Registration Details {{ isset($research->title) ? 'of '.$research->title : '' }}</h3>
+        <div class="mb-3">
+            <a class="back_link" href="{{ route('research.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Research</a>
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -20,7 +23,7 @@
                             <div class="col-md-12">
                                 <div class="mb-0">
                                     <div class="d-flex justify-content-end align-items-baseline">
-                                        <a href="{{ route('research.show', $research->id) }}" class="btn btn-secondary mr-2">Cancel</a>
+                                        <a href="{{ route('research.index') }}" class="btn btn-secondary mr-2">Cancel</a>
                                         <button type="submit" id="submit" class="btn btn-success">Save</button>
                                     </div>
                                 </div>
@@ -125,28 +128,23 @@
         <script src="{{ asset('js/bootstrap-datepicker.js') }}"></script>
         <script src="{{ asset('js/spinner.js') }}"></script>
         <script>
-            $('#classification').attr('disabled', true);
+            $('#researchers')[0].selectize.lock();
+            $('#classification').attr('disabled', true); 
             $('#discipline').attr('disabled', true);
-            $('#category').attr('disabled', true);
-            $('#agenda').attr('disabled', true);
-            $('#nature_of_involvement option[value=11]').attr('disabled','disabled');
-            $('#nature_of_involvement option[value=224]').attr('disabled','disabled');
-            $('#research_type').attr('disabled', true);
-            $('#funding_type').attr('disabled', true);
-            $('#currency_select').attr('disabled', true);
-            $('.document').remove();
-
-            $('#title').attr('disabled', true);
-            $("#keywords")[0].selectize.lock();
-            $("#researchers")[0].selectize.lock();
+            $('#agenda').attr('disabled', true); 
+            $('#research_type').attr('disabled', true); 
+            $('#funding_type').attr('disabled', true); 
+            $('#category').attr('disabled', true); 
+            $('#title').attr('disabled', true); 
+            $('#keywords').attr('disabled', true);
             $('#currency_select_funding_amount').attr('disabled', true);
             $('#funding_amount').attr('disabled', true);
             $('#funding_agency').attr('disabled', true);
             $('#status').attr('disabled', true);
+            $('#description').attr('disabled', true);
             $('#start_date').attr('disabled', true);
             $('#target_date').attr('disabled', true);
-            $('#description').attr('disabled', true);
-
+            $('.document').remove();
         </script>
         <script>
              var report_category_id = 1;

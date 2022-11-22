@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        @include('reports.navigation', compact('roles', 'departments', 'colleges', 'sectors', 'departmentsResearch','departmentsExtension'))
+        @include('reports.navigation', compact('roles', 'assignments'))
     </x-slot>
     <div class="container">
         <div class="row">

@@ -18,10 +18,17 @@ use App\Models\{
     Maintenance\Quarter,
     Maintenance\Sector,
 };
+use App\Services\CommonService;
 use App\Services\ManageConsolidatedReportAuthorizationService;
 
 class SectorConsolidatedController extends Controller
 {
+    private $commonService;
+
+    public function __construct(CommonService $commonService){
+        $this->commonService = $commonService;
+    }
+
     public function index($id){
         $authorize = (new ManageConsolidatedReportAuthorizationService())->authorizeManageConsolidatedReportsBySector();
         if (!($authorize)) {
@@ -29,49 +36,13 @@ class SectorConsolidatedController extends Controller
         }
 
         $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-        $departments = [];
-        $colleges = [];
-        $sectors = [];
-        $departmentsResearch = [];
-        $departmentsExtension = [];
-        $collegesForAssociate = [];
-        $sectorsForAssistant = [];
 
         $currentQuarterYear = Quarter::find(1);
         $quarter = $currentQuarterYear->current_quarter;
         $year = $currentQuarterYear->current_year;
+        $quarter2 = 0;
 
-        if(in_array(5, $roles)){
-            $departments = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
-                                        ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
-        }
-        if(in_array(6, $roles)){
-            $colleges = Dean::where('deans.user_id', auth()->id())->select('deans.college_id', 'colleges.code')
-                            ->join('colleges', 'colleges.id', 'deans.college_id')->get();
-        }
-        if(in_array(7, $roles)){
-            $sectors = SectorHead::where('sector_heads.user_id', auth()->id())->select('sector_heads.sector_id', 'sectors.code')
-                        ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
-        }
-        if(in_array(10, $roles)){
-            $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())
-                                        ->select('faculty_researchers.college_id', 'colleges.code')
-                                        ->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
-        }
-        if(in_array(11, $roles)){
-            $departmentsExtension = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
-                                        ->select('faculty_extensionists.college_id', 'colleges.code')
-                                        ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
-        }
-        if(in_array(12, $roles)){
-            $collegesForAssociate = Associate::where('associates.user_id', auth()->id())->select('associates.college_id', 'colleges.code')
-                            ->join('colleges', 'colleges.id', 'associates.college_id')->get();
-        }
-        if(in_array(13, $roles)){
-            $sectorsForAssistant = Associate::where('associates.user_id', auth()->id())->select('associates.sector_id', 'sectors.code')
-                        ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
-        }
-
+        $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
         $sector_accomps =
             Report::select(
                             'reports.*',
@@ -115,7 +86,7 @@ class SectorConsolidatedController extends Controller
 
         return view(
                     'reports.consolidate.sector',
-                    compact('roles', 'departments', 'colleges', 'sector_accomps', 'sector', 'department_names', 'college_names', 'sectors', 'departmentsResearch','departmentsExtension', 'quarter', 'year', 'collegesForAssociate', 'sectorsForAssistant')
+                    compact('roles', 'sector_accomps', 'sector', 'department_names', 'college_names', 'quarter', 'quarter2', 'year', 'assignments')
                 );
     }
 
@@ -130,47 +101,12 @@ class SectorConsolidatedController extends Controller
         } else{
         }
         $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-        $departments = [];
-        $colleges = [];
-        $sectors = [];
-        $departmentsResearch = [];
-        $departmentsExtension = [];
-        $collegesForAssociate = [];
-        $sectorsForAssistant = [];
-
-        if(in_array(5, $roles)){
-            $departments = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
-                                        ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
-        }
-        if(in_array(6, $roles)){
-            $colleges = Dean::where('deans.user_id', auth()->id())->select('deans.college_id', 'colleges.code')
-                            ->join('colleges', 'colleges.id', 'deans.college_id')->get();
-        }
-        if(in_array(7, $roles)){
-            $sectors = SectorHead::where('sector_heads.user_id', auth()->id())->select('sector_heads.sector_id', 'sectors.code')
-                        ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
-        }
-        if(in_array(10, $roles)){
-            $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())
-                                        ->select('faculty_researchers.college_id', 'colleges.code')
-                                        ->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
-        }
-        if(in_array(11, $roles)){
-            $departmentsExtension = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
-                                        ->select('faculty_extensionists.college_id', 'colleges.code')
-                                        ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
-        }
-        if(in_array(12, $roles)){
-            $collegesForAssociate = Associate::where('associates.user_id', auth()->id())->select('associates.college_id', 'colleges.code')
-                            ->join('colleges', 'colleges.id', 'associates.college_id')->get();
-        }
-        if(in_array(13, $roles)){
-            $sectorsForAssistant = Associate::where('associates.user_id', auth()->id())->select('associates.sector_id', 'sectors.code')
-                        ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
-        }
-
+        $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
         $sector_accomps =
-            Report::select(
+            Report::where('reports.report_year', $year)
+                ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
+                ->where('reports.sector_id', $sector)
+                ->select(
                             'reports.*',
                             'report_categories.name as report_category',
                             'users.last_name',
@@ -180,9 +116,6 @@ class SectorConsolidatedController extends Controller
                           )
                 ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
                 ->join('users', 'users.id', 'reports.user_id')
-                ->where('reports.report_year', $year)
-                ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
-                ->where('reports.sector_id', $sector)
                 ->orderBy('reports.updated_at', 'DESC')
                 ->get();
 
@@ -209,10 +142,9 @@ class SectorConsolidatedController extends Controller
 
         //SectorDetails
         $sector = Sector::find($sector);
-
         return view(
-                    'reports.consolidate.sector',
-                    compact('roles', 'departments', 'colleges', 'sector_accomps', 'sector', 'department_names', 'college_names', 'sectors', 'departmentsResearch','departmentsExtension', 'quarter', 'quarter2', 'year', 'collegesForAssociate', 'sectorsForAssistant')
-                );
+            'reports.consolidate.sector',
+            compact('roles', 'sector_accomps', 'sector', 'department_names', 'college_names', 'quarter', 'quarter2', 'year', 'assignments')
+        );
     }
 }
