@@ -458,8 +458,13 @@ class CommonService
         return $newListStatus;
     }
 
+
     private function reportStatusChecker($item, $type)  // Check the status of the item and return the item if pending is true otherwise return null || used in getStatusOfIPO method
     {
+
+        $firstBool = $item->report_category_id >= 1 && $item->report_category_id <= 8;
+        $secondBool = ($item->report_category_id >= 12 && $item->report_category_id <= 14) || ($item->report_category_id >= 34 && $item->report_category_id <= 37) || $item->report_category_id == 22 || $item->report_category_id == 23;
+
         if ($type == $this->approvalHolderArr[0] && $item[$this->approvalHolderArr[0]] == null) { // Reasercher
             if ($item->format == 'f' && $item->report_category_id >= 1 && $item->report_category_id <= 8) return $item;
         }
@@ -472,13 +477,13 @@ class CommonService
 
         if ($type == $this->approvalHolderArr[2]) { // Chair/Chief
             if ($item->department_id != $item->college_id) {
-                if ($item[$this->approvalHolderArr[2]] == null) {
+                if ($item[$this->approvalHolderArr[2]] === null) {
                     if ($item->format == 'f') {
+                        if ($firstBool) return null;
+                        if ($secondBool) return null;
                         return $item;
                     }
-                    if ($item->format == 'a') {
-                        return $item;
-                    }
+                    if ($item->format == 'a') return $item;
                 }
             }
         }

@@ -44,7 +44,7 @@ class MailController extends Controller
         )->join('report_categories', 'reports.report_category_id', 'report_categories.id')->join('users', 'users.id', 'reports.user_id')->where('reports.report_year', $year)->where('reports.report_quarter', $quarter)->get();
 
         $ipqmso_accomps = $this->commonService->getStatusOfIPO($ipqmso_accomps, $this->approvalHolderArr[$pending] ?? 'researcher_approval');
-        // $ipoIds = UserRole::where("role_id", 8)->get();
+
         $arrayHolder = [];
         foreach ($ipqmso_accomps as $item) {
             if ($pending == 0) array_push($arrayHolder, $item->research_cluster_id);
@@ -52,7 +52,6 @@ class MailController extends Controller
             if ($pending == 2) array_push($arrayHolder, $item->department_id);
             if ($pending == 3) array_push($arrayHolder, $item->college_id);
             if ($pending == 4) array_push($arrayHolder, $item->sector_id);
-            // if ($pending === 5) array_push($arrayHolder, "");
         }
 
         $this->getPendingUser($arrayHolder, $pending);
@@ -84,7 +83,6 @@ class MailController extends Controller
         if ($pending == 4) {
             $sectorHead = SectorHead::whereIn('sector_id', $arrayHolder)->get();
             return $this->sendMailNotification($sectorHead);
-            // $item = User::where("id", $sector->user->id)->get();
         }
 
         if ($pending == 5) {
