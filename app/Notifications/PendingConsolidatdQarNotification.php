@@ -31,7 +31,7 @@ class PendingConsolidatdQarNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -42,10 +42,11 @@ class PendingConsolidatdQarNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)->subject('PUP eQAR | Pending Consolidated QAR')
+        return (new MailMessage)
+            ->subject('PUP eQAR | Pending Consolidated QAR')
             ->greeting('Hello ' . $this->notificationData['receiver'] . '!')
-            ->line('You have a pending approval in Consolidated QAR')
-            ->action('Check Pending Now', route('extension-service.index'))
+            ->line('You have pending approvals in Consolidated QAR')
+            ->action('Check Pending Now', route('reports.consolidate.myaccomplishments'))
             ->line('Thank you!');
     }
 
@@ -58,7 +59,7 @@ class PendingConsolidatdQarNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            //
+            "reciever" =>  $this->notificationData['receiver']
         ];
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -188,6 +189,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/notifications/all', [\App\Http\Controllers\NotificationController::class, 'seeAll'])->name('notif.all');
     Route::get('/notifications/count-not-viewed', [\App\Http\Controllers\NotificationController::class, 'getCount']);
     Route::get('/notifications/count-reset', [\App\Http\Controllers\NotificationController::class, 'resetCount']);
+
+    Route::get('/send-notification/{pending}', [MailController::class, 'sendMailToPendingIPOApprover']);
 
     /* ACTIVITY LOG */
     Route::get('get-dashboard-list', [\App\Http\Controllers\ActivityLogController::class, 'getTen']);
