@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <h3>Set Up Your Account - Add departm</h3>
+                <h3>Set Up Your Account - Add departments/sections</h3>
                 <p>
                     <a class="back_link" href="{{ session('url') ? url(session('url')) : route('account') }}"><i class="bi bi-chevron-double-left"></i>Back to my account.</a>
                 </p>

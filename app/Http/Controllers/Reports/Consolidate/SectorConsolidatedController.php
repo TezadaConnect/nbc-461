@@ -3,15 +3,9 @@
 namespace App\Http\Controllers\Reports\Consolidate;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\{
-    Associate,
-    Chairperson,
-    Dean,
-    FacultyExtensionist,
-    FacultyResearcher,
     Report,
-    SectorHead,
+    User,
     Authentication\UserRole,
     Maintenance\College,
     Maintenance\Department,
@@ -39,8 +33,8 @@ class SectorConsolidatedController extends Controller
 
         $currentQuarterYear = Quarter::find(1);
         $quarter = $currentQuarterYear->current_quarter;
+        $quarter2 = $currentQuarterYear->current_quarter;
         $year = $currentQuarterYear->current_year;
-        $quarter2 = 0;
 
         $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
         $sector_accomps =
@@ -81,12 +75,14 @@ class SectorConsolidatedController extends Controller
             $department_names[$row->id] = $temp_department_name->name;
         }
 
-        //SectorDetails
+        $employees = User::all();
+        $departments = Department::all();
+        $colleges = College::all();
         $sector = Sector::find($id);
 
         return view(
                     'reports.consolidate.sector',
-                    compact('roles', 'sector_accomps', 'sector', 'department_names', 'college_names', 'quarter', 'quarter2', 'year', 'assignments')
+                    compact('roles', 'sector_accomps', 'employees', 'departments', 'colleges', 'sector', 'department_names', 'college_names', 'quarter', 'quarter2', 'year', 'assignments')
                 );
     }
 

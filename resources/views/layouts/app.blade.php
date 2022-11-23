@@ -219,6 +219,14 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         window.location.href = "{{ route('offices.create') }}";
         });
     }
+    if("{{ Session::has('has_no_department'); }}"){
+        Swal.fire({
+            title: "Next Step",
+            text: "{{ Session::get('has_no_department') }}",
+            confirmButtonColor: '#38c172',
+            icon: "info"
+        });
+    }
   
     if("{{ Session::has('cannot_access'); }}"){
         Swal.fire({

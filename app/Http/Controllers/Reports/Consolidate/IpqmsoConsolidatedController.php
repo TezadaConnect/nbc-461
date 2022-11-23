@@ -75,7 +75,6 @@ class IpqmsoConsolidatedController extends Controller
         $departments = Department::all();
         $colleges = College::get();
         $sectors = Sector::all();
-        // 
         return view(
                     'reports.consolidate.ipqmso', compact('roles', 'ipqmso_accomps',
                     'year', 'quarter', 'quarter2', 'employees', 'departments', 'colleges', 'sectors', 'assignments')

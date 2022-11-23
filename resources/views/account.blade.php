@@ -1,11 +1,5 @@
 <x-app-layout>
     <div class="container">
-        {{-- Success Message --}}
-        @if ($message = Session::get('success'))
-        <div class="alert alert-success alert-index action-alert">
-            <i class="bi bi-check-circle"></i> {{ $message }}
-        </div>
-        @endif
         <div class="row">
             <div class="col-md-12">
                 <h2 class="font-weight-bold mb-2">User Account</h2>
@@ -221,13 +215,6 @@
         $("#role")[0].selectize.lock();
     </script>
     <script>
-        window.setTimeout(function() {
-            $(".action-alert").fadeTo(500, 0).slideUp(500, function(){
-                $(this).remove();
-            });
-        }, 4000);
-    </script>
-    <script>
         //Item to delete to display in delete modal
         var deleteModal = document.getElementById('deleteModal')
         deleteModal.addEventListener('show.bs.modal', function (event) {
@@ -277,7 +264,6 @@
             }
         });
     </script>
-
     @if (Session::has('incomplete_account'))
         <script>
             $(function(){

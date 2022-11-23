@@ -20,21 +20,21 @@
                         <div class="form-group">
                             <label for="quarterFilterSector" class="mr-2">Quarter Period: </label>
                             <div class="d-flex">
-                                <select id="quarterFilterSector" class="custom-select" name="quarter">
-                                    <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                    <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                    <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                    <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
+                                <select id="quarterFilterSector" class="custom-select" name="quarterGenerate">
+                                    <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarterGenerate">1</option>
+                                    <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarterGenerate">2</option>
+                                    <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarterGenerate">3</option>
+                                    <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarterGenerate">4</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="d-flex">
-                                <select id="quarterFilterSector2" class="custom-select" name="quarter2">
-                                    <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                    <option value="2" {{ $quarter2 == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                    <option value="3" {{ $quarter2 == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                    <option value="4" {{ $quarter2 == 4 ? 'selected' : ''  }} class="quarter">4</option>
+                                <select id="quarterFilterSector2" class="custom-select" name="quarterGenerate2">
+                                    <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarterGenerate2">1</option>
+                                    <option value="2" {{ $quarter2 == 2 ? 'selected' : ''  }} class="quarterGenerate2">2</option>
+                                    <option value="3" {{ $quarter2 == 3 ? 'selected' : ''  }} class="quarterGenerate2">3</option>
+                                    <option value="4" {{ $quarter2 == 4 ? 'selected' : ''  }} class="quarterGenerate2">4</option>
                                 </select>
                             </div>
                         </div>
@@ -482,12 +482,6 @@
             $(function(){
                 $('#college_accomplishments_in_sector_table').DataTable();
             });
-            // auto hide alert
-            window.setTimeout(function() {
-                $(".alert").fadeTo(500, 0).slideUp(500, function(){
-                    $(this).remove();
-                });
-            }, 4000);
         </script>
         <script>
             var max = {!! json_encode($year) !!};
@@ -519,9 +513,9 @@
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedQuarter2 = $('#quarterFilter2').val();
                 var selectedYear = $('#yearFilter').val();
-                $('#from_quarter_generate').val(selectedQuarter);
-                $('#to_quarter_generate').val(selectedQuarter2);
-                $('#year_generate').val(selectedYear);
+                $('#quarterGenerate').val(selectedQuarter);
+                $('#quarterGenerate2').val(selectedQuarter2);
+                $('#yearGenerate').val(selectedYear);
             })
         </script>
     @endpush

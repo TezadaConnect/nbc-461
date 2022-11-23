@@ -2438,12 +2438,12 @@ class SubmissionController extends Controller
         if($report_category_id >= 1 && $report_category_id <= 7){
             $is_registrant = Researcher::where('research_id', $accomplishment_id)->where('user_id', auth()->id())->first()->is_registrant;
             if($report_category_id <= 7){
-                if($is_registrant != null && $is_registrant == 0){
+                if($is_registrant == 0){
                     if(Report::where('report_reference_id', $accomplishment_id)
                     ->where('report_category_id', $report_category_id)
                     ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)->doesntExist())
-                    return redirect()->back()->with('cannot_access', 'Wait for your lead researcher to submit the research.');
+                    return redirect()->back()->with('cannot_access', 'Wait for the research registrant to submit the research.');
                 }
             }
         }
@@ -2473,12 +2473,13 @@ class SubmissionController extends Controller
         switch($report_values_array[0]){
             case 1: case 2: case 3: case 4: case 5: case 6: case 7:
                 if ($report_values_array[0] == 1) {
-                    $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('college_id', 'department_id', 'discipline')->where('user_id', $user_id)->where('research.id', $report_values_array[1])->first();
+                    $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('researchers.college_id', 'researchers.department_id', 'research.discipline')->where('researchers.user_id', $user_id)->where('research.id', $report_values_array[1])->first();
                     $employee = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->get();
                     $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
                 }
                 else {
-                    $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('college_id', 'department_id', 'discipline')->where('user_id', $user_id)->where('research.id', $report_values_array[1])->first();
+                    // $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('college_id', 'department_id', 'discipline')->where('user_id', $user_id)->where('research.id', $report_values_array[1])->first();
+                    $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('researchers.college_id', 'researchers.department_id', 'research.discipline')->where('researchers.user_id', $user_id)->where('research.id', $report_values_array[1])->first();
                     $employee = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->get();
                     $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
                 }

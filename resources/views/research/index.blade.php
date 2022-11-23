@@ -50,7 +50,6 @@
                                         <thead>
                                             <tr>
                                                 <th>#</th>
-                                                <th>Research Code</th>
                                                 <th>Research Title</th>
                                                 <th>Researchers</th>
                                                 <th>Status</th>
@@ -62,14 +61,13 @@
                                             @foreach ($researches as $research)
                                                 <tr role="button">
                                                     <td><a href="{{ route('research.show', $research->id) }}" class="link text-dark">{{ $loop->iteration }}</a></td>
-                                                    <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->research_code }}</td>
                                                     <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->title }}</td>
                                                     <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->researchers }}</td>
                                                     <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->status_name }}</td>
                                                     <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->college_name }}</td>
                                                     <td>
                                                         <div class="btn-group" role="group" aria-label="button-group">
-                                                            @include('research.options', ['research_id' => $research->id, 'research_status' => $research->status, 'involvement' => $research->nature_of_involvement, 'research_code' => $research->research_code, 'researchRecords' => $researchRecords, 'isSubmitted' => $isSubmitted ])
+                                                            @include('research.options', ['research_id' => $research->id, 'research_status' => $research->status, 'involvement' => $research->nature_of_involvement, 'researchRecords' => $researchRecords, 'isSubmitted' => $isSubmitted ])
                                                         </div>
                                                     </td>
                                                 </tr>
