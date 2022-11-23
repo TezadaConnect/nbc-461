@@ -69,7 +69,7 @@
                                                     <td onclick="window.location.href = '{{ route('research.show', $research->id) }}' " >{{ $research->college_name }}</td>
                                                     <td>
                                                         <div class="btn-group" role="group" aria-label="button-group">
-                                                            @include('research.options', ['research_id' => $research->id, 'research_status' => $research->status, 'involvement' => $research->nature_of_involvement, 'research_code' => $research->research_code, 'researchRecords' => $researchRecords, 'isSubmitted' => $isSubmitted ])
+                                                            {{-- @include('research.options', ['research_id' => $research->id, 'research_status' => $research->status, 'involvement' => $research->nature_of_involvement, 'research_code' => $research->research_code, 'researchRecords' => $researchRecords, 'isSubmitted' => $isSubmitted ]) --}}
                                                         </div>
                                                     </td>
                                                 </tr>
