@@ -65,7 +65,7 @@ class ResearchController extends Controller
                                 ->whereNull('researchers.deleted_at')
                                 ->join('dropdown_options', 'dropdown_options.id', 'research.status')
                                 ->join('colleges', 'colleges.id', 'researchers.college_id')
-                                ->select('research.*', 'dropdown_options.name as status_name', 'colleges.name as college_name')
+                                ->select('research.*', 'dropdown_options.name as status_name', 'colleges.name as college_name', 'researchers.is_registrant')
                                 ->orderBy('research.updated_at', 'DESC')
                                 ->get();
         $submissionStatus = array();                
@@ -388,7 +388,7 @@ class ResearchController extends Controller
         $value = (float) str_replace(",", "", $value);
         $value = number_format($value,2,'.','');
 // dd($request->all());
-        $data = $request->except(['_token', '_method']);
+        $data = $request->except(['_token', '_method', 'document', 'funding_amount', 'tagged_collaborators', 'nature_of_involvement', 'college_id', 'department_id']);
         foreach ($data as $key => $value) {
             if ((new DateContentService())->isValidDate($value) == true)
                 $request->merge([ $key => (new DateContentService())->checkDateContent($request, $key) ]);

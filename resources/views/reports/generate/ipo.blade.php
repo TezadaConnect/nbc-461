@@ -18,9 +18,9 @@
                     <div class="form-group">
                         <label for="level">Level</label>
                         <select name="level" id="level" class="form-control" required>
-                            <option value="individual" selected>Individual</option>
-                            <option value="department" selected>Department/Section</option>
-                            <option value="college" selected>College/Branch/Campus/Office</option>
+                            <option value="individual">Individual</option>
+                            <option value="department">Department/Section</option>
+                            <option value="college">College/Branch/Campus/Office</option>
                             <option value="sector">Sector</option>
                             <option value="ipo" selected>IPO</option>
                         </select>
@@ -75,19 +75,19 @@
                             </select>
                         </span>
                     </div>
-                    <select hidden name="from_quarter_generate" id="from_quarter_generate" class="form-control">
+                    <select hidden name="quarterGenerate" id="quarterGenerate" class="form-control">
                         <option value="1" {{$quarter == 1 ? 'selected' : ''}} class="quarter">1</option>
                         <option value="2" {{$quarter == 2 ? 'selected' : ''}} class="quarter">2</option>
                         <option value="3" {{$quarter == 3 ? 'selected' : ''}} class="quarter">3</option>
                         <option value="4" {{$quarter == 4 ? 'selected' : ''}} class="quarter">4</option>
                     </select>
-                    <select hidden name="to_quarter_generate" id="to_quarter_generate" class="form-control">
+                    <select hidden name="quarterGenerate2" id="quarterGenerate2" class="form-control">
                         <option value="1" {{$quarter2 == 1 ? 'selected' : ''}} class="quarter">1</option>
                         <option value="2" {{$quarter2 == 2 ? 'selected' : ''}} class="quarter">2</option>
                         <option value="3" {{$quarter2 == 3 ? 'selected' : ''}} class="quarter">3</option>
                         <option value="4" {{$quarter2 == 4 ? 'selected' : ''}} class="quarter">4</option>
                     </select>
-                    <select hidden name="year_generate" id="year_generate" class="form-control" >
+                    <select hidden name="yearGenerate" id="yearGenerate" class="form-control" >
                     </select>
                     
             </div>
@@ -106,13 +106,13 @@
         var min = 0;
         var diff = max-2022;
         min = max-diff;
-        select = document.getElementById('year_generate');
+        select = document.getElementById('yearGenerate');
 
         var year = {!! json_encode($year) !!};
         for (var i = max; i >= min; i--) {
             select.append(new Option(i, i));
             if (year == i) {
-                document.getElementById("year_generate").value = i;
+                document.getElementById("yearGenerate").value = i;
             }
         }
         

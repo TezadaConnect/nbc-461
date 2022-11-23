@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\{
     User,
@@ -11,11 +10,6 @@ use App\Models\{
     Employee,
 };
 use App\Models\Authentication\UserRole;
-use App\Models\Maintenance\{
-    Sector,
-    College,
-    Department
-};
 
 class AccountController extends Controller
 {
@@ -46,17 +40,6 @@ class AccountController extends Controller
                 ->get();
         }
         $employeeTypeByOrder = Employee::where('user_id', auth()->id())->orderBy('type')->oldest()->get();
-        // $departmentNames = array();
-        // $i = 0;
-        // foreach($employeeTypeByOrder as $row){
-        //     $departmentNames[$row->type] = DepartmentEmployee::join('departments', 'departments.id', 'department_employees.department_id')->where('departments.college_id', $row->college_id)->pluck('departments.name')->all();
-        //     foreach($departmentNames[$row->type] as $deptName){
-        //         // $departmentNames[$row->type] = $deptName;
-        //         array_push($departmentNames[$row->type], $deptName);
-        //     }
-        //     $i++;
-        // }
-        // dd($departmentNames);
         $departmentNames = [];
         foreach($employeeTypeOfUser as $employee) {
             foreach($employeeTypeByOrder as $employeeRecord){

@@ -15,13 +15,16 @@ use App\Models\Report;
 use App\Models\Research;
 use App\Models\Associate;
 use App\Models\DenyReason;
+use App\Models\Researcher;
 use App\Models\SectorHead;
 use App\Models\Chairperson;
 use App\Helpers\LogActivity;
+use App\Models\Extensionist;
+use App\Models\ExtensionTag;
 use App\Models\TemporaryFile;
 use App\Models\ResearchInvite;
 use App\Models\ExtensionInvite;
-use App\Models\ExtensionService;
+use App\Models\ExtensionProgram;
 use App\Models\FacultyResearcher;
 use App\Models\FacultyExtensionist;
 use App\Models\Maintenance\College;
@@ -345,10 +348,8 @@ class CommonService
                         }
 
                         $research_title = Research::where('id', $id)->pluck('title')->first();
-                        $sender = User::join('research', 'research.user_id', 'users.id')
-                            ->where('research.user_id', auth()->id())
-                            ->where('research.id', $id)
-                            ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
+                        $sender = User::where('id', auth()->id())
+                                        ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
                         $url_accept = route('research.invite.confirm', $id);
                         $url_deny = route('research.invite.cancel', $id);
 
@@ -375,20 +376,25 @@ class CommonService
             if ($collaborators != null) {
                 foreach ($collaborators as $collab) {
                     if ($collab != auth()->id()) {
-                        $eService = ExtensionService::find($id);
-                        ExtensionInvite::create([
+                        ExtensionTag::create([
+                            'extension_program_id' => $id,
                             'user_id' => $collab,
                             'sender_id' => auth()->id(),
-                            'extension_service_id' => $id,
-                            'ext_code' => $eService->ext_code
                         ]);
 
+                        $extensionists = ExtensionProgram::find($id)->extensionists;
+                        $extensionistsExploded = explode("/", $extensionists);
                         $user = User::find($collab);
-                        $extension_title = "Extension";
-                        $sender = User::join('extension_services', 'extension_services.user_id', 'users.id')
-                            ->where('extension_services.user_id', auth()->id())
-                            ->where('extension_services.id', $id)
-                            ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
+                        if ($user->middle_name != '') {
+                            array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.');
+                        } else {
+                            array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name);
+                        }
+
+                        $user = User::find($collab);
+                        $extension_title = "Extension Program/Project/Activity";
+                        $sender = User::where('id', auth()->id())
+                                        ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
                         $url_accept = route('extension.invite.confirm', $id);
                         $url_deny = route('extension.invite.cancel', $id);
 
@@ -403,6 +409,9 @@ class CommonService
                         ];
 
                         Notification::send($user, new ExtensionInviteNotification($notificationData));
+                        ExtensionProgram::where('id', $id)->update([
+                            'extensionists' => implode("/", $extensionistsExploded),
+                        ]);
                     }
                     $count++;
                 }
@@ -513,5 +522,103 @@ class CommonService
         }
 
         return null;
+    }
+
+    /**
+     * =============================================================================================
+     * 
+     * A function that updates the tagged collaborators in research and extension programs
+     * 
+     * @param Object $request this parameter contains request.
+     * 
+     * @param Object $objectRecord this parameter contains the record to be updated.
+     * 
+     * @param String $formName can have a possible value: 'research' or 'extension'.
+     * =============================================================================================
+     */
+    public function updateTaggedCollaborators($request, $objectRecord, $formName){
+        if ($formName == "research"){
+            // $researchersNeedUpdate = 0;
+            $taggedUsersID = ResearchInvite::where('research_id', $objectRecord->id)->pluck('user_id')->all();
+            if ($request->input('tagged_collaborators') == null){
+                Researcher::where('research_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
+                ResearchInvite::where('research_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
+                $objectRecord->update([
+                    'researchers' => $request->input('researchers'),
+                    'untagged_researchers' => $request->input('researchers'),
+                ]);
+            }
+            elseif (array_diff($taggedUsersID, $request->input('tagged_collaborators')) != null){
+                foreach($request->input('tagged_collaborators') as $tagID){
+                    if (!in_array($tagID, $taggedUsersID)){
+                        ResearchInvite::create(['research_id' => $objectRecord->id, 'user_id' => $tagID, 'sender_id' => auth()->id(), ]);
+                        // $researchersNeedUpdate = 1;
+                    }
+                }
+                foreach($taggedUsersID as $notifiedUser){
+                    if (!in_array($notifiedUser, $request->input('tagged_collaborators'))){
+                        ResearchInvite::where('research_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
+                        Researcher::where('research_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
+                        // $researchersNeedUpdate = 1;
+                    }
+                }
+            }
+    
+            // if ($researchersNeedUpdate == 1){
+                $researcherExploded = explode("/", $request->input('researchers'));
+                foreach(ResearchInvite::where('research_id', $objectRecord->id)->pluck('user_id')->all() as $finalResearcherID){
+                    $user = User::find($finalResearcherID);
+                    if ($user->middle_name != '') {
+                        array_push($researcherExploded, $user->last_name.', '.$user->first_name.' '.substr($user->middle_name,0,1).'.');
+                    } else {
+                        array_push($researcherExploded, $user->last_name.', '.$user->first_name);
+                    }
+                }
+                $objectRecord->update([
+                    'researchers' => implode("/", $researcherExploded),
+                    'untagged_researchers' => $request->input('researchers'),
+                ]);
+            // }
+        } else{
+            // $researchersNeedUpdate = 0;
+            $taggedUsersID = ExtensionTag::where('extension_program_id', $objectRecord->id)->pluck('user_id')->all();
+            if ($request->input('tagged_collaborators') == null){
+                Extensionist::where('extension_program_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
+                ExtensionTag::where('extension_program_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
+                $objectRecord->update([
+                    'extensionists' => $request->input('tagged_collaborators'),
+                ]);
+            }
+            elseif (array_diff($taggedUsersID, $request->input('tagged_collaborators')) != null){
+                foreach($request->input('tagged_collaborators') as $tagID){
+                    if (!in_array($tagID, $taggedUsersID)){
+                        ExtensionTag::create(['extension_program_id' => $objectRecord->id, 'user_id' => $tagID, 'sender_id' => auth()->id(), ]);
+                        // $researchersNeedUpdate = 1;
+                    }
+                }
+                foreach($taggedUsersID as $notifiedUser){
+                    if (!in_array($notifiedUser, $request->input('tagged_collaborators'))){
+                        ExtensionTag::where('extension_program_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
+                        Extensionist::where('extension_program_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
+                        // $researchersNeedUpdate = 1;
+                    }
+                }
+            }
+    
+            // if ($researchersNeedUpdate == 1){
+                $extensionistsExploded = explode("/", $request->input('tagged_collaborators'));
+                foreach(ExtensionTag::where('extension_program_id', $objectRecord->id)->pluck('user_id')->all() as $finalExtensionistID){
+                    $user = User::find($finalExtensionistID);
+                    if ($user->middle_name != '') {
+                        array_push($extensionistsExploded, $user->last_name.', '.$user->first_name.' '.substr($user->middle_name,0,1).'.');
+                    } else {
+                        array_push($extensionistsExploded, $user->last_name.', '.$user->first_name);
+                    }
+                }
+                $objectRecord->update([
+                    'extensionists' => implode("/", $extensionistsExploded),
+                ]);
+            // }
+        }
     }
 }

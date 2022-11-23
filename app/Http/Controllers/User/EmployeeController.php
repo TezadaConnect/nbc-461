@@ -122,6 +122,8 @@ class EmployeeController extends Controller
                 }
             }
         }
+        if (DepartmentEmployee::where('user_id', auth()->id()))
+            return redirect()->route('offices.addDepartment')->with('has_no_department', "Add departments/sections where you commit QAR.");
         if (session('url')){
             // how to logout using redirect
             $checkSched = (new RegistrationController)->scheduleCheck(auth()->id());

@@ -39,6 +39,7 @@ class MyAccomplishmentController extends Controller
         }
         $currentQuarterYear = Quarter::find(1);
         $quarter = $currentQuarterYear->current_quarter;
+        $quarter2 = $currentQuarterYear->current_quarter;
         $year = $currentQuarterYear->current_year;
 
         $user = User::find(auth()->id());
@@ -83,14 +84,14 @@ class MyAccomplishmentController extends Controller
             'reports.consolidate.myaccomplishments',
             compact(
                 'roles','my_accomplishments', 'college_names', 'department_names',
-                'year', 'quarter', 'report_categories', 'user', 'collegeList',
+                'year', 'quarter', 'quarter2', 'report_categories', 'user', 'collegeList',
                 'assignments'
             ));
 
     }
 
 
-    public function individualReportYearFilter($year, $quarter) {
+    public function individualReportYearFilter($year, $quarter, $quarter2) {
         $authorize = (new ManageConsolidatedReportAuthorizationService())->authorizeManageConsolidatedIndividualReports();
         if (!($authorize)) {
             abort(403, 'Unauthorized action.');
@@ -108,7 +109,7 @@ class MyAccomplishmentController extends Controller
             $report_categories = ReportCategory::all();
             $my_accomplishments =
                 Report::where('reports.report_year', $year)
-                    ->where('reports.report_quarter', $quarter)
+                    ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
                     ->where('reports.user_id', auth()->id())
                     ->select(
                                 'reports.*',
@@ -144,7 +145,7 @@ class MyAccomplishmentController extends Controller
                 'reports.consolidate.myaccomplishments',
                 compact(
                     'roles','my_accomplishments', 'college_names', 'department_names',
-                    'year', 'quarter', 'report_categories', 'user', 'collegeList',
+                    'year', 'quarter', 'quarter2', 'report_categories', 'user', 'collegeList',
                     'assignments'
                 ));
         }

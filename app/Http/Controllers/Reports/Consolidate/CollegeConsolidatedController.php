@@ -40,6 +40,7 @@ class CollegeConsolidatedController extends Controller
 
         $currentQuarterYear = Quarter::find(1);
         $quarter = $currentQuarterYear->current_quarter;
+        $quarter2 = $currentQuarterYear->current_quarter;
         $year = $currentQuarterYear->current_year;
 
         $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
@@ -79,17 +80,19 @@ class CollegeConsolidatedController extends Controller
         }
 
         $user = User::find(auth()->id());
+        $employees = User::join('employees', 'employees.user_id', 'users.id')->where('employees.college_id', $id)->select('users.*')->get();
+        $departments = Department::where('college_id', $id)->get();
         //collegedetails
         $college = College::find($id);
 
         return view(
                     'reports.consolidate.college',
-                    compact('roles', 'college_accomps', 'college' ,
-                        'department_names', 'college_names', 'quarter', 'year', 'id', 'user', 'assignments')
+                    compact('roles', 'college_accomps', 'college' , 'department_names', 'college_names', 
+                    'quarter', 'quarter2', 'year', 'id', 'user', 'assignments', 'employees', 'departments')
                 );
     }
 
-    public function collegeReportYearFilter($college, $year, $quarter)
+    public function collegeReportYearFilter($college, $year, $quarter, $quarter2)
     {
         if ($year == "default") {
             return redirect()->route('reports.consolidate.college');
@@ -98,7 +101,7 @@ class CollegeConsolidatedController extends Controller
             $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
             $college_accomps =
                 Report::where('reports.report_year', $year)
-                    ->where('reports.report_quarter', $quarter)
+                    ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
                     ->where('reports.college_id', $college)
                     ->select(
                                 'reports.*',
@@ -136,8 +139,8 @@ class CollegeConsolidatedController extends Controller
             $id = $college->id;
             return view(
                 'reports.consolidate.college',
-                compact('roles', 'college_accomps', 'college' ,
-                    'department_names', 'college_names', 'quarter', 'year', 'id', 'user', 'assignments')
+                compact('roles', 'college_accomps', 'college', 'department_names', 'college_names', 
+                    'quarter', 'quarter2', 'year', 'id', 'user', 'assignments')
             );
         }
     }

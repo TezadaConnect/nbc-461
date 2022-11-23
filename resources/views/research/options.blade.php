@@ -78,6 +78,11 @@
     </div>
 </div>
 <div class="dropdown">
+    @if ($research->is_registrant == 0)
+    <span class="d-flex" tabindex="0" data-toggle="tooltip" title="The registrant can only access the other options.">
+        <button class="btn btn-purple btn-disabled btn-sm dropdown-toggle py-3" type="button" disabled>Other Options</button>
+    </span>
+    @else
     <button class="btn btn-purple btn-sm dropdown-toggle py-3" type="button" id="optionDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Other Options
     </button>
@@ -120,6 +125,7 @@
         @endswitch
         <a class="dropdown-item" href="{{ route('research.utilization.create', $research->id) }}"><i class="bi bi-gear"></i> Add Utilization</a>
     </div>
+    @endif
 </div>
 <div class="dropdown">
     <button class="btn btn-primary btn-sm dropdown-toggle py-3" type="button" id="submitDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -150,9 +156,11 @@
                 @endif
             @endif
         @else
-        <span class="d-flex" tabindex="0" data-toggle="tooltip" data-bs-placement="top" title="Must submit first the preceding research info.">
-            <a href="" class="dropdown-item text-muted btn-disabled"><i class="bi bi-check-square"></i> Submit Completion Record</a>
-        </span>    
+            @if ($research->status >= 28 )
+            <span class="d-flex" tabindex="0" data-toggle="tooltip" data-bs-placement="top" title="Must submit first the preceding research info.">
+                <a href="" class="dropdown-item text-muted btn-disabled"><i class="bi bi-check-square"></i> Submit Completion Record</a>
+            </span>    
+            @endif
         @endif
         @if ($isSubmitted[2][$research->id])
             <!-- Presentation -->

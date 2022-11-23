@@ -39,52 +39,57 @@ class GenerateController extends Controller
         if($request->input("type") == "academic"){
             if($request->input("level") == "individual"){
                 // $source_type = "individual";
-                if ($request->generatePerson == "ipo"){
+                if (in_array($request->generatePerson, ['ipo', 'vp', 'dean/director', 'chair/chief'])){
                     $data = User::where('id', $request->employee)->select('users.last_name as name')->first();
                 } else
                     $data = User::where('id', $id)->select('users.last_name as name')->first();
             }
             elseif($request->input("level") == "department"){
                 // $source_type = "department";
-                if ($request->generatePerson == "ipo"){
+                if (in_array($request->generatePerson, ['ipo', 'vp', 'dean/director'])){
                     $data = Department::where('id', $request->department)->first();
                 } else
                     $data = Department::where('id', $id)->first();
             }
             elseif($request->input("level") == "college"){
                 // $source_type = "college";
-                if ($request->generatePerson == "ipo"){
+                if (in_array($request->generatePerson, ['ipo', 'vp'])){
                     $data = College::where('id', $request->cbco)->first();
                 } else
                     $data = College::where('id', $id)->first();
             }
             elseif($request->input("level") == "sector"){
-                // $source_type = "sector";
-                $data = Sector::where('id', $request->sector)->first();
+                if (in_array($request->generatePerson, ['ipo', 'vp']))
+                    $data = Sector::where('id', $request->sector)->first();
+                else
+                    $data = Sector::where('id', $id)->first();
             }
         }
         elseif($request->input("type") == "admin"){
             if($request->input("level") == "individual"){
-                if ($request->generatePerson == "ipo"){
+                if (in_array($request->generatePerson, ['ipo', 'vp', 'dean/director', 'chair/chief'])){
                     $data = User::where('id', $request->employee)->select('users.last_name as name')->first();
                 } else
                     $data = User::where('id', $id)->select('users.last_name as name')->first();
             }
             elseif($request->input("level") == "department"){
-                if ($request->generatePerson == "ipo"){
+                if (in_array($request->generatePerson, ['ipo', 'vp', 'dean/director'])){
                     $data = Department::where('id', $request->department)->first();
                 } else
                     $data = Department::where('id', $id)->first();
             }
             elseif($request->input("level") == "college"){
-                if ($request->generatePerson == "ipo"){
+                if (in_array($request->generatePerson, ['ipo', 'vp'])){
                     $data = College::where('id', $request->cbco)->first();
                 } else
                     $data = College::where('id', $id)->first();
+
             }
             elseif($request->input("level") == "sector"){
-                // $source_type = "sector";
-                $data = Sector::where('id', $request->sector)->first();
+                if (in_array($request->generatePerson, ['ipo', 'vp']))
+                    $data = Sector::where('id', $request->sector)->first();
+                else
+                    $data = Sector::where('id', $id)->first();
             }
         }
         elseif($request->input("type") == "chair_chief"){
@@ -115,9 +120,9 @@ class GenerateController extends Controller
 
         $level = $request->input("level");
         $type = $request->input('type');
-        $yearGenerate = $request->input('year_generate');
-        $quarterGenerate = $request->input('from_quarter_generate');
-        $quarterGenerate2 = $request->input('to_quarter_generate');
+        $yearGenerate = $request->input('yearGenerate');
+        $quarterGenerate = $request->input('quarterGenerate');
+        $quarterGenerate2 = $request->input('quarterGenerate2');
         $college = College::where('id', $request->input('cbco'))->first();
         $fileSuffix = '';
 
