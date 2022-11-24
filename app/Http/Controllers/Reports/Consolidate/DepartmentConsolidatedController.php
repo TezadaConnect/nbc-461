@@ -3,17 +3,13 @@
 namespace App\Http\Controllers\Reports\Consolidate;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\{
-    DepartmentEmployee,
-    Report,
-    User,
-    Authentication\UserRole,
-    Maintenance\College,
-    Maintenance\Department,
-    Maintenance\Quarter,
-};
+use App\Models\DepartmentEmployee;
+use App\Models\Report;
+use App\Models\User;
+use App\Models\Authentication\UserRole;
+use App\Models\Maintenance\College;
+use App\Models\Maintenance\Department;
+use App\Models\Maintenance\Quarter;
 use App\Services\CommonService;
 use App\Services\ManageConsolidatedReportAuthorizationService;
 
@@ -27,20 +23,20 @@ class DepartmentConsolidatedController extends Controller
 
     public function index($id){
         $authorize = (new ManageConsolidatedReportAuthorizationService())->authorizeManageConsolidatedReportsByDepartment();
-        if (!($authorize)) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-
+        if (!($authorize)) { abort(403, 'Unauthorized action.'); }
         $currentQuarterYear = Quarter::find(1);
         $quarter = $currentQuarterYear->current_quarter;
         $quarter2 = $currentQuarterYear->current_quarter;
         $year = $currentQuarterYear->current_year;
-
+        /************/
+        $user = User::find(auth()->id());
+        $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
         $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
         $department_accomps =
-            Report::select(
+            Report::where('reports.report_year', $year)
+                ->where('reports.report_quarter', $quarter)
+                ->where('reports.department_id', $id)
+                ->select(
                             'reports.*',
                             'report_categories.name as report_category',
                             'users.last_name',
@@ -50,34 +46,12 @@ class DepartmentConsolidatedController extends Controller
                           )
                 ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
                 ->join('users', 'users.id', 'reports.user_id')
-                ->where('reports.report_year', $year)
-                ->where('reports.report_quarter', $quarter)
-                ->where('reports.department_id', $id)
                 ->orderBy('reports.updated_at', 'DESC')
                 ->get();
 
-        //get_department_and_college_name
-        $college_names = [];
-        $department_names = [];
-        foreach($department_accomps as $row){
-            $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
-            $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
-            $row->report_details = json_decode($row->report_details, false);
-
-            if($temp_college_name == null)
-                $college_names[$row->id] = '-';
-            else
-                $college_names[$row->id] = $temp_college_name->name;
-            if($temp_department_name == null)
-                $department_names[$row->id] = '-';
-            else
-            $department_names[$row->id] = $temp_department_name->name;
-        }
-
-        $user = User::find(auth()->id());
-        $department = Department::find($id);
+        $department = Department::find($id); //Get the dept. record.
+        $colleges = College::all(); //Get all colleges as options for exporting individual QAR
         $employees = DepartmentEmployee::where('department_employees.department_id', $id)->join('users', 'users.id', 'department_employees.user_id')->get();
-        $colleges = College::all();
         return view(
                     'reports.consolidate.department',
                     compact('roles', 'department_accomps', 'department', 'department_names', 'college_names', 
@@ -86,10 +60,9 @@ class DepartmentConsolidatedController extends Controller
     }
 
     public function departmentReportYearFilter($dept, $year, $quarter, $quarter2) {
-        if ($year == "default") {
-            return redirect()->route('reports.consolidate.department');
-        }
+        if ($year == "default") {  return redirect()->route('reports.consolidate.department'); }
         else {
+            $user = User::find(auth()->id());
             $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
             $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
             $department_accomps =
@@ -109,28 +82,8 @@ class DepartmentConsolidatedController extends Controller
                     ->orderBy('reports.updated_at', 'DESC')
                     ->get();
 
-            //get_department_and_college_name
-            $college_names = [];
-            $department_names = [];
-            foreach($department_accomps as $row){
-                $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
-                $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
-                $row->report_details = json_decode($row->report_details, false);
-
-                if($temp_college_name == null)
-                    $college_names[$row->id] = '-';
-                else
-                    $college_names[$row->id] = $temp_college_name->name;
-                if($temp_department_name == null)
-                    $department_names[$row->id] = '-';
-                else
-                $department_names[$row->id] = $temp_department_name->name;
-            }
-
-            $user = User::find(auth()->id());
-            //departmentdetails
-            $department = Department::find($dept);
-            $id = $dept;
+            $department = Department::find($dept); //Get the dept. record
+            $id = $dept; //Labeled as ID to be passed in Generate Controller.
             return view(
                 'reports.consolidate.department',
                 compact('roles', 'department_accomps', 'department', 'department_names', 'college_names', 

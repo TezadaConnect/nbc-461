@@ -3,7 +3,7 @@
 // TITLE: COMMON SERVICE SERVICE
 // DESCRIPTION: USED FOR HANDLING REPETATIVE FUNCTION IN THE PROGRAM
 // DEVELOPER: TERRENCE CALZADA
-// DATE: OCTOBER 16, $reportCategoryId022
+// DATE: OCTOBER 16, 2022
 // =============================================================================================
 
 namespace App\Services;
@@ -620,5 +620,40 @@ class CommonService
                 ]);
             // }
         }
+    }
+
+    public function getCollegeDepartmentNames($reports){
+        //get_department_and_college_name
+        $college_names = [];
+        $department_names = [];
+        $researchReportCategoryIDs = array(1,2,3,4,5,6,7); // Research and extension categories
+        $extensionReportCategoryIDs = array(12, 13, 14, 22, 23, 34, 35, 36, 37);
+        foreach($reports as $row){
+            if (in_array($row->report_category_id, $researchReportCategoryIDs)){
+                $temp_college_name = Researcher::where('college_id', $row->college_id)->join('colleges', 'colleges.id', 'researchers.college_id')->select('colleges.name')->first();
+                $temp_department_name = Researcher::where('department_id', $row->department_id)->join('departments', 'departments.id', 'researchers.department_id')->select('departments.name')->first();
+            } elseif (in_array($row->report_category_id, $extensionReportCategoryIDs)){
+                $temp_college_name = Extensionist::where('college_id', $row->college_id)->join('colleges', 'colleges.id', 'extensionists.college_id')->select('colleges.name')->first();
+                $temp_department_name = Extensionist::where('department_id', $row->department_id)->join('departments', 'departments.id', 'extensionists.department_id')->select('departments.name')->first();
+            } else{
+                $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
+                $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
+            }
+            $row->report_details = json_decode($row->report_details, false);
+
+            if($temp_college_name == null)
+                $college_names[$row->id] = '-';
+            else
+                $college_names[$row->id] = $temp_college_name->name;
+            if($temp_department_name == null)
+                $department_names[$row->id] = '-';
+            else
+            $department_names[$row->id] = $temp_department_name->name;
+        }
+
+        return [
+            'college_names' => $college_names,
+            'department_names' => $department_names,
+        ];
     }
 }
