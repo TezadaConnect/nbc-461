@@ -111,7 +111,8 @@ class DashboardController extends Controller
             $tempcount = 0;
             $tempvalues = [];
             foreach ($department[10] as $value){
-                $tempcount = Report::whereNull('researcher_approval')
+                $tempcount = Report::where('format', 'f')
+                    ->whereNull('researcher_approval')
                     ->where('college_id', $value->college_id)
                     ->whereIn('report_category_id', [1, 2, 3, 4, 5, 6, 7, 8])
                     ->whereIn('report_quarter', [3,4])
@@ -135,7 +136,8 @@ class DashboardController extends Controller
             $tempcount = 0;
             $tempvalues = [];
             foreach ($department[11] as $value){
-                $tempcount = Report::whereNull('extensionist_approval')
+                $tempcount = Report::where('format', 'f')
+                    ->whereNull('extensionist_approval')
                     ->where('college_id', $value->college_id)
                     ->whereIn('report_category_id', [12, 13, 14, 22, 23, 34, 35, 36, 37])
                     ->whereIn('report_quarter', [3,4])
