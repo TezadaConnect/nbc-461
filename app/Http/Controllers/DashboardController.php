@@ -113,7 +113,7 @@ class DashboardController extends Controller
                 $tempcount = Report::whereNull('researcher_approval')
                     ->where('college_id', $value->college_id)
                     // ->where('research_cluster_id', $value->cluster_id)
-                    ->whereIn('report_category_id', [1, 2, 3, 4, 5, 6, 7, 8])
+                    ->whereIn('report_category_id', [1, 2, 3, 4, 5, 6, 7])
                     ->whereIn('report_quarter', [3,4])
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->count();
