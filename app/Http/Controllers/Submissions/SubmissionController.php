@@ -2591,11 +2591,13 @@ class SubmissionController extends Controller
             case 6:
             case 7:
                 if ($report_values_array[1] == 1) {
-                    $research = Research::select('college_id', 'department_id', 'discipline')->where('user_id', $user_id)->where('id', $report_values_array[2])->first();
+                    // $research = Research::select('college_id', 'department_id', 'discipline')->where('user_id', $user_id)->where('id', $report_values_array[2])->first();
+                    $research = Research::select('college_id', 'department_id')->where('user_id', $user_id)->where('id', $report_values_array[2])->first();
                     $employee = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->get();
                     $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
                 } else {
-                    $research = Research::select('college_id', 'department_id', 'discipline')->where('research_code', $report_values_array[0])->where('user_id', auth()->id())->first();
+                    // $research = Research::select('college_id', 'department_id', 'discipline')->where('research_code', $report_values_array[0])->where('user_id', auth()->id())->first();
+                    $research = Research::select('college_id', 'department_id')->where('research_code', $report_values_array[0])->where('user_id', auth()->id())->first();
                     $employee = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->get();
                     $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
                 }
@@ -2640,7 +2642,7 @@ class SubmissionController extends Controller
                             'format' => $type,
                             'report_category_id' => $report_values_array[1],
                             'report_code' => $report_values_array[0] ?? null,
-                            'research_cluster_id' => $research->discipline,
+                            // 'research_cluster_id' => $research->discipline,
                             'report_reference_id' => $report_values_array[2] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
@@ -2658,7 +2660,7 @@ class SubmissionController extends Controller
                             'format' => $type,
                             'report_category_id' => $report_values_array[1],
                             'report_code' => $report_values_array[0] ?? null,
-                            'research_cluster_id' => $research->discipline,
+                            // 'research_cluster_id' => $research->discipline,
                             'report_reference_id' => $report_values_array[2] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
@@ -2678,7 +2680,7 @@ class SubmissionController extends Controller
                                 'format' => $type,
                                 'report_category_id' => $report_values_array[1],
                                 'report_code' => $report_values_array[0] ?? null,
-                                'research_cluster_id' => $research->discipline,
+                                // 'research_cluster_id' => $research->discipline,
                                 'report_reference_id' => $report_values_array[2] ?? null,
                                 'report_details' => json_encode($report_details),
                                 'report_documents' => json_encode($report_documents),
@@ -2696,7 +2698,7 @@ class SubmissionController extends Controller
                                     'format' => $type,
                                     'report_category_id' => $report_values_array[1],
                                     'report_code' => $report_values_array[0] ?? null,
-                                    'research_cluster_id' => $research->discipline,
+                                    // 'research_cluster_id' => $research->discipline,
                                     'report_reference_id' => $report_values_array[2] ?? null,
                                     'report_details' => json_encode($report_details),
                                     'report_documents' => json_encode($report_documents),
@@ -2713,7 +2715,7 @@ class SubmissionController extends Controller
                                     'format' => $type,
                                     'report_category_id' => $report_values_array[1],
                                     'report_code' => $report_values_array[0] ?? null,
-                                    'research_cluster_id' => $research->discipline,
+                                    // 'research_cluster_id' => $research->discipline,
                                     'report_reference_id' => $report_values_array[2] ?? null,
                                     'report_details' => json_encode($report_details),
                                     'report_documents' => json_encode($report_documents),
@@ -2733,7 +2735,7 @@ class SubmissionController extends Controller
                             'format' => $type,
                             'report_category_id' => $report_values_array[1],
                             'report_code' => $report_values_array[0] ?? null,
-                            'research_cluster_id' => $research->discipline,
+                            // 'research_cluster_id' => $research->discipline,
                             'report_reference_id' => $report_values_array[2] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),

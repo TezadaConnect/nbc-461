@@ -210,7 +210,7 @@ class ResearchController extends Controller
         $year = date("Y").'-';
         $expr = '/(?<=\s|^)[a-z]{0,4}/i';
         $expr2 = '/(?<=\s|^)[a-z]/i';
-        $input = $request->except(['_token', 'document', 'funding_amount', 'tagged_collaborators']);
+        $input = $request->except(['_token', 'document', 'funding_amount', 'tagged_collaborators', 'discipline']);
 
         
         // $name = preg_split("/\//", $discipline);
