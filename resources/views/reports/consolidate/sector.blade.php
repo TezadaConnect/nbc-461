@@ -11,14 +11,9 @@
         <div class="card mb-3">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col">
                         <div class="form-group">
-                            <label for="yearFilterSector" class="mr-2">Year Reported: </label>
-                            <select id="yearFilterSector" class="custom-select">
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="quarterFilterSector" class="mr-2">Quarter Period: </label>
+                            <label for="quarterFilterSector" class="mr-2">Quarter Period</label>
                             <div class="d-flex">
                                 <select id="quarterFilterSector" class="custom-select" name="quarterGenerate">
                                     <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarterGenerate">1</option>
@@ -28,7 +23,10 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                    <div class="col">
                         <div class="form-group">
+                            <label for="quarterFilterSector2" class="mr-2">-</label>
                             <div class="d-flex">
                                 <select id="quarterFilterSector2" class="custom-select" name="quarterGenerate2">
                                     <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarterGenerate2">1</option>
@@ -38,9 +36,20 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                    <div class="col">
                         <div class="form-group">
-                            <button id="filter" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
-                            <button id="export" type="button" class="btn btn-warning" data-target="#generateSectorLevel" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
+                            <label for="yearFilterSector" class="mr-2">Year</label>
+                            <select id="yearFilterSector" class="custom-select">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group mb-0">
+                            <div class="btn-group" role="group" aria-label="button-group">
+                                <button id="filter" class="btn btn-primary"><i class="bi bi-list-ol"></i> Generate Table</button>
+                                <button id="export" type="button" class="btn btn-warning" data-target="#generateSectorLevel" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
+                            </div>
                         </div>
                     </div>
                 </div>

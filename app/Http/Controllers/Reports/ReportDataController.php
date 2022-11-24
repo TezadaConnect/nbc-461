@@ -265,15 +265,27 @@ class ReportDataController extends Controller
                         $data = $currName.' '.$data;
                     }
                     if($column->column == 'college_id'){
-                        $data = DB::table($column->table)->where($column->table.'.id', $id)
-                            ->join('colleges', 'colleges.id', $column->table.'.college_id')
-                            ->pluck('colleges.name')->first();
+                        if ($report_category_id == 12){ // For extension programs where the colleges are stored in separate table
+                            $data = DB::table("extensionists")->where('extensionists.user_id', auth()->id())->where('extensionists.extension_program_id', $id)
+                                ->join('colleges', 'colleges.id', 'extensionists.college_id')
+                                ->pluck('colleges.name')->first();
+                        } else{
+                            $data = DB::table($column->table)->where($column->table.'.id', $id)
+                                ->join('colleges', 'colleges.id', $column->table.'.college_id')
+                                ->pluck('colleges.name')->first();
+                        }
 
                     }
                     if($column->column == 'department_id'){
-                        $data = DB::table($column->table)->where($column->table.'.id', $id)
-                            ->join('departments', 'departments.id', $column->table.'.department_id')
-                            ->pluck('departments.name')->first();
+                        if ($report_category_id == 12){ // For extension programs where the depts are stored in separate table
+                            $data = DB::table("extensionists")->where('extensionists.user_id', auth()->id())->where('extensionists.extension_program_id', $id)
+                                ->join('departments', 'departments.id', 'extensionists.department_id')
+                                ->pluck('departments.name')->first();
+                        } else{
+                            $data = DB::table($column->table)->where($column->table.'.id', $id)
+                                ->join('departments', 'departments.id', $column->table.'.department_id')
+                                ->pluck('departments.name')->first();
+                        }
                     }
                     array_push($report_data_array, $data);
                 }

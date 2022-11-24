@@ -147,7 +147,7 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             title: "Success!",
             text: "{{ Session::get('success'); }}",
             confirmButtonColor: '#38c172',
-            icon: "success"
+            icon: "success",
         });
     }
 
@@ -157,7 +157,8 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             text: "{{ Session::get('error'); }}",
             confirmButton: false,
             confirmButtonColor: '#38c172',
-            icon: "error"
+            icon: "error",
+            allowOutsideClick: false
         });
     }
 
@@ -166,7 +167,8 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             title: "Warning!",
             text: "{{ Session::get('warning'); }}",
             confirmButtonColor: '#38c172',
-            icon: "warning"
+            icon: "warning",
+            allowOutsideClick: false
         });
     }
 
@@ -175,7 +177,8 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             title: "Information!",
             text: "{{ Session::get('info'); }}",
             confirmButtonColor: '#38c172',
-            icon: "info"
+            icon: "info",
+            allowOutsideClick: false
         });
     }
 
@@ -213,7 +216,8 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             title: "Welcome to PUP eQAR!",
             text: "Before you explore, PUP eQAR needs to know your college, branch, campus, or office of designation.",
             confirmButtonColor: '#38c172',
-            icon: "success"
+            icon: "success",
+            allowOutsideClick: false
         }).then(function() {
         // Redirect the user
         window.location.href = "{{ route('offices.create') }}";
@@ -224,7 +228,8 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             title: "Next Step",
             text: "{{ Session::get('has_no_department') }}",
             confirmButtonColor: '#38c172',
-            icon: "info"
+            icon: "info",
+            allowOutsideClick: false
         });
     }
   
@@ -233,7 +238,8 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             title: "Oops!",
             text: "{{ Session::get('cannot_access'); }}",
             confirmButtonColor: '#38c172',
-            icon: "warning"
+            icon: "warning",
+            allowOutsideClick: false
         });
     }
 </script>

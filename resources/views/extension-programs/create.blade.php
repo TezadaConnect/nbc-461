@@ -7,9 +7,6 @@
                 <div class="mb-3">
                     <a class="back_link" href="{{ route('extension-programs.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Extension Programs/Projects/Activities</a>
                 </div>
-                <div class="alert alert-info" role="alert">
-                    You can still tag other extension partner/s in this extension after you save this extension.
-                </div>
                 <div class="card">
                     <div class="card-body">
                         <form action="{{ route('extension-programs.store' ) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
@@ -26,9 +23,9 @@
                                     <option value="" selected>Choose...</option>
                                 </select>
                             </div>
-                            @include('extension-programs.extension-programs.form', ['formFields' => $extensionServiceFields, 'colleges' => $colleges])
-                            @include('extension-programs.extension-programs.no-of-beneficiaries', ['value' => ''])
-                            @include('extension-programs.extension-programs.form2', ['formFields' => $extensionServiceFields])
+                           @include('extension-programs.form', ['formFields' => $extensionServiceFields, 'colleges' => $colleges])
+                           @include('extension-programs.no-of-beneficiaries', ['value' => ''])
+                           @include('extension-programs.form2', ['formFields' => $extensionServiceFields])
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-0">

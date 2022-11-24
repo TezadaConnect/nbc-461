@@ -89,9 +89,7 @@
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="optionDropdownMenuButton">
     @switch($research_status)
         @case('26')
-            @if ($isSubmitted[1][$research->id] == false)
             <a class="dropdown-item" href="{{ route('research.mark-as-ongoing', $research->id) }}"><i class="bi bi-check2-circle"></i> Mark as Ongoing</a>
-            @endif
             @break
         @case('27')
             <a class="dropdown-item" href="{{ route('research.completed.create', $research->id) }}"><i class="bi bi-check2-circle"></i> Mark as Completed</a>

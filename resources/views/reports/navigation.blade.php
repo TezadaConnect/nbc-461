@@ -3,14 +3,12 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col">
                     {{-- My Accomplishments --}}
-                    <h6 style="font-weight: bold; color: #eeb510">VIEW SUBMITTED ACCOMPLISHMENTS</h6>
-                    <p>
-                        <a href="{{ route('reports.consolidate.myaccomplishments') }}" class="submission-menu {{ request()->routeIs('reports.consolidate.myaccomplishments') || request()->routeIs('reports.consolidate.myaccomplishments.*') ? 'active' : '' }} ">My Accomplishments</a>
-                    </p>
+                    <h6 style="font-weight: bold; color: #eeb510">MY ACCOMPLISHMENTS</h6>
+                    <a href="{{ route('reports.consolidate.myaccomplishments') }}" class="submission-menu {{ request()->routeIs('reports.consolidate.myaccomplishments') || request()->routeIs('reports.consolidate.myaccomplishments.*') ? 'active' : '' }} ">My Accomplishments</a>
                 </div>
-                <div class="col-md-3">
+                <div class="col">
                     @isset ($assignments)
                     <h6 style="font-weight: bold; color: #eeb510">REVIEW ACCOMPLISHMENTS</h6>
                     @endisset
@@ -33,9 +31,9 @@
                     <a href="{{ route('ipo.index') }}" class="submission-menu {{ request()->routeIs('ipo.index') ? 'active' : ''}}">IPO Level</a><br>
                     @endif
                 </div>
-                <div class="col-md-4">
+                <div class="col">
                     @isset ($assignments)
-                    <h6 style="font-weight: bold; color: #eeb510">GENERATE CONSOLIDATED QAR</h6>
+                    <h6 style="font-weight: bold; color: #eeb510">GENERATE QAR</h6>
                     @endisset
                     @if ($assignments[5] != null)
                     {{-- Departments' --}}

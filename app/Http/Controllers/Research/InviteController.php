@@ -114,6 +114,7 @@ class InviteController extends Controller
         ]);
 
         $user->notifications->where('id', $request->get('id'))->markAsRead();
+
         DB::table('notifications')
             ->where('id', $request->get('id'))
             ->delete();

@@ -8,16 +8,6 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
-                @if ($message = Session::get('edit_eservice_success'))
-                <div class="alert alert-success alert-index">
-                    <i class="bi bi-check-circle"></i> {{ $message }}
-                </div>
-                @endif
-                @if ($message = Session::get('cannot_access'))
-                <div class="alert alert-danger alert-index">
-                    {{ $message }}
-                </div>
-                @endif
                 <div class="card">
                     <div class="card-body">
                         <div class="form-group mb-3 ml-1">
@@ -106,7 +96,7 @@
             </div>
         </div>
     </div>
-    @include('extension-programs.extension-programs.invite.modal', compact('tags'))
+    @include('extension-programs.invite.modal', compact('tags'))
 
     {{-- Delete Modal --}}
     @include('delete')

@@ -1,6 +1,6 @@
 <div class="login-container">
     <div class="row justify-content-center">
-        <div class="col-md-12">
+        <div class="col-md-11">
             <div class="card login-card rounded-5">
                 <div class="d-flex justify-content-center mb-3 login-logo" style="border-bottom: 1px solid gainsboro;">
                     <div class="mb-3">

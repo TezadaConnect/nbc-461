@@ -1065,7 +1065,7 @@ class SubmissionController extends Controller
                             'college_id' => $collegeAndDepartment->college_id,
                             'department_id' => $collegeAndDepartment->department_id,
                             'report_category_id' => $report_values_array[0],
-                            'report_reference_id' => $report_values_array[0] ?? null,
+                            'report_reference_id' => $report_values_array[1] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
                             'report_date' => date("Y-m-d", time()),
@@ -1167,8 +1167,8 @@ class SubmissionController extends Controller
                             'college_id' => $collegeAndDepartment->college_id,
                             'department_id' => $collegeAndDepartment->department_id,
                             'report_category_id' => $report_values_array[0],
-                            'report_code' => $report_values_array[0] ?? null,
-                            'report_reference_id' => $report_values_array[0] ?? null,
+                            'report_code' => $report_values_array[1] ?? null,
+                            'report_reference_id' => $report_values_array[1] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
                             'report_date' => date("Y-m-d", time()),
@@ -2580,25 +2580,47 @@ class SubmissionController extends Controller
                     elseif ($employee[0]['type'] == 'A') $type = 'a';
                 }
 
+                $sectorIDs = Sector::pluck('id')->all();
                 if ($type == 'a') {
                     if ($research->department_id == $research->college_id) {
-                        Report::create([
-                            'user_id' =>  $user_id,
-                            'sector_id' => $sector_id,
-                            'college_id' => $research->college_id,
-                            'department_id' => $research->department_id,
-                            'format' => $type,
-                            'report_category_id' => $report_values_array[0],
-                            // 'report_code' => null,
-                            'research_cluster_id' => $research->discipline,
-                            'report_reference_id' => $report_values_array[1] ?? null,
-                            'report_details' => json_encode($report_details),
-                            'report_documents' => json_encode($report_documents),
-                            'report_date' => date("Y-m-d", time()),
-                            'chairperson_approval' => 1,
-                            'report_quarter' => $currentQuarterYear->current_quarter,
-                            'report_year' => $currentQuarterYear->current_year,
-                        ]);
+                        if (in_array($research->college_id, $sectorIDs)){
+                            Report::create([
+                                'user_id' =>  $user_id,
+                                'sector_id' => $sector_id,
+                                'college_id' => $research->college_id,
+                                'department_id' => $research->department_id,
+                                'format' => $type,
+                                'report_category_id' => $report_values_array[0],
+                                // 'report_code' => null,
+                                'research_cluster_id' => $research->discipline,
+                                'report_reference_id' => $report_values_array[1] ?? null,
+                                'report_details' => json_encode($report_details),
+                                'report_documents' => json_encode($report_documents),
+                                'report_date' => date("Y-m-d", time()),
+                                'chairperson_approval' => 1,
+                                'dean_approval' => 1,
+                                'report_quarter' => $currentQuarterYear->current_quarter,
+                                'report_year' => $currentQuarterYear->current_year,
+                            ]);
+                        } else{
+                            Report::create([
+                                'user_id' =>  $user_id,
+                                'sector_id' => $sector_id,
+                                'college_id' => $research->college_id,
+                                'department_id' => $research->department_id,
+                                'format' => $type,
+                                'report_category_id' => $report_values_array[0],
+                                // 'report_code' => null,
+                                'research_cluster_id' => $research->discipline,
+                                'report_reference_id' => $report_values_array[1] ?? null,
+                                'report_details' => json_encode($report_details),
+                                'report_documents' => json_encode($report_documents),
+                                'report_date' => date("Y-m-d", time()),
+                                'chairperson_approval' => 1,
+                                'report_quarter' => $currentQuarterYear->current_quarter,
+                                'report_year' => $currentQuarterYear->current_year,
+                            ]);
+                        }
                     } else {
                         Report::create([
                             'user_id' =>  $user_id,
@@ -2714,7 +2736,7 @@ class SubmissionController extends Controller
                         $sector_id = College::where('id', $collegeAndDepartment->college_id)->pluck('sector_id')->first();
                     break;
                     case 12:
-                        $collegeAndDepartment = Extensionist::select('college_id', 'department_id')->where('user_id', $user_id)->where('extension_program_id', $report_values_array[0])->first();
+                        $collegeAndDepartment = Extensionist::select('college_id', 'department_id')->where('user_id', $user_id)->where('extension_program_id', $report_values_array[1])->first();
                         $employee = Employee::where('user_id', auth()->id())->where('college_id', $collegeAndDepartment['college_id'])->get();
                         $sector_id = College::where('id', $collegeAndDepartment->college_id)->pluck('sector_id')->first();
                     break;
@@ -2780,7 +2802,7 @@ class SubmissionController extends Controller
                 }
                 $reportColumns = collect($report_controller->getColumnDataPerReportCategory($report_values_array[0]));
                 $reportValues = collect($report_controller->getTableDataPerColumnCategory($report_values_array[0], $report_values_array[1]));
-                $report_documents = $report_controller->getDocuments($report_values_array[0], $report_values_array[0]);
+                $report_documents = $report_controller->getDocuments($report_values_array[0], $report_values_array[1]);
                 $report_details = array_combine($reportColumns->pluck('column')->toArray(), $reportValues->toArray());
                 Report::where('report_reference_id', $report_values_array[0])
                     ->where('report_code', $report_values_array[0])
@@ -2812,7 +2834,7 @@ class SubmissionController extends Controller
                             'format' => $type,
                             'report_category_id' => $report_values_array[0],
                             'report_code' => $report_values_array[0] ?? null,
-                            'report_reference_id' => $report_values_array[0] ?? null,
+                            'report_reference_id' => $report_values_array[1] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
                             'report_date' => date("Y-m-d", time()),
@@ -2829,7 +2851,7 @@ class SubmissionController extends Controller
                             'format' => $type,
                             'report_category_id' => $report_values_array[0],
                             'report_code' => $report_values_array[0] ?? null,
-                            'report_reference_id' => $report_values_array[0] ?? null,
+                            'report_reference_id' => $report_values_array[1] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
                             'report_date' => date("Y-m-d", time()),
@@ -2848,7 +2870,7 @@ class SubmissionController extends Controller
                                 'format' => $type,
                                 'report_category_id' => $report_values_array[0],
                                 'report_code' => $report_values_array[0] ?? null,
-                                'report_reference_id' => $report_values_array[0] ?? null,
+                                'report_reference_id' => $report_values_array[1] ?? null,
                                 'report_details' => json_encode($report_details),
                                 'report_documents' => json_encode($report_documents),
                                 'report_date' => date("Y-m-d", time()),
@@ -2864,8 +2886,8 @@ class SubmissionController extends Controller
                                     'department_id' => $collegeAndDepartment->department_id,
                                     'format' => $type,
                                     'report_category_id' => $report_values_array[0],
-                                    'report_code' => $report_values_array[0] ?? null,
-                                    'report_reference_id' => $report_values_array[0] ?? null,
+                                    'report_code' => $report_values_array[1] ?? null,
+                                    'report_reference_id' => $report_values_array[1] ?? null,
                                     'report_details' => json_encode($report_details),
                                     'report_documents' => json_encode($report_documents),
                                     'report_date' => date("Y-m-d", time()),
@@ -2880,8 +2902,8 @@ class SubmissionController extends Controller
                                     'department_id' => $collegeAndDepartment->department_id,
                                     'format' => $type,
                                     'report_category_id' => $report_values_array[0],
-                                    'report_code' => $report_values_array[0] ?? null,
-                                    'report_reference_id' => $report_values_array[0] ?? null,
+                                    'report_code' => $report_values_array[1] ?? null,
+                                    'report_reference_id' => $report_values_array[1] ?? null,
                                     'report_details' => json_encode($report_details),
                                     'report_documents' => json_encode($report_documents),
                                     'report_date' => date("Y-m-d", time()),
@@ -2899,8 +2921,8 @@ class SubmissionController extends Controller
                             'department_id' => $collegeAndDepartment->department_id,
                             'format' => $type,
                             'report_category_id' => $report_values_array[0],
-                            'report_code' => $report_values_array[0] ?? null,
-                            'report_reference_id' => $report_values_array[0] ?? null,
+                            'report_code' => $report_values_array[1] ?? null,
+                            'report_reference_id' => $report_values_array[1] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
                             'report_date' => date("Y-m-d", time()),
@@ -2986,8 +3008,8 @@ class SubmissionController extends Controller
                             'department_id' => $collegeAndDepartment->department_id ?? null,
                             'format' => 'x',
                             'report_category_id' => $report_values_array[0],
-                            'report_code' => $report_values_array[0] ?? null,
-                            'report_reference_id' => $report_values_array[0] ?? null,
+                            'report_code' => $report_values_array[1] ?? null,
+                            'report_reference_id' => $report_values_array[1] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
                             'report_date' => date("Y-m-d", time()),
@@ -3003,8 +3025,8 @@ class SubmissionController extends Controller
                             'department_id' => $collegeAndDepartment->department_id ?? null,
                             'format' => 'x',
                             'report_category_id' => $report_values_array[0],
-                            'report_code' => $report_values_array[0] ?? null,
-                            'report_reference_id' => $report_values_array[0] ?? null,
+                            'report_code' => $report_values_array[1] ?? null,
+                            'report_reference_id' => $report_values_array[1] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
                             'report_date' => date("Y-m-d", time()),
@@ -3033,8 +3055,8 @@ class SubmissionController extends Controller
                             'department_id' => $collegeAndDepartment->department_id ?? null,
                             'format' => 'x',
                             'report_category_id' => $report_values_array[0],
-                            'report_code' => $report_values_array[0] ?? null,
-                            'report_reference_id' => $report_values_array[0] ?? null,
+                            'report_code' => $report_values_array[1] ?? null,
+                            'report_reference_id' => $report_values_array[1] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
                             'report_date' => date("Y-m-d", time()),
@@ -3051,8 +3073,8 @@ class SubmissionController extends Controller
                             'department_id' => $collegeAndDepartment->department_id ?? null,
                             'format' => 'x',
                             'report_category_id' => $report_values_array[0],
-                            'report_code' => $report_values_array[0] ?? null,
-                            'report_reference_id' => $report_values_array[0] ?? null,
+                            'report_code' => $report_values_array[1] ?? null,
+                            'report_reference_id' => $report_values_array[1] ?? null,
                             'report_details' => json_encode($report_details),
                             'report_documents' => json_encode($report_documents),
                             'report_date' => date("Y-m-d", time()),

@@ -318,7 +318,7 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::get('/extension/{id}/invite/cancel', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'cancel'])->name('extension.invite.cancel');
     Route::get('/extension/{id}/invite/confirm', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'confirm'])->name('extension.invite.confirm');
     // Use Extension By Co-Extensionists
-    Route::get('/extension-service/with-code/create/{extension_service_id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'addExtension'])->name('extension.code.create');
+    Route::get('/extension-service/with-code/create/{extension_program_id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'addExtension'])->name('extension.code.create');
     Route::post('/extension-service/with-code/save/{id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'saveExtension'])->name('extension.code.save');
     // Remove Documents
     Route::get('/extension-programs/expert-service-as-consultant/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExpertServices\ConsultantController::class, 'removeDoc'])->name('esconsultant.removedoc');

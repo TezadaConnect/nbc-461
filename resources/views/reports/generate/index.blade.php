@@ -1,4 +1,4 @@
-<!-- Generate Report Modal -->
+<!-- Generate Report Modal reuse for Individual, Department/Section(Chair/Chief), College/Branch/Campus/Office (Dean/Director) Levels -->
 <div class="modal fade" id="GenerateReport" tabindex="-1" aria-labelledby="GenerateReportLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-md">
         <div class="modal-content">
@@ -52,7 +52,7 @@
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group employeeDiv">
                         <label for="employee">Employee</label>
                         <span class="d-flex" tabindex="0" data-container="body" data-bs-placement="left" data-toggle="tooltip" title="Selection required for Individual-level report.">
                             <select name="employee" id="employee" class="form-control" required>
@@ -81,7 +81,7 @@
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group employeeDiv">
                         <label for="employee">Employee</label>
                         <span class="d-flex" tabindex="0" data-container="body" data-bs-placement="left" data-toggle="tooltip" title="Selection required for Individual-level report.">
                             <select name="employee" id="employee" class="form-control" required>
@@ -92,7 +92,7 @@
                             </select>
                         </span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group deptDiv">
                         <label for="department">Department/Section</label>
                         <span class="d-flex" tabindex="0" data-container="body" data-bs-placement="left" data-toggle="tooltip" title="Selection required for Department-level report.">
                             <select name="department" id="department" class="form-control" required>
@@ -105,7 +105,7 @@
                     </div>
                     @endif
                     @if (in_array($generatePerson, ['individual', 'chair/chief']))
-                    <div class="form-group">
+                    <div class="form-group cbcoDiv">
                         <label for="cbco">College/Branch/Campus/Office</label>
                         <span class="d-flex" tabindex="0" data-container="body" data-bs-placement="left" data-toggle="tooltip" title="Selection required for College-level report.">
                             <select name="cbco" id="cbco" class="form-control" required>
@@ -156,26 +156,26 @@
     </script>
     <script>
         $('#department').removeAttr('required');
-        $('#department').attr('disabled', true);
+        $('.deptDiv').hide();
         $('#employee').removeAttr('required');
-        $('#employee').attr('disabled', true);
+        $('.employeeDiv').hide();
         if ("{{ $generatePerson }}" == "individual"){
-            $('#cbco').removeAttr('disabled');
+            $('.cbcoDiv').show();
             $('#cbco').attr('required', true);
         } else{
             $('#cbco').removeAttr('required');
-            $('#cbco').attr('disabled', true);
+            $('.cbcoDiv').hide();
         }
         var alert = document.getElementById('exportInstruction');
 
         $('#level').on('change', function (){
             if($(this).val() == 'department'){
-                $('#department').removeAttr('disabled');
+                $('.deptDiv').show();
                 $('#department').attr('required', true);
                 $('#employee').removeAttr('required');
-                $('#employee').attr('disabled', true);
+                $('.employeeDiv').hide();
                 $('#cbco').removeAttr('required');
-                $('#cbco').attr('disabled', true);
+                $('.cbcoDiv').hide();
                 $('#employee').val('');
                 $('#cbco').val('');
                 if ("{{ $generatePerson }}" != "chair/chief")
@@ -183,11 +183,11 @@
             }
             else if($(this).val() == 'individual'){
                 $('#department').removeAttr('required');
-                $('#department').attr('disabled', true);
+                $('.deptDiv').hide();
                 $('#department').val('');
-                $('#employee').removeAttr('disabled');
+                $('.employeeDiv').show();
                 $('#employee').attr('required', true);
-                $('#cbco').removeAttr('disabled');
+                $('.cbcoDiv').show();
                 $('#cbco').attr('required', true);
                 if ("{{ $generatePerson }}" == "chair/chief")
                     alert.innerHTML = 'Select the <strong>format, employee, and college/branch/campus/office</strong> to be exported.';
@@ -195,10 +195,10 @@
                     alert.innerHTML = 'Select the <strong>format, and employee</strong> to be exported.';
             } else if ($(this).val() == 'college') {
                 $('#department').removeAttr('required');
-                $('#department').attr('disabled', true);
+                $('.deptDiv').hide();
                 $('#department').val('');
                 $('#employee').removeAttr('required');
-                $('#employee').attr('disabled', true);
+                $('.employeeDiv').hide();
                 $('#employee').val('');
                 alert.innerHTML = 'Select the <strong>format</strong> to be exported.';
             }

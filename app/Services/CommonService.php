@@ -34,7 +34,7 @@ use App\Models\FormBuilder\DropdownOption;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Controllers\StorageFileController;
 use App\Notifications\ResearchInviteNotification;
-use App\Notifications\ExtensionInviteNotification;
+use App\Notifications\ExtensionTagNotification;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
 
@@ -262,8 +262,8 @@ class CommonService
                 ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
         }
         if (in_array(10, $roles)) {
-            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
-            // $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
+            // $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
+            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
         }
         if (in_array(11, $roles)) {
             $assignment[11] = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
@@ -408,7 +408,7 @@ class CommonService
                             'type' => 'ext-invite'
                         ];
 
-                        Notification::send($user, new ExtensionInviteNotification($notificationData));
+                        Notification::send($user, new ExtensionTagNotification($notificationData));
                         ExtensionProgram::where('id', $id)->update([
                             'extensionists' => implode("/", $extensionistsExploded),
                         ]);

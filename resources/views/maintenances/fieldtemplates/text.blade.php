@@ -50,8 +50,8 @@
                     @if(count($dropdown_options[$fieldInfo->name])-1 == $index)
                         @if ($fieldInfo->name == "commitment_measure")
                             {{ $option->name }}<strong>; </strong>
-                        @else
-                            {{ $option->name }}<strong>;</strong> If others, please specify.
+{{--                        @else
+                            {{ $option->name }}<strong>;</strong> If others, please specify. --}}
                         @endif
                     @else
                         {{ $option->name }}<strong>; </strong>

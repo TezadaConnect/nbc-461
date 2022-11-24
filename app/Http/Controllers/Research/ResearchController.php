@@ -12,10 +12,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
     DB,
     Notification,
+    Session,
     Validator,
 };
 use App\Models\{
     Employee,
+    Report,
     Research,
     Researcher,
     ResearchCitation,
@@ -635,13 +637,9 @@ class ResearchController extends Controller
         if(ResearchForm::where('id', 1)->pluck('is_active')->first() == 0)
             return view('inactive');
 
-        $request->merge([
-            'college_id' => Department::where('id', $request->input('department_id'))->pluck('college_id')->first(),
-        ]);
-
         Researcher::create([
             'research_id' => $research_id,
-            'college_id' => $request->input('college_id'),
+            'college_id' => Department::where('id', $request->input('department_id'))->pluck('college_id')->first(),
             'department_id' => $request->input('department_id'),
             'user_id' => auth()->id(),
             'nature_of_involvement' => $request->input('nature_of_involvement'),
@@ -889,9 +887,6 @@ class ResearchController extends Controller
     // }
 
     public function markAsOngoing($researchID){
-        if(LockController::isLocked($researchID, 1)){
-            return redirect()->back()->with('cannot_access', 'Accomplishment was already submitted!');
-        }
         Research::where('id', $researchID)->update(['status' => 27]);
         return redirect()->route('research.edit', $researchID)->with('info', 'Fill in the Actual Date Started and Target Date of Completion below.');
     }
