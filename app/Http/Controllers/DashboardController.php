@@ -117,10 +117,10 @@ class DashboardController extends Controller
                     ->whereIn('report_quarter', [3,4])
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->count();
-                $tempvalues[$value->cluster_id] = $tempcount;
+                $tempvalues[$value->college_id] = $tempcount;
+                // $tempvalues[$value->cluster_id] = $tempcount;
             }
             $countToReview[10] = $tempvalues;
-            dd($countToReview[10]);
         }
         if (in_array(11, $roles)) {
             $college[11] = '';
