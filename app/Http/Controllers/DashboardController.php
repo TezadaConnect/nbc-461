@@ -121,7 +121,6 @@ class DashboardController extends Controller
                 // $tempvalues[$value->cluster_id] = $tempcount;
             }
             $countToReview[10] = $tempvalues;
-            dd($countToReview[10]);
         }
         if (in_array(11, $roles)) {
             $college[11] = '';
