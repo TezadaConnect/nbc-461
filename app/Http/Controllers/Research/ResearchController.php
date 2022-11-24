@@ -82,6 +82,9 @@ class ResearchController extends Controller
         foreach ($researches as $row){
             $isSubmitted['regi'][$row->id] = false;           
             $isSubmitted['completion'][$row->id] = false;            
+            $isSubmitted['publication'][$row->id] = false;            
+            $isSubmitted['presentation'][$row->id] = false;            
+            $isSubmitted['copyright'][$row->id] = false;            
             $researchRecords['regi'][$row->id] = Research::where('research_code', $row->research_code)->first();
             // Research Registration
             $isSubmitted['regi'][$row->id] = LockController::isReportSubmitted($row->id, 1);
