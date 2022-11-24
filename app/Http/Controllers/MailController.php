@@ -47,7 +47,7 @@ class MailController extends Controller
 
         $arrayHolder = [];
         foreach ($ipqmso_accomps as $item) {
-            if ($pending == 0) array_push($arrayHolder, $item->research_cluster_id);
+            if ($pending == 0) array_push($arrayHolder, $item->college_id); // $item->research_cluster_id
             if ($pending == 1) array_push($arrayHolder, $item->college_id);
             if ($pending == 2) array_push($arrayHolder, $item->department_id);
             if ($pending == 3) array_push($arrayHolder, $item->college_id);
@@ -63,7 +63,8 @@ class MailController extends Controller
     {
 
         if ($pending == 0) {
-            $researcher = FacultyResearcher::whereIn('cluster_id', $arrayHolder)->get();
+            // cluster_id
+            $researcher = FacultyResearcher::whereIn('college_id', $arrayHolder)->get();
             return $this->sendMailNotification($researcher);
         }
         if ($pending == 1) {
