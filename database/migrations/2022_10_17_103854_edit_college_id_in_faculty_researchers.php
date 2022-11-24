@@ -13,9 +13,9 @@ class EditCollegeIdInFacultyResearchers extends Migration
      */
     public function up()
     {
-        Schema::table('faculty_researchers', function (Blueprint $table) {
-            $table->renameColumn('college_id', 'cluster_id');
-        });
+        // Schema::table('faculty_researchers', function (Blueprint $table) {
+        //     $table->renameColumn('college_id', 'cluster_id');
+        // });
     }
 
     /**
