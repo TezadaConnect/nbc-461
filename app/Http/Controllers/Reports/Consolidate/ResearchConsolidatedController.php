@@ -107,8 +107,8 @@ class ResearchConsolidatedController extends Controller
         }
 
         //departmentdetails
-        $department = DropdownOption::find($id);
-
+        // $department = DropdownOption::find($id);
+        $department = College::find($id);
         return view(
                     'reports.consolidate.research',
                     compact('roles', 'departments', 'colleges', 'department_accomps', 'department' , 'department_names',
