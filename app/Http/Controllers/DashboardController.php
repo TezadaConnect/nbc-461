@@ -105,7 +105,7 @@ class DashboardController extends Controller
             $countExpectedTotal[10] = '';
             $countReceived[10] = '';
 
-            $department[10] = FacultyResearcher::where('user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->select('college_id', 'colleges.name as cluster_name')->get();
+            $department[10] = FacultyResearcher::where('user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->select('faculty_researchers.college_id', 'colleges.name as cluster_name')->get();
             // $department[10] = FacultyResearcher::where('user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->select('cluster_id', 'dropdown_options.name as cluster_name')->get();
             $tempcount = 0;
             $tempvalues = [];
@@ -121,6 +121,7 @@ class DashboardController extends Controller
                 // $tempvalues[$value->cluster_id] = $tempcount;
             }
             $countToReview[10] = $tempvalues;
+            dd($countToReview[10]);
         }
         if (in_array(11, $roles)) {
             $college[11] = '';
