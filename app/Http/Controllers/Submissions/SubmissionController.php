@@ -2462,13 +2462,13 @@ class SubmissionController extends Controller
             case 1: case 2: case 3: case 4: case 5: case 6: case 7:
                 if ($report_values_array[0] == 1) {
                     $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('researchers.college_id', 'researchers.department_id', 'research.discipline')->where('researchers.user_id', $user_id)->where('research.id', $report_values_array[1])->first();
-                    $employee = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->get();
+                    $employeeTypes = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->pluck('employees.type')->all();
                     $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
                 }
                 else {
                     // $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('college_id', 'department_id', 'discipline')->where('user_id', $user_id)->where('research.id', $report_values_array[1])->first();
                     $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('researchers.college_id', 'researchers.department_id', 'research.discipline')->where('researchers.user_id', $user_id)->where('research.id', $report_values_array[1])->first();
-                    $employee = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->get();
+                    $employeeTypes = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->pluck('employees.type')->all();
                     $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
                 }
                 $reportColumns = collect($report_controller->getColumnDataPerReportCategory($report_values_array[0]));

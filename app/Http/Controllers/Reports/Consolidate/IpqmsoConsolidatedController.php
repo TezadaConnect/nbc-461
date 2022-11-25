@@ -110,16 +110,12 @@ class IpqmsoConsolidatedController extends Controller
 
     public function generatePendingList($pending = null)
     {
-        $authenticateUser = $this->AuthenticateUserLogged();
-        $roles = $authenticateUser['roles'];
-        $departments = $authenticateUser['departments'];
-        $colleges = $authenticateUser['colleges'];
-        $sectors = $authenticateUser['sectors'];
-        $departmentsResearch = $authenticateUser['departmentsResearch'];
-        $departmentsExtension = $authenticateUser['departmentsExtension'];
-        $quarter = $authenticateUser['quarter'];
-        $year = $authenticateUser['year'];
-
+        $currentQuarterYear = Quarter::find(1);
+        $quarter = $currentQuarterYear->current_quarter;
+        $quarter2 = $currentQuarterYear->current_quarter;
+        $year = $currentQuarterYear->current_year;
+        $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
+        $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
         $ipqmso_accomps =
             Report::select(
                 'reports.*',
@@ -135,14 +131,20 @@ class IpqmsoConsolidatedController extends Controller
             ->where('reports.report_quarter', $quarter)
             ->get();
 
-        $sector_names = Sector::all();
-
+        //Get college tagged in each report
+        $college_names = $this->commonService->getCollegeDepartmentNames($ipqmso_accomps)['college_names'];
+        //Get department tagged in each report
+        $department_names = $this->commonService->getCollegeDepartmentNames($ipqmso_accomps)['department_names'];
+        $employees = User::all();
+        $departments = Department::all();
+        $colleges = College::get();
+        $sectors = Sector::all();
         $ipqmso_accomps = $this->commonService->getStatusOfIPO($ipqmso_accomps, $this->approvalHolderArr[$pending] ?? 'researcher_approval');
 
         return view(
-            'reports.consolidate.ipqmso',
-            compact('ipqmso_accomps', 'sector_names', 'roles', 'departments', 'colleges', 'sectors', 'departmentsResearch',  'departmentsExtension', 'quarter',  'year', 'pending')
-        );
+            'reports.consolidate.ipqmso', compact('roles', 'ipqmso_accomps', 'year', 'quarter', 'quarter2', 'employees', 
+            'departments', 'colleges', 'sectors', 'assignments', 'college_names', 'department_names', 'pending'
+        ));
     }
 
     // private function AuthenticateUserLogged()

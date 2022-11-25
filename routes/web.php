@@ -472,7 +472,7 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     // Route::get('/reports/consolidate/all/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
     // Route::get('/reports/consolidate/sector/report-filter/{sector}/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'sectorReportYearFilter'])->name('reports.consolidate.sector.reportYearFilter');
     Route::get('/reports/consolidate/all/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
-    // Route::get('/reports/consolidate/all/{pending?}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'generatePendingList'])->name('reports.consolidate.ipo.reportYearFilter');
+    Route::get('/reports/consolidate/all/{pending?}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'generatePendingList'])->name('reports.consolidate.ipo.reportPending');
     Route::get('/reports/consolidate/all/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
 
     /* GENERATE/EXPORT REPORT */
