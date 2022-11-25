@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers\Submissions;
 
-use App\Http\Controllers\{
-    Controller,
-    Reports\ReportDataController,
-    Maintenances\LockController
-};
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Reports\ReportDataController;
+use App\Http\Controllers\Maintenances\LockController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Storage;
 use App\Models\{
     AttendanceFunction,
     AttendanceFunctionDocument,
@@ -27,8 +23,6 @@ use App\Models\{
     ExpertServiceConsultant,
     ExpertServiceConsultantDocument,
     Extensionist,
-    ExtensionService,
-    ExtensionServiceDocument,
     ExtensionProgram,
     ExtensionProgramDocument,
     FacultyExtensionist,
@@ -37,13 +31,12 @@ use App\Models\{
     IntraMobilityDocument,
     Invention,
     InventionDocument,
-    LogActivity,
     Mobility,
     MobilityDocument,
     OtherAccomplishment,
-    OtherAccomplishmentDepartment,
+    OtherAccomplishmentDocument,
     OtherDeptAccomplishment,
-    OtherDeptAccomplishmentDepartment,
+    OtherDeptAccomplishmentDocument,
     OutreachProgram,
     OutreachProgramDocument,
     Partnership,
@@ -56,11 +49,7 @@ use App\Models\{
     Research,
     Researcher,
     ResearchCitation,
-    ResearchComplete,
-    ResearchCopyright,
     ResearchDocument,
-    ResearchPresentation,
-    ResearchPublication,
     ResearchUtilization,
     SectorHead,
     StudentAward,
@@ -71,14 +60,13 @@ use App\Models\{
     SyllabusDocument,
     TechnicalExtension,
     TechnicalExtensionDocument,
-    TemporaryFile,
     ViableProject,
     ViableProjectDocument,
     Authentication\UserRole,
     Maintenance\College,
-    Maintenance\Department,
     Maintenance\Quarter,
     Maintenance\ReportCategory,
+    Maintenance\Sector,
     AdminSpecialTask,
     AdminSpecialTaskDocument,
     SpecialTask,
@@ -3038,7 +3026,6 @@ class SubmissionController extends Controller
                     $successToSubmit++;
                     return 1;
                 }else if(in_array(6, $roles) && $collegeAndDepartment->department_id == 0){
-
                     Report::where('report_reference_id', $report_values_array[0])
                         ->where('report_code', $report_values_array[0])
                         ->where('report_category_id', $report_values_array[0])
@@ -3046,7 +3033,6 @@ class SubmissionController extends Controller
                         ->where('report_quarter', $currentQuarterYear->current_quarter)
                         ->where('report_year', $currentQuarterYear->current_year)
                         ->delete();
-
                     if ($report_values_array[0] <= 21 && $report_values_array[0] >= 17) {
                         Report::create([
                             'user_id' =>  $user_id,
@@ -3116,35 +3102,3 @@ class SubmissionController extends Controller
         }       
     }
 }
-
-
-// } else {
-//     if($report_category_id == 1){
-//         $research_code = Research::where('id', $accomplishment_id)->pluck('research_code')->first();
-//     }
-//     if($report_category_id == 2){
-//         $research_id = ResearchComplete::where('id', $accomplishment_id)->pluck('research_id')->first();
-//         $research_code = ResearchComplete::where('id', $accomplishment_id)->pluck('research_code')->first();
-//     }
-//     if($report_category_id == 3){
-//         $research_id = ResearchPublication::where('id', $accomplishment_id)->pluck('research_id')->first();
-//         $research_code = ResearchPublication::where('id', $accomplishment_id)->pluck('research_code')->first();
-//     }
-//     if($report_category_id == 4){
-//         $research_id = ResearchPresentation::where('id', $accomplishment_id)->pluck('research_id')->first();
-//         $research_code = ResearchPresentation::where('id', $accomplishment_id)->pluck('research_code')->first();
-//     }
-//     if($report_category_id == 5){
-//         $research_id = ResearchCitation::where('id', $accomplishment_id)->pluck('research_id')->first();
-//         $research_code = ResearchCitation::where('id', $accomplishment_id)->pluck('research_code')->first();
-//     }
-//     if($report_category_id == 6){
-//         $research_id = ResearchUtilization::where('id', $accomplishment_id)->pluck('research_id')->first();
-//         $research_code = ResearchUtilization::where('id', $accomplishment_id)->pluck('research_code')->first();
-//     }
-
-//     if($report_category_id == 7){
-//         $research_id = ResearchCopyright::where('id', $accomplishment_id)->pluck('research_id')->first();
-//         $research_code = ResearchCopyright::where('id', $accomplishment_id)->pluck('research_code')->first();
-//     }
-// }

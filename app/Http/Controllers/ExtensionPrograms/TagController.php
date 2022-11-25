@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\ExtensionTagNotification;
 use Illuminate\Support\Facades\DB;
 
-class InviteController extends Controller
+class TagController extends Controller
 {
     public function index($id){
 

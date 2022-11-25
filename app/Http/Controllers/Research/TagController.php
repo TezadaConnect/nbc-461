@@ -15,14 +15,14 @@ use App\Models\{
 };
 use App\Notifications\ResearchInviteNotification;
 
-class InviteController extends Controller
+class TagController extends Controller
 {
     public function index($research_id){
         $research = Research::find($research_id);
         $coResearchers = ResearchInvite::
-                            where('research_invites.research_id', $research_id)
-                            ->join('users', 'users.id', 'research_invites.user_id')
-                            ->select('research_invites.id as invite_id', 'research_invites.status as research_status','users.*')
+                            where('research_tags.research_id', $research_id)
+                            ->join('users', 'users.id', 'research_tags.user_id')
+                            ->select('research_tags.id as invite_id', 'research_tags.status as research_status','users.*')
                             ->get();
         //get Nature of involvement
         $involvement = [];
@@ -103,7 +103,8 @@ class InviteController extends Controller
 
         $user->notifications->where('id', $request->get('id'))->markAsRead();
         
-        return redirect()->route('research.code.create', ['research_id' => $research_id, 'id' => $request->get('id') ])->with('info', 'Please fill in the remaining blanks: Nature of Involvement and Department/Section where to commit.');
+        return redirect()->route('research.code.create', ['research_id' => $research_id, 'id' => $request->get('id') ])->with('info', 'Please fill in the remaining blanks: Nature of Involvement and
+         Department/Section where to commit.');
     }
     
     public function cancel($research_id , Request $request){
