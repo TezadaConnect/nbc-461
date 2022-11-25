@@ -208,7 +208,6 @@ class ResearchController extends Controller
 
         // $discipline = DropdownOption::where('id', $request->discipline)->pluck('name')->first();
         $input = $request->except(['_token', 'document', 'funding_amount', 'tagged_collaborators', 'nature_of_involvement', 'college_id', 'department_id']);
-
         $funding_amount = $request->funding_amount;
         $funding_amount = str_replace( ',' , '', $funding_amount);
         $research = Research::create([ 'funding_amount' => $funding_amount,]);

@@ -164,7 +164,7 @@ class CollegeDepartmentAwardController extends Controller
         }
 
         if(AcademicDevelopmentForm::where('id', 6)->pluck('is_active')->first() == 0)
-            return view('inactive');
+             return view('inactive');
         $awardFields = DB::select("CALL get_academic_development_fields_by_form_id(6)");
 
         $documents = CollegeDepartmentAwardDocument::where('college_department_award_id', $college_department_award->id)->get()->toArray();

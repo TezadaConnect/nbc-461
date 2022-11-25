@@ -214,7 +214,7 @@ class UserController extends Controller
         $chairperson = Chairperson::join('departments', 'departments.id', 'chairpeople.department_id')->where('user_id', $user->id)->pluck('departments.id')->all();
         $dean = Dean::join('colleges', 'colleges.id', 'deans.college_id')->where('user_id', $user->id)->pluck('colleges.id')->all();
         $sectorhead = SectorHead::join('sectors', 'sectors.id', 'sector_heads.sector_id')->where('user_id', $user->id)->pluck('sectors.id')->all();
-        $researcher = FacultyResearcher::where('user_id', $user->id)->pluck('cluster_id')->all();
+        $researcher = FacultyResearcher::join('colleges', 'colleges.id', 'faculty_researchers.college_id')->where('user_id', $user->id)->pluck('colleges.id')->all();
         $extensionist = FacultyExtensionist::join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->where('user_id', $user->id)->pluck('colleges.id')->all();
         $associateDeanDirector = Associate::join('colleges', 'colleges.id', 'associates.college_id')->where('user_id', $user->id)->pluck('colleges.id')->all();
         $assistantVP = Associate::where('user_id', $user->id)->whereNotNull('sector_id')->pluck('sector_id')->all();
@@ -351,7 +351,8 @@ class UserController extends Controller
             foreach($request->input('research') as $clusterId){
                 FacultyResearcher::updateOrCreate([
                     'user_id' => $user->id,
-                    'cluster_id' => $clusterId,
+                    // 'cluster_id' => $clusterId,
+                    'college_id' => $clusterId,
                 ]);
             }
         }

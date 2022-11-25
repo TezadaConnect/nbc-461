@@ -462,35 +462,23 @@ class CommonService
     {
         $newListStatus = [];
         foreach ($data as $item) {
-            if ($type == $this->approvalHolderArr[0]) {
-                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
-            }
-            if ($type == $this->approvalHolderArr[1]) {
-                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
-            }
-            if ($type == $this->approvalHolderArr[2]) {
-                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
-            }
-            if ($type == $this->approvalHolderArr[3]) {
-                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
-            }
-            if ($type == $this->approvalHolderArr[4]) {
-                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
-            }
-            if ($type == $this->approvalHolderArr[5]) {
-                if ($this->itemStatusChecker($item, $type) != null) array_push($newListStatus, $this->itemStatusChecker($item, $type));
-            }
+            if ($this->reportStatusChecker($item, $type) != null) array_push($newListStatus, $this->reportStatusChecker($item, $type));
         }
         return $newListStatus;
     }
 
-    private function itemStatusChecker($item, $type)  // Check the status of the item and return the item if pending is true otherwise return null || used in getStatusOfIPO method
+
+    private function reportStatusChecker($item, $type)  // Check the status of the item and return the item if pending is true otherwise return null || used in getStatusOfIPO method
     {
-        if ($type == $this->approvalHolderArr[0] && $item[$this->approvalHolderArr[0]] == null) { // Both Reasercher ad extensionist
+
+        $firstBool = $item->report_category_id >= 1 && $item->report_category_id <= 8;
+        $secondBool = ($item->report_category_id >= 12 && $item->report_category_id <= 14) || ($item->report_category_id >= 34 && $item->report_category_id <= 37) || $item->report_category_id == 22 || $item->report_category_id == 23;
+
+        if ($type == $this->approvalHolderArr[0] && $item[$this->approvalHolderArr[0]] == null) { // Reasercher
             if ($item->format == 'f' && $item->report_category_id >= 1 && $item->report_category_id <= 8) return $item;
         }
 
-        if ($type == $this->approvalHolderArr[1] && $item[$this->approvalHolderArr[1]] == null) { // Both Reasercher ad extensionist
+        if ($type == $this->approvalHolderArr[1] && $item[$this->approvalHolderArr[1]] == null) { // extensionist
             if (($item->report_category_id >= 12 && $item->report_category_id <= 14) || ($item->report_category_id >= 34 && $item->report_category_id <= 37) || $item->report_category_id == 22 || $item->report_category_id == 23) {
                 if ($item->format == 'f') return $item;
             }
@@ -498,13 +486,13 @@ class CommonService
 
         if ($type == $this->approvalHolderArr[2]) { // Chair/Chief
             if ($item->department_id != $item->college_id) {
-                if ($item[$this->approvalHolderArr[2]] == null) {
+                if ($item[$this->approvalHolderArr[2]] === null) {
                     if ($item->format == 'f') {
+                        if ($firstBool) return null;
+                        if ($secondBool) return null;
                         return $item;
                     }
-                    if ($item->format == 'a') {
-                        return $item;
-                    }
+                    if ($item->format == 'a') return $item;
                 }
             }
         }

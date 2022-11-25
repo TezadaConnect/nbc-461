@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class EditCollegeIdInFacultyResearchers extends Migration
+class CreateBackupDatabasesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,11 @@ class EditCollegeIdInFacultyResearchers extends Migration
      */
     public function up()
     {
-        // Schema::table('faculty_researchers', function (Blueprint $table) {
-        //     $table->renameColumn('college_id', 'cluster_id');
-        // });
+        Schema::create('backup_databases', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->string('frequency');
+        });
     }
 
     /**
@@ -25,8 +27,6 @@ class EditCollegeIdInFacultyResearchers extends Migration
      */
     public function down()
     {
-        Schema::table('faculty_researchers', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('backup_databases');
     }
 }

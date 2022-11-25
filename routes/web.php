@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -190,6 +191,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/notifications/count-not-viewed', [\App\Http\Controllers\NotificationController::class, 'getCount']);
     Route::get('/notifications/count-reset', [\App\Http\Controllers\NotificationController::class, 'resetCount']);
 
+    Route::get('/send-notification/{pending}', [MailController::class, 'sendMailToPendingIPOApprover']);
+
     /* ACTIVITY LOG */
     Route::get('get-dashboard-list', [\App\Http\Controllers\ActivityLogController::class, 'getTen']);
     Route::get('get-dashboard-list-indi', [\App\Http\Controllers\ActivityLogController::class, 'getTenIndi']);
@@ -237,6 +240,11 @@ Route::group(['middleware' => ['auth', 'account']], function () {
 
     /* ANALYTICS */
     Route::get('/analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics');
+
+    /* SPATTIE */
+    Route::get('/spatie', [\App\Http\Controllers\SpatieController::class, 'index'])->name('spatie');
+    Route::get('/downloadBackup', [\App\Http\Controllers\SpatieController::class, 'downloadBackup'])->name('downloadBackup');
+    Route::post('/saveFrequency', [\App\Http\Controllers\SpatieController::class, 'saveFrequency'])->name('saveFrequency');
 
     /* RESEARCH ACCOMPLISHMENTS */
     Route::resource('research', \App\Http\Controllers\Research\ResearchController::class);

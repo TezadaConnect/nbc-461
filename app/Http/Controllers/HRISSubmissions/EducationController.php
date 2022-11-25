@@ -30,12 +30,14 @@ class EducationController extends Controller
     protected $storageFileController;
     private $commonService;
 
-    public function __construct(StorageFileController $storageFileController, CommonService $commonService){
+    public function __construct(StorageFileController $storageFileController, CommonService $commonService)
+    {
         $this->storageFileController = $storageFileController;
         $this->commonService = $commonService;
     }
 
-    public function index(){
+    public function index()
+    {
 
         $currentQuarterYear = Quarter::find(1);
 
@@ -48,12 +50,12 @@ class EducationController extends Controller
         $educationList = [];
         $educationFinal = [];
 
-        foreach($educationLevel as $level){
+        foreach ($educationLevel as $level) {
             $educationTemp = $db_ext->select("SET NOCOUNT ON; EXEC GetEmployeeEducationBackgroundByEmpCodeAndEducationLevelID N'$user->emp_code',$level->EducationLevelID");
             $educationList = array_merge($educationList, $educationTemp);
         }
 
-        foreach($educationList as $education){
+        foreach ($educationList as $education) {
             $education = [$education];
             $educationFinal = array_merge($educationFinal, $education);
         }
@@ -65,12 +67,11 @@ class EducationController extends Controller
         foreach ($educationFinal as $education) {
             $id = HRIS::where('hris_id', $education->EmployeeEducationBackgroundID)->where('hris_type', 1)->where('user_id', $user->id)->pluck('hris_id')->first();
             $educationData = $db_ext->select("SET NOCOUNT ON; EXEC GetEmployeeEducationBackgroundByEmpCodeAndID N'$user->emp_code', '$education->EmployeeEducationBackgroundID'");
-            if($id != ''){
+            if ($id != '') {
                 if (LockController::isLocked($id, 24)) {
                     $submissionStatus[24][$education->EmployeeEducationBackgroundID] = 1;
                     $submitRole[$id] = ReportDataController::getSubmitRole($id, 24);
-                }
-                else
+                } else
                     $submissionStatus[24][$education->EmployeeEducationBackgroundID] = 0;
                 if ($educationData[0]->Attachment == null)
                     $submissionStatus[24][$education->EmployeeEducationBackgroundID] = 2;
@@ -80,17 +81,18 @@ class EducationController extends Controller
         return view('submissions.hris.education.index', compact('educationFinal', 'savedReports', 'currentQuarterYear', 'submissionStatus', 'submitRole'));
     }
 
-    public function create(){
+    public function create()
+    {
         $user = User::find(auth()->id());
         $db_ext = DB::connection('mysql_external');
         $currentQuarter = Quarter::find(1)->current_quarter;
 
         $fields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 1)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 1)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
-        if(session()->get('user_type') == 'Faculty Employee')
+        if (session()->get('user_type') == 'Faculty Employee')
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
         else
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
@@ -103,7 +105,7 @@ class EducationController extends Controller
         //education level
         $hriseducationLevel = $db_ext->select("SET NOCOUNT ON; EXEC GetEducationLevel");
         $educationLevel = [];
-        foreach($hriseducationLevel as $row){
+        foreach ($hriseducationLevel as $row) {
             $educationLevel[] = (object)[
                 'id' => $row->EducationLevelID,
                 'name' => $row->EducationLevel,
@@ -113,7 +115,7 @@ class EducationController extends Controller
         //education discipline
         $hriseducationDiscipline = $db_ext->select("SET NOCOUNT ON; EXEC GetEducationDiscipline");
         $educationDiscipline = [];
-        foreach($hriseducationDiscipline as $row){
+        foreach ($hriseducationDiscipline as $row) {
             $educationDiscipline[] = (object)[
                 'id' => $row->EducationDisciplineID,
                 'name' => $row->EducationDiscipline,
@@ -123,7 +125,7 @@ class EducationController extends Controller
         //accreditation level
         $hrisaccreditationLevel = $db_ext->select("SET NOCOUNT ON; EXEC GetAccreditationLevels");
         $accreditationLevel = [];
-        foreach($hrisaccreditationLevel as $row){
+        foreach ($hrisaccreditationLevel as $row) {
             $accreditationLevel[] = (object)[
                 'id' => $row->AccreditationLevelID,
                 'name' => $row->AccreditationLevel,
@@ -133,7 +135,7 @@ class EducationController extends Controller
         //enrollment status
         $hrisenrollmentStatus = $db_ext->select("SET NOCOUNT ON; EXEC GetEnrollmentStatus");
         $enrollmentStatus = [];
-        foreach($hrisenrollmentStatus as $row){
+        foreach ($hrisenrollmentStatus as $row) {
             $enrollmentStatus[] = (object)[
                 'id' => $row->EnrollmentStatusID,
                 'name' => $row->EnrollmentStatus,
@@ -143,7 +145,7 @@ class EducationController extends Controller
         //type of support
         $hristypeOfSupport = $db_ext->select("SET NOCOUNT ON; EXEC GetTypeOfSupport");
         $typeOfSupport = [];
-        foreach($hristypeOfSupport as $row){
+        foreach ($hristypeOfSupport as $row) {
             $typeOfSupport[] = (object)[
                 'id' => $row->TypeOfSupportID,
                 'name' => $row->TypeOfSupport,
@@ -155,7 +157,8 @@ class EducationController extends Controller
         return view('submissions.hris.education.create', compact('values', 'fields', 'dropdown_options', 'departments', 'currentQuarter'));
     }
 
-    public function savetohris(Request $request){
+    public function savetohris(Request $request)
+    {
         $user = User::find(auth()->id());
         $emp_code = $user->emp_code;
 
@@ -175,18 +178,18 @@ class EducationController extends Controller
 
         //is_graduated
         $is_graduated = 'Y';
-        if($request->is_graduated == 'No'){
+        if ($request->is_graduated == 'No') {
             $is_graduated = 'N';
         }
 
         //is_enrolled
         $is_enrolled = 'Y';
-        if($request->is_enrolled == 'No'){
+        if ($request->is_enrolled == 'No') {
             $is_enrolled = 'N';
         }
 
         //year graduated
-        if(!ctype_alpha($request->to)){
+        if (!ctype_alpha($request->to)) {
             $year_graduated = $request->to;
         }
 
@@ -254,7 +257,9 @@ class EducationController extends Controller
 
                 SELECT @NewEmployeeEducationBackgroundID as NewEmployeeEducationBackgroundID;
 
-            ", $value);
+            ",
+            $value
+        );
 
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
 
@@ -270,17 +275,19 @@ class EducationController extends Controller
 
         LogActivity::addToLog('Had saved a Ongoing Studies Accomplishment.');
 
-        if($document['isError'] == false){
-            return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been saved.');
+        if ($document['isError'] == false) {
+            return redirect()->route('submissions.educ.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.educ.index')->with('error', 
+            return redirect()->route('submissions.educ.index')->with(
+                'error',
                 $document['message']
                 // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
             );
         }
     }
 
-    public function add(Request $request, $id){
+    public function add(Request $request, $id)
+    {
 
         $user = User::find(auth()->id());
 
@@ -291,9 +298,9 @@ class EducationController extends Controller
         $educationData = $db_ext->select("SET NOCOUNT ON; EXEC GetEmployeeEducationBackgroundByEmpCodeAndID N'$user->emp_code',$id");
 
         $educFields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 1)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 1)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
         $values = [
             'level' => $educationData[0]->EducationLevelID,
@@ -326,7 +333,7 @@ class EducationController extends Controller
         //education level
         $hriseducationLevel = $db_ext->select("SET NOCOUNT ON; EXEC GetEducationLevel");
         $educationLevel = [];
-        foreach($hriseducationLevel as $row){
+        foreach ($hriseducationLevel as $row) {
             $educationLevel[] = (object)[
                 'id' => $row->EducationLevelID,
                 'name' => $row->EducationLevel,
@@ -336,7 +343,7 @@ class EducationController extends Controller
         //education discipline
         $hriseducationDiscipline = $db_ext->select("SET NOCOUNT ON; EXEC GetEducationDiscipline");
         $educationDiscipline = [];
-        foreach($hriseducationDiscipline as $row){
+        foreach ($hriseducationDiscipline as $row) {
             $educationDiscipline[] = (object)[
                 'id' => $row->EducationDisciplineID,
                 'name' => $row->EducationDiscipline,
@@ -346,7 +353,7 @@ class EducationController extends Controller
         //accreditation level
         $hrisaccreditationLevel = $db_ext->select("SET NOCOUNT ON; EXEC GetAccreditationLevels");
         $accreditationLevel = [];
-        foreach($hrisaccreditationLevel as $row){
+        foreach ($hrisaccreditationLevel as $row) {
             $accreditationLevel[] = (object)[
                 'id' => $row->AccreditationLevelID,
                 'name' => $row->AccreditationLevel,
@@ -356,7 +363,7 @@ class EducationController extends Controller
         //enrollment status
         $hrisenrollmentStatus = $db_ext->select("SET NOCOUNT ON; EXEC GetEnrollmentStatus");
         $enrollmentStatus = [];
-        foreach($hrisenrollmentStatus as $row){
+        foreach ($hrisenrollmentStatus as $row) {
             $enrollmentStatus[] = (object)[
                 'id' => $row->EnrollmentStatusID,
                 'name' => $row->EnrollmentStatus,
@@ -366,7 +373,7 @@ class EducationController extends Controller
         //type of support
         $hristypeOfSupport = $db_ext->select("SET NOCOUNT ON; EXEC GetTypeOfSupport");
         $typeOfSupport = [];
-        foreach($hristypeOfSupport as $row){
+        foreach ($hristypeOfSupport as $row) {
             $typeOfSupport[] = (object)[
                 'id' => $row->TypeOfSupportID,
                 'name' => $row->TypeOfSupport,
@@ -374,7 +381,7 @@ class EducationController extends Controller
         }
         $dropdown_options['support_type'] = $typeOfSupport;
 
-        if(session()->get('user_type') == 'Faculty Employee')
+        if (session()->get('user_type') == 'Faculty Employee')
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
         else
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
@@ -384,25 +391,25 @@ class EducationController extends Controller
         //HRIS Document
         $hrisDocuments = [];
         $collegeOfDepartment = '';
-        if(LockController::isNotLocked($id, 24) && Report::where('report_reference_id', $id)
-                    ->where('report_quarter', $currentQuarterYear->current_quarter)
-                    ->where('report_year', $currentQuarterYear->current_year)
-                    ->where('report_category_id', 24)->exists()){
+        if (LockController::isNotLocked($id, 24) && Report::where('report_reference_id', $id)
+            ->where('report_quarter', $currentQuarterYear->current_quarter)
+            ->where('report_year', $currentQuarterYear->current_year)
+            ->where('report_category_id', 24)->exists()
+        ) {
 
             $hrisDocuments = HRISDocument::where('hris_form_id', 1)->where('reference_id', $id)->get()->toArray();
-            $report = Report::where('report_reference_id',$id)->where('report_category_id', 24)->first();
+            $report = Report::where('report_reference_id', $id)->where('report_category_id', 24)->first();
             $report_details = json_decode($report->report_details, true);
             $description = "";
 
-            foreach($educFields as $row){
-                if($row->name == 'description')
+            foreach ($educFields as $row) {
+                if ($row->name == 'description')
                     $description = $report_details[$row->name];
             }
 
             if ($report->department_id != null) {
-                $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(".$report->department_id.")");
-            }
-            else {
+                $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(" . $report->department_id . ")");
+            } else {
                 $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(0)");
             }
 
@@ -417,17 +424,18 @@ class EducationController extends Controller
                 'to' => $educationData[0]->IncYearTo,
                 'status' => $educationData[0]->EnrollmentStatus,
                 'units_earned' => $educationData[0]->UnitsEarned,
-                'units_enrolled' =>$educationData[0]->UnitsEnrolled,
+                'units_enrolled' => $educationData[0]->UnitsEnrolled,
                 'description' => $educationData[0]->Description ?? "N/A",
                 'document' => $educationData[0]->Attachment,
                 'mimetype' => $educationData[0]->MimeType,
             ];
         }
 
-        return view('submissions.hris.education.add', compact('id', 'educationData', 'educFields', 'values', 'colleges' , 'collegeOfDepartment', 'hrisDocuments', 'departments', 'dropdown_options'));
+        return view('submissions.hris.education.add', compact('id', 'educationData', 'educFields', 'values', 'colleges', 'collegeOfDepartment', 'hrisDocuments', 'departments', 'dropdown_options'));
     }
 
-    public function store(Request $request, $id){
+    public function store(Request $request, $id)
+    {
         $currentQuarterYear = Quarter::find(1);
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
 
@@ -446,18 +454,18 @@ class EducationController extends Controller
 
         //is_graduated
         $is_graduated = 'Yes';
-        if($request->is_graduated == 'No'){
+        if ($request->is_graduated == 'No') {
             $is_graduated = 'No';
         }
 
         //is_enrolled
         $is_enrolled = 'Yes';
-        if($request->is_enrolled == 'No'){
+        if ($request->is_enrolled == 'No') {
             $is_enrolled = 'No';
         }
 
         //year graduated
-        if(!ctype_alpha($request->to)){
+        if (!ctype_alpha($request->to)) {
             $year_graduated = $request->to;
         }
 
@@ -526,7 +534,9 @@ class EducationController extends Controller
 
                 SELECT @NewEmployeeEducationBackgroundID as NewEmployeeEducationBackgroundID;
 
-            ", $value);
+            ",
+            $value
+        );
 
         HRIS::create([
             'hris_id' => $id,
@@ -540,17 +550,19 @@ class EducationController extends Controller
 
         LogActivity::addToLog('Had saved a Ongoing Studies Accomplishment.');
 
-        if($document['isError'] == false){
-            return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been saved.');
+        if ($document['isError'] == false) {
+            return redirect()->route('submissions.educ.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.educ.index')->with('error', 
+            return redirect()->route('submissions.educ.index')->with(
+                'error',
                 $document['message']
                 // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
             );
         }
     }
 
-    public function show($id){
+    public function show($id)
+    {
         $user = User::find(auth()->id());
 
         $currentQuarterYear = Quarter::find(1);
@@ -561,9 +573,9 @@ class EducationController extends Controller
         $department_id = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '1')->pluck('department_id')->first();
 
         $educFields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 1)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 1)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
         $values = [
             'level' => $educationData[0]->EducationLevel,
@@ -600,16 +612,17 @@ class EducationController extends Controller
         $forview = '';
 
         $this->storageFileController->fetch_image($id, '1');
-        return view('submissions.hris.education.add', compact('id', 'educationData', 'educFields', 'values', 'colleges','departments', 'forview'));
+        return view('submissions.hris.education.add', compact('id', 'educationData', 'educFields', 'values', 'colleges', 'departments', 'forview'));
     }
 
-    public function edit($id){
+    public function edit($id)
+    {
         $user = User::find(auth()->id());
         $currentQuarter = Quarter::find(1)->current_quarter;
 
         $educID = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '1')->pluck('hris_id')->first();
 
-        if(LockController::isLocked($educID, 24)){
+        if (LockController::isLocked($educID, 24)) {
             return redirect()->back()->with('error', 'The accomplishment report has already been submitted.');
         }
 
@@ -622,9 +635,9 @@ class EducationController extends Controller
         $department_id = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '1')->pluck('department_id')->first();
 
         $educFields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 1)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 1)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
         $values = [
             'level' => $educationData[0]->EducationLevelID,
@@ -658,7 +671,7 @@ class EducationController extends Controller
         //education level
         $hriseducationLevel = $db_ext->select("SET NOCOUNT ON; EXEC GetEducationLevel");
         $educationLevel = [];
-        foreach($hriseducationLevel as $row){
+        foreach ($hriseducationLevel as $row) {
             $educationLevel[] = (object)[
                 'id' => $row->EducationLevelID,
                 'name' => $row->EducationLevel,
@@ -668,7 +681,7 @@ class EducationController extends Controller
         //education discipline
         $hriseducationDiscipline = $db_ext->select("SET NOCOUNT ON; EXEC GetEducationDiscipline");
         $educationDiscipline = [];
-        foreach($hriseducationDiscipline as $row){
+        foreach ($hriseducationDiscipline as $row) {
             $educationDiscipline[] = (object)[
                 'id' => $row->EducationDisciplineID,
                 'name' => $row->EducationDiscipline,
@@ -678,7 +691,7 @@ class EducationController extends Controller
         //accreditation level
         $hrisaccreditationLevel = $db_ext->select("SET NOCOUNT ON; EXEC GetAccreditationLevels");
         $accreditationLevel = [];
-        foreach($hrisaccreditationLevel as $row){
+        foreach ($hrisaccreditationLevel as $row) {
             $accreditationLevel[] = (object)[
                 'id' => $row->AccreditationLevelID,
                 'name' => $row->AccreditationLevel,
@@ -688,7 +701,7 @@ class EducationController extends Controller
         //enrollment status
         $hrisenrollmentStatus = $db_ext->select("SET NOCOUNT ON; EXEC GetEnrollmentStatus");
         $enrollmentStatus = [];
-        foreach($hrisenrollmentStatus as $row){
+        foreach ($hrisenrollmentStatus as $row) {
             $enrollmentStatus[] = (object)[
                 'id' => $row->EnrollmentStatusID,
                 'name' => $row->EnrollmentStatus,
@@ -698,7 +711,7 @@ class EducationController extends Controller
         //type of support
         $hristypeOfSupport = $db_ext->select("SET NOCOUNT ON; EXEC GetTypeOfSupport");
         $typeOfSupport = [];
-        foreach($hristypeOfSupport as $row){
+        foreach ($hristypeOfSupport as $row) {
             $typeOfSupport[] = (object)[
                 'id' => $row->TypeOfSupportID,
                 'name' => $row->TypeOfSupport,
@@ -706,17 +719,18 @@ class EducationController extends Controller
         }
         $dropdown_options['support_type'] = $typeOfSupport;
 
-        if(session()->get('user_type') == 'Faculty Employee')
+        if (session()->get('user_type') == 'Faculty Employee')
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
         else
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
 
         $departments = Department::whereIn('college_id', $colleges)->get();
 
-        return view('submissions.hris.education.edit', compact('id', 'educationData', 'educFields', 'values', 'colleges','departments', 'dropdown_options', 'currentQuarter'));
+        return view('submissions.hris.education.edit', compact('id', 'educationData', 'educFields', 'values', 'colleges', 'departments', 'dropdown_options', 'currentQuarter'));
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
 
         $user = User::find(auth()->id());
         $emp_code = $user->emp_code;
@@ -738,18 +752,18 @@ class EducationController extends Controller
 
         //is_graduated
         $is_graduated = 'Y';
-        if($request->is_graduated == 'No'){
+        if ($request->is_graduated == 'No') {
             $is_graduated = 'N';
         }
 
         //is_enrolled
         $is_enrolled = 'Y';
-        if($request->is_enrolled == 'No'){
+        if ($request->is_enrolled == 'No') {
             $is_enrolled = 'N';
         }
 
         //year graduated
-        if(!ctype_alpha($request->to)){
+        if (!ctype_alpha($request->to)) {
             $year_graduated = $request->to;
         }
 
@@ -817,7 +831,9 @@ class EducationController extends Controller
 
                 SELECT @NewEmployeeEducationBackgroundID as NewEmployeeEducationBackgroundID;
 
-            ", $value);
+            ",
+            $value
+        );
 
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
 
@@ -830,20 +846,22 @@ class EducationController extends Controller
 
         LogActivity::addToLog('Had updated a Ongoing/Advanced Professional Study.');
 
-        if($document['isError'] == false){
-            return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been saved.');
+        if ($document['isError'] == false) {
+            return redirect()->route('submissions.educ.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.educ.index')->with('error',
+            return redirect()->route('submissions.educ.index')->with(
+                'error',
                 $document['message']
                 // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
             );
         }
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         $educID = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '1')->pluck('hris_id')->first();
 
-        if(LockController::isLocked($educID, 24)){
+        if (LockController::isLocked($educID, 24)) {
             return redirect()->back()->with('error', 'The accomplishment report has already been submitted.');
         }
 
@@ -855,31 +873,34 @@ class EducationController extends Controller
                 EXEC DeleteEmployeeEducationBackground
                     @EmployeeEducationBackgroundID = ?,
                     @EmpCode = ?;
-            ", array($id, $user->emp_code)
+            ",
+            array($id, $user->emp_code)
         );
 
-        if(!is_null($educID)){
+        if (!is_null($educID)) {
             HRIS::where('id', $educID)->delete();
         }
 
         LogActivity::addToLog('Had deleted a Ongoing Studies.');
 
-        return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been deleted.');
+        return redirect()->route('submissions.educ.index')->with('success', 'The accomplishment has been deleted.');
     }
 
-    public function check($id){
+    public function check($id)
+    {
         $education = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '1')->first();
 
-        if(LockController::isLocked($education->hris_id, 24))
+        if (LockController::isLocked($education->hris_id, 24))
             return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
 
-        if($this->submit($education->id))
+        if ($this->submit($education->id))
             return redirect()->back()->with('success', 'Accomplishment submitted succesfully.');
 
         return redirect()->back()->with('cannot_access', 'Failed to submit the accomplishment.');
     }
 
-    public function submit($education_id){
+    public function submit($education_id)
+    {
         $user = User::find(auth()->id());
         $education = HRIS::where('id', $education_id)->first();
         $employee = Employee::where('user_id', auth()->id())->where('college_id', $education->college_id)->get();
@@ -901,34 +922,31 @@ class EducationController extends Controller
 
 
         try {
-            if(in_array($educationData[0]->MimeType, $imagejpeg)){
+            if (in_array($educationData[0]->MimeType, $imagejpeg)) {
                 $file = Image::make($educationData[0]->Attachment);
-                $fileName = 'HRIS-OPS-'.now()->timestamp.uniqid().'.jpeg';
-                $newPath = storage_path().'/app/documents/'.$fileName;
+                $fileName = 'HRIS-OPS-' . now()->timestamp . uniqid() . '.jpeg';
+                $newPath = storage_path() . '/app/documents/' . $fileName;
                 $file->save($newPath);
-            }
-            elseif($educationData[0]->MimeType == 'image/png' || $educationData['0']->MimeType == 'image/x-png'){
+            } elseif ($educationData[0]->MimeType == 'image/png' || $educationData['0']->MimeType == 'image/x-png') {
                 $file = Image::make($educationData[0]->Attachment);
-                $fileName = 'HRIS-OPS-'.now()->timestamp.uniqid().'.png';
-                $newPath = storage_path().'/app/documents/'.$fileName;
+                $fileName = 'HRIS-OPS-' . now()->timestamp . uniqid() . '.png';
+                $newPath = storage_path() . '/app/documents/' . $fileName;
                 $file->save($newPath);
-            }
-            elseif($educationData[0]->MimeType == 'application/pdf'){
-                $fileName = 'HRIS-OPS-'.now()->timestamp.uniqid().'.pdf';
-                file_put_contents(storage_path().'/app/documents/'.$fileName, $educationData[0]->Attachment);
+            } elseif ($educationData[0]->MimeType == 'application/pdf') {
+                $fileName = 'HRIS-OPS-' . now()->timestamp . uniqid() . '.pdf';
+                file_put_contents(storage_path() . '/app/documents/' . $fileName, $educationData[0]->Attachment);
                 $file = true;
             } else {
                 $file = Image::make($educationData[0]->Attachment);
-                $fileName = 'HRIS-OPS-'.now()->timestamp.uniqid().'.png';
-                $newPath = storage_path().'/app/documents/'.$fileName;
+                $fileName = 'HRIS-OPS-' . now()->timestamp . uniqid() . '.png';
+                $newPath = storage_path() . '/app/documents/' . $fileName;
                 $file->save($newPath);
             }
-    
         } catch (Exception $th) {
-            return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
+            return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!');
         }
 
-        
+
 
         HRISDocument::create([
             'hris_form_id' => 1,
@@ -963,11 +981,11 @@ class EducationController extends Controller
         ];
 
         $type = '';
-        if (count($employee) == 2){
+        if (count($employee) == 2) {
             $getUserTypeFromSession = session()->get('user_type');
-            if($getUserTypeFromSession == 'Faculty Employee')
+            if ($getUserTypeFromSession == 'Faculty Employee')
                 $type = 'f';
-            elseif($getUserTypeFromSession == 'Admin Employee')
+            elseif ($getUserTypeFromSession == 'Admin Employee')
                 $type = 'a';
         } elseif (count($employee) == 1) {
             if ($employee[0]['type'] == 'F')
@@ -1076,9 +1094,10 @@ class EducationController extends Controller
         return true;
     }
 
-    public function save(Request $request, $educID){
+    public function save(Request $request, $educID)
+    {
 
-        if($request->document[0] == null){
+        if ($request->document[0] == null) {
             return redirect()->back()->with('error', 'Document upload are required');
         }
 
@@ -1088,24 +1107,19 @@ class EducationController extends Controller
             ->orderBy('h_r_i_s_fields.order')->get();
         $data = [];
 
-        foreach($educFields as $field){
-            if($field->field_type_id == '5'){
+        foreach ($educFields as $field) {
+            if ($field->field_type_id == '5') {
                 $data[$field->name] = DropdownOption::where('id', $request->input($field->name))->pluck('name')->first();
-            }
-            elseif($field->field_type_id == '3'){
-                $currency_name = Currency::where('id', $request->input('currency_'.$field->name))->pluck('code')->first();
-                $data[$field->name] = $currency_name.' '.$request->input($field->name);
-            }
-            elseif($field->field_type_id == '10'){
+            } elseif ($field->field_type_id == '3') {
+                $currency_name = Currency::where('id', $request->input('currency_' . $field->name))->pluck('code')->first();
+                $data[$field->name] = $currency_name . ' ' . $request->input($field->name);
+            } elseif ($field->field_type_id == '10') {
                 continue;
-            }
-            elseif($field->field_type_id == '12'){
+            } elseif ($field->field_type_id == '12') {
                 $data[$field->name] = College::where('id', $request->input($field->name))->pluck('name')->first();
-            }
-            elseif($field->field_type_id == '13'){
+            } elseif ($field->field_type_id == '13') {
                 $data[$field->name] = Department::where('id', $request->input($field->name))->pluck('name')->first();
-            }
-            else{
+            } else {
                 $data[$field->name] = $request->input($field->name);
             }
         }
@@ -1142,16 +1156,16 @@ class EducationController extends Controller
 
         $filenames = [];
 
-        if(!empty($request->file(['document']))){      
-            foreach($request->file(['document']) as $document){
+        if (!empty($request->file(['document']))) {
+            foreach ($request->file(['document']) as $document) {
                 $fileName = $this->commonService->fileUploadHandler($document, "", 'HRIS-OAPS', 'submissions.educ.index');
-                if(is_string($fileName)){
+                if (is_string($fileName)) {
                     HRISDocument::create(['hris_form_id' => 1, 'reference_id' => $educID, 'filename' => $fileName]);
                     array_push($filenames, $fileName);
                 } else return $fileName;
             }
         }
-        
+
         $FORFILESTORE->report_documents = json_encode(collect($filenames));
         $FORFILESTORE->save();
 
@@ -1159,9 +1173,9 @@ class EducationController extends Controller
 
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
 
-        if($imageChecker) return redirect()->route('submissions.award.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if ($imageChecker) return redirect()->route('submissions.award.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        return redirect()->route('submissions.educ.index')->with('success','The accomplishment has been submitted.');
+        return redirect()->route('submissions.educ.index')->with('success', 'The accomplishment has been submitted.');
 
         // if($request->has('document')){
         //     $documents = $request->input('document');
@@ -1176,7 +1190,7 @@ class EducationController extends Controller
         //         }
         //     }
         // }
-    
+
         // if($request->has('document')){
         //     try {
         //         $documents = $request->input('document');
@@ -1192,8 +1206,8 @@ class EducationController extends Controller
         //                 Storage::deleteDirectory("documents/tmp/".$document);
         //                 $temporaryFile->delete();
 
-                        // HRISDocument::create(['hris_form_id' => 1, 'reference_id' => $educID, 'filename' => $fileName]);
-                        // array_push($filenames, $fileName);
+        // HRISDocument::create(['hris_form_id' => 1, 'reference_id' => $educID, 'filename' => $fileName]);
+        // array_push($filenames, $fileName);
         //             }
         //         }
         //     } catch (Exception $th) {

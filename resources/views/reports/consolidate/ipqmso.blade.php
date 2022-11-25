@@ -81,7 +81,7 @@
                                 <div class="col-md-6" style="padding-top: 25px;">
                                     <div class="form-group">
                                         <button id="pending" class="btn btn-primary">GENERATE</button>
-                                        <button id="pending" type="button" class="btn btn-success ml-2">NOTIFY</button>
+                                        <button id="notifyPending" type="button" class="btn btn-success ml-2">NOTIFY</button>
                                     </div>
                                 </div>
                             </div>
@@ -690,6 +690,13 @@
                 var newLink = link.replace(':pending', pendingSelected);
                 window.location.replace(newLink);
             });
+
+            $('#notifyPending').on('click', function() {
+                var pendingSelected = $('#pendingFilter').val() ?? null;
+                var link = "{{ url('send-notification/:pending') }}";
+                var newLink = link.replace(':pending', pendingSelected);
+                window.location.replace(newLink);
+            })
         </script>
     @endpush
 </x-app-layout>
