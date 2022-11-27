@@ -400,7 +400,9 @@ class DeanController extends Controller
         if (in_array(6, $roles)) {
             \LogActivity::addToLog('Dean/Director returned an accomplishment.');
         }
-
+        if($request->ajax()){
+            return response()->json(['success'=>'Report has been returned to the owner.', 'message'=>'']);
+        }
         return redirect()->route('director.index')->with('success', 'Report has been returned to the owner.');
     }
 

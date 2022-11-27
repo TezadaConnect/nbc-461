@@ -48,7 +48,11 @@
                                         <tbody>
                                             @foreach ($reportsToReview as $row)
                                                 <tr role="button">
-                                                    <td class="text-center"><input type="checkbox" class="select-box" data-id="{{ $row->id }}"></td>
+                                                    @if (isset($row->return_request) and !str_contains($row->return_request,'Request Denied:'))
+                                                        <td class="returnRequestIcon" data-reqreason="{{ $row->return_request }}" data-id="{{ $row->id }}"><i class="bi bi-exclamation-diamond-fill" style="font-size: 2em; color:red;"></i></td>
+                                                    @else
+                                                        <td class="text-center"><input type="checkbox" class="select-box" data-id="{{ $row->id }}"></td>
+                                                    @endif
                                                     <td class="button-view text-center" data-url="{{ route('document.view', ':filename') }}" data-accept="{{ route('dean.accept', ':id') }}" data-deny="{{ route('dean.reject-create', ':id') }}" data-id="{{ $row->id }}" data-toggle="modal" data-target="#viewReport" data-report-category="{{ $row->report_category }}"><i class="bi bi-three-dots-vertical"></i></td>
                                                     <td class="button-view" data-url="{{ route('document.view', ':filename') }}" data-accept="{{ route('dean.accept', ':id') }}" data-deny="{{ route('dean.reject-create', ':id') }}" data-id="{{ $row->id }}" data-toggle="modal" data-target="#viewReport" data-report-category="{{ $row->report_category }}">{{ $loop->iteration }}</td>
                                                     <td class="button-view" data-url="{{ route('document.view', ':filename') }}" data-accept="{{ route('dean.accept', ':id') }}" data-deny="{{ route('dean.reject-create', ':id') }}" data-id="{{ $row->id }}" data-toggle="modal" data-target="#viewReport" data-report-category="{{ $row->report_category }}">{{ $row->report_category }}</td>
@@ -457,6 +461,97 @@
                 $(this).remove();
             });
         }, 4000);
+
+        $(document).on('click', '.returnRequestIcon', function(){
+            console.log('Sheesh');
+            var requestReason = $(this).data('reqreason');
+            var reportid = $(this).data('id');
+            /* Swal.fire({
+                title: 'Request To Return',
+                text: requestReason,
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonColor: '#4CAF50',
+                confirmButtonText: 'Accept Request',
+                denyButtonText: 'Deny Request',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire('Saved!', 'Nothing happened chill', 'success')
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', 'Nothing happened chill', 'info')
+                }
+            }); */
+
+            Swal.fire({
+                title: 'Request To Return',
+                text: requestReason,
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonColor: '#4CAF50',
+                confirmButtonText: 'Accept Request',
+                denyButtonText: 'Deny Request',
+                focusConfirm: false,
+                preConfirm: () => {
+                    var url = '{{ route("dean.reject", ":id") }}';
+                    url = url.replace(':id', reportid);
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: {"_token": "{{csrf_token()}}",
+                            "reason": "Requested Return: " + requestReason,
+                        },
+                        success: function (resp) {
+                            if (resp.success) {
+                                swal.fire("Submission Returned!", "", "success");
+                                location.reload();
+                            } else {
+                                swal.fire("Error!", 'Something went wrong.', "error");
+                            }
+                        },
+                        error: function (resp) {
+                            swal.fire("Error!", resp.message, "error");
+                        }
+                    });
+                },
+                preDeny:() => {
+                    Swal.fire({
+                        title: 'Deny Request To Return',
+                        html: `<input type="textarea" id="denyretreqreason" class="swal2-input" placeholder="Reason for Denying">`,
+                        confirmButtonColor: '#4CAF50',
+                        confirmButtonText: 'Submit',
+                        showCancelButton: true,
+                        focusConfirm: false,
+                        preConfirm: () => {
+                            var reason = document.getElementById('denyretreqreason').value;
+                            if (reason) {
+                                reason = 'Request Denied: ' + reason;
+                                $.ajax({
+                                    type: 'POST',
+                                    url: "{{route('submissions.development.denyreturnrequest')}}",
+                                    data: {"_token": "{{csrf_token()}}",
+                                        "reason": reason,
+                                        "repid": reportid,
+                                    },
+                                    success: function (resp) {
+                                        if (resp.success) {
+                                            swal.fire("Return Request Denied!", "", "success");
+                                            location.reload();
+                                        } else {
+                                            swal.fire("Error!", 'Something went wrong.', "error");
+                                        }
+                                    },
+                                    error: function (resp) {
+                                        swal.fire("Error!", resp.message, "error");
+                                    }
+                                });
+                            } else {
+                                Swal.showValidationMessage('Please specify reason');
+                            }
+                        }
+                    });
+                }
+                });
+        });
     </script>
 @endpush
 

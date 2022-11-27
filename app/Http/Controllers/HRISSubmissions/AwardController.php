@@ -48,6 +48,7 @@ class AwardController extends Controller
 
         $submissionStatus = array();
         $submitRole = array();
+        $isReturnRequested = array();
         foreach ($awardFinal as $award) {
             $id = HRIS::where('hris_id', $award->EmployeeOutstandingAchievementID)->where('hris_type', 2)->where('user_id', $user->id)->pluck('hris_id')->first();
             if($id != ''){
@@ -60,8 +61,13 @@ class AwardController extends Controller
                 if ($award->Attachment == null)
                     $submissionStatus[27][$award->EmployeeOutstandingAchievementID] = 2;
             }
+
+            $rep = Report::where('report_reference_id',$award->EmployeeOutstandingAchievementID)->where('deleted_at', NULL)->pluck('return_request')->first();
+            if($rep != '') {
+                $isReturnRequested[$award->EmployeeOutstandingAchievementID] = $rep;
+            }
         }
-        return view('submissions.hris.award.index', compact('awardFinal', 'savedReports', 'currentQuarterYear', 'submissionStatus', 'submitRole'));
+        return view('submissions.hris.award.index', compact('awardFinal', 'savedReports', 'currentQuarterYear', 'submissionStatus', 'submitRole','isReturnRequested'));
     }
 
     public function create(){

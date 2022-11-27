@@ -503,6 +503,9 @@ Route::group(['middleware' => ['auth', 'account']], function() {
     Route::post('/submissions/development/training/{id}/update/', [\App\Http\Controllers\HRISSubmissions\SeminarAndTrainingController::class, 'updateTraining'])->name('submissions.development.training.update');
     Route::get('/submissions/development/create', [\App\Http\Controllers\HRISSubmissions\SeminarAndTrainingController::class, 'create'])->name('submissions.development.create');
     Route::post('/submissions/development/save', [\App\Http\Controllers\HRISSubmissions\SeminarAndTrainingController::class, 'savetohris'])->name('submissions.development.save');
+    Route::post('/submissions/development/returnreq', [\App\Http\Controllers\HRISSubmissions\SeminarAndTrainingController::class, 'requesttoreturn'])->name('submissions.development.returnrequest');
+    Route::post('/submissions/development/denyreturnreq', [\App\Http\Controllers\HRISSubmissions\SeminarAndTrainingController::class, 'denyrequesttoreturn'])->name('submissions.development.denyreturnrequest');
+
     //Officership/Memberhips
     Route::get('/submissions/officership', [\App\Http\Controllers\HRISSubmissions\OfficershipController::class, 'index'])->name('submissions.officership.index');
     Route::get('/submissions/officership/{id}/add', [\App\Http\Controllers\HRISSubmissions\OfficershipController::class, 'add'])->name('submissions.officership.add');
