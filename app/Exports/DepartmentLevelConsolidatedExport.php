@@ -126,7 +126,7 @@ class DepartmentLevelConsolidatedExport implements FromView, WithEvents
 
                 // Name
 
-                $event->sheet->setCellValue('B3', 'CHAIRPERSON:');
+                $event->sheet->setCellValue('B3', 'CHAIRPERSON/CHIEF:');
                 $event->sheet->getStyle('B3')->applyFromArray([
                     'font' => [
                         'size' => 16,
@@ -320,7 +320,7 @@ class DepartmentLevelConsolidatedExport implements FromView, WithEvents
                     $event->sheet->getStyle('A'.$count)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
                     
                     $count = $count + 1;
-                    $event->sheet->setCellValue('A'.$count, 'Chairperson, '.$this->departmentName);
+                    $event->sheet->setCellValue('A'.$count, 'Chairperson/Chief, '.$this->departmentName);
                     $event->sheet->getStyle('A'.$count)->applyFromArray([
                         'font' => [
                             'name' => 'Arial',

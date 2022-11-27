@@ -74,12 +74,12 @@ class CopyrightedController extends Controller
 
         $values = $this->commonService->getDropdownValues($copyrightFields, $copyrightValues);
 
-        $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
-        $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
-        $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+        // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        // $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
 
         return view('research.copyrighted.index', compact('research', 'copyrightFields', 'values',
-            'copyrightDocuments', 'submissionStatus', 'submitRole', 'noRequisiteRecords'));
+            'copyrightDocuments', 'submissionStatus', 'submitRole'));
     }
 
     /**
@@ -220,11 +220,11 @@ class CopyrightedController extends Controller
 
         $value = array_merge($research->toArray(), $copyrighted->toArray());
 
-        $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
-        $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
-        $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+        // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        // $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
 
-        return view('research.copyrighted.edit', compact('research', 'researchFields', 'value', 'researchDocuments', 'dropdown_options', 'currentQuarter', 'noRequisiteRecords'));
+        return view('research.copyrighted.edit', compact('research', 'researchFields', 'value', 'researchDocuments', 'dropdown_options', 'currentQuarter'));
     }
 
     /**

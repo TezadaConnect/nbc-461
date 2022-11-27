@@ -68,12 +68,12 @@ class PublicationController extends Controller
         $submitRole[$publicationValues['id']] = $this->commonService->getSubmissionStatus($publicationValues['id'], 3)['submitRole'];
 
         $value = $this->commonService->getDropdownValues($publicationFields, $publicationValues);
-        $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
-        $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
-        $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+        // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        // $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
 
         return view('research.publication.index', compact('research', 'publicationFields',
-            'value', 'publicationDocuments', 'submissionStatus', 'submitRole', 'noRequisiteRecords'));
+            'value', 'publicationDocuments', 'submissionStatus', 'submitRole'));
     }
 
     /**
@@ -246,11 +246,11 @@ class PublicationController extends Controller
             $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', 31)->first();
         }
 
-        $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
-        $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
-        $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+        // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        // $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
 
-        return view('research.publication.edit', compact('research', 'researchFields', 'researchDocuments', 'value', 'researchStatus', 'dropdown_options', 'currentQuarter', 'noRequisiteRecords'));
+        return view('research.publication.edit', compact('research', 'researchFields', 'researchDocuments', 'value', 'researchStatus', 'dropdown_options', 'currentQuarter'));
     }
 
     /**

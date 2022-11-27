@@ -32,11 +32,13 @@ class SeminarAndTrainingController extends Controller
 {
     private $commonService;
 
-    public function __construct(CommonService $commonService) {
+    public function __construct(CommonService $commonService)
+    {
         $this->commonService = $commonService;
     }
 
-    public function index(){
+    public function index()
+    {
         $currentQuarterYear = Quarter::find(1);
 
         $user = User::find(auth()->id());
@@ -56,24 +58,22 @@ class SeminarAndTrainingController extends Controller
         $isReturnRequested = array();
         foreach ($developmentFinal as $development) {
             $id = HRIS::where('hris_id', $development->EmployeeTrainingProgramID)->where('hris_type', 4)->where('user_id', $user->id)->pluck('hris_id')->first();
-            if($id != ''){
+            if ($id != '') {
                 if (LockController::isLocked($id, 25)) {
                     $submissionStatus[25][$development->EmployeeTrainingProgramID] = 1;
                     $submitRole[$id] = ReportDataController::getSubmitRole($id, 25);
-                }
-                else
+                } else
                     $submissionStatus[25][$development->EmployeeTrainingProgramID] = 0;
                 if ($development->AttachmentCert == null)
                     $submissionStatus[25][$development->EmployeeTrainingProgramID] = 2;
             }
 
             $id = HRIS::where('hris_id', $development->EmployeeTrainingProgramID)->where('hris_type', 5)->where('user_id', $user->id)->pluck('hris_id')->first();
-            if($id != ''){
+            if ($id != '') {
                 if (LockController::isLocked($id, 26)) {
                     $submissionStatus[26][$development->EmployeeTrainingProgramID] = 1;
                     $submitRole[$id] = ReportDataController::getSubmitRole($id, 26);
-                }
-                else
+                } else
                     $submissionStatus[26][$development->EmployeeTrainingProgramID] = 0;
                 if ($development->AttachmentCert == null)
                     $submissionStatus[26][$development->EmployeeTrainingProgramID] = 2;
@@ -88,20 +88,21 @@ class SeminarAndTrainingController extends Controller
         return view('submissions.hris.development.index', compact('developmentFinal', 'savedSeminars', 'savedTrainings', 'currentQuarterYear', 'submissionStatus', 'submitRole','isReturnRequested'));
     }
 
-    public function create(){
+    public function create()
+    {
         $user = User::find(auth()->id());
         $db_ext = DB::connection('mysql_external');
         $currentQuarter = Quarter::find(1)->current_quarter;
 
         $fields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 4)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 4)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
-                if(session()->get('user_type') == 'Faculty Employee')
-                $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
-            else
-                $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
+        if (session()->get('user_type') == 'Faculty Employee')
+            $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
+        else
+            $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
 
         $departments = Department::whereIn('college_id', $colleges)->get();
 
@@ -111,7 +112,7 @@ class SeminarAndTrainingController extends Controller
         //classification
         $hrisclassifications = $db_ext->select("SET NOCOUNT ON; EXEC GetClassifications");
         $classifications = [];
-        foreach($hrisclassifications as $row){
+        foreach ($hrisclassifications as $row) {
             $classifications[] = (object)[
                 'id' => $row->ClassificationID,
                 'name' => $row->Classification,
@@ -122,7 +123,7 @@ class SeminarAndTrainingController extends Controller
         //level
         $hrislevels = $db_ext->select("SET NOCOUNT ON; EXEC GetLevel");
         $levels = [];
-        foreach($hrislevels as $row){
+        foreach ($hrislevels as $row) {
             $levels[] = (object)[
                 'id' => $row->LevelID,
                 'name' => $row->Level,
@@ -133,7 +134,7 @@ class SeminarAndTrainingController extends Controller
         //type
         $hristypes = $db_ext->select("SET NOCOUNT ON; EXEC GetType");
         $types = [];
-        foreach($hristypes as $row){
+        foreach ($hristypes as $row) {
             $types[] = (object)[
                 'id' => $row->TypeID,
                 'name' => $row->Type,
@@ -144,7 +145,7 @@ class SeminarAndTrainingController extends Controller
         //nature
         $hrisnatures = $db_ext->select("SET NOCOUNT ON; EXEC GetNature");
         $natures = [];
-        foreach($hrisnatures as $row){
+        foreach ($hrisnatures as $row) {
             $natures[] = (object)[
                 'id' => $row->NatureID,
                 'name' => $row->Nature,
@@ -155,7 +156,7 @@ class SeminarAndTrainingController extends Controller
         //soure of fund
         $hrisfunds = $db_ext->select("SET NOCOUNT ON; EXEC GetSourceOfFunds");
         $funds = [];
-        foreach($hrisfunds as $row){
+        foreach ($hrisfunds as $row) {
             $funds[] = (object)[
                 'id' => $row->SourceOfFundID,
                 'name' => $row->SourceOfFund,
@@ -167,7 +168,8 @@ class SeminarAndTrainingController extends Controller
         return view('submissions.hris.development.create', compact('fields', 'departments', 'values', 'dropdown_options', 'currentQuarter'));
     }
 
-    public function savetohris(Request $request){
+    public function savetohris(Request $request)
+    {
         $user = User::find(auth()->id());
         $emp_code = $user->emp_code;
 
@@ -175,11 +177,15 @@ class SeminarAndTrainingController extends Controller
         $currentQuarterYear = Quarter::find(1);
 
         $is_paid = 'Y';
-        if($request->fund_source == '0' && $request->budget == 0){
+        if ($request->fund_source == '0' && $request->budget == 0) {
             $is_paid = 'N';
         }
-        
+
         // dd($datastringSO);
+        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, 'documentSO', "SPECIAL ORDER (S.O.) DOCUMENT");
+        $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
+        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, 'documentPic', "COMPILED PHOTOS");
+
         $documentSO = $this->commonService->fileUploadHandlerForExternal($request, 'documentSO', "SPECIAL ORDER (S.O.) DOCUMENT");
         $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
         $documentPic = $this->commonService->fileUploadHandlerForExternal($request, 'documentPic', "COMPILED PHOTOS");
@@ -253,11 +259,12 @@ class SeminarAndTrainingController extends Controller
 
                 SELECT @NewEmployeeTrainingProgramID as NewEmployeeTrainingProgramID;
 
-            ", $value
+            ",
+            $value
         );
 
         $hris_type = 4;
-        if($request->classification >= 5) //>= 5 is for training
+        if ($request->classification >= 5) //>= 5 is for training
             $hris_type = 5;
 
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
@@ -274,20 +281,22 @@ class SeminarAndTrainingController extends Controller
 
         LogActivity::addToLog('Had saved a Seminar/Webinar.');
 
-        if($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false){
-            return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
+        if ($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false) {
+            return redirect()->route('submissions.development.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.development.index')->with('error', 
-                $documentSO['message'] . " | " . 
-                $documentCert['message'] . " | " . 
-                $documentPic['message']
+            return redirect()->route('submissions.development.index')->with(
+                'error',
+                $documentSO['message'] . " | " .
+                    $documentCert['message'] . " | " .
+                    $documentPic['message']
             );
         }
 
         // return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
     }
 
-    public function add($id){
+    public function add($id)
+    {
         $user = User::find(auth()->id());
 
         $currentQuarterYear = Quarter::find(1);
@@ -299,12 +308,12 @@ class SeminarAndTrainingController extends Controller
         $seminar = new stdClass();
 
         $seminarFields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 4)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 4)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
-        foreach($developments as $development){
-            if($development->EmployeeTrainingProgramID == $id){
+        foreach ($developments as $development) {
+            if ($development->EmployeeTrainingProgramID == $id) {
                 $seminar = $development;
                 break;
             }
@@ -315,7 +324,7 @@ class SeminarAndTrainingController extends Controller
         //classification
         $hrisclassifications = $db_ext->select("SET NOCOUNT ON; EXEC GetClassifications");
         $classifications = [];
-        foreach($hrisclassifications as $row){
+        foreach ($hrisclassifications as $row) {
             $classifications[] = (object)[
                 'id' => $row->ClassificationID,
                 'name' => $row->Classification,
@@ -326,7 +335,7 @@ class SeminarAndTrainingController extends Controller
         //level
         $hrislevels = $db_ext->select("SET NOCOUNT ON; EXEC GetLevel");
         $levels = [];
-        foreach($hrislevels as $row){
+        foreach ($hrislevels as $row) {
             $levels[] = (object)[
                 'id' => $row->LevelID,
                 'name' => $row->Level,
@@ -337,7 +346,7 @@ class SeminarAndTrainingController extends Controller
         //type
         $hristypes = $db_ext->select("SET NOCOUNT ON; EXEC GetType");
         $types = [];
-        foreach($hristypes as $row){
+        foreach ($hristypes as $row) {
             $types[] = (object)[
                 'id' => $row->TypeID,
                 'name' => $row->Type,
@@ -348,7 +357,7 @@ class SeminarAndTrainingController extends Controller
         //nature
         $hrisnatures = $db_ext->select("SET NOCOUNT ON; EXEC GetNature");
         $natures = [];
-        foreach($hrisnatures as $row){
+        foreach ($hrisnatures as $row) {
             $natures[] = (object)[
                 'id' => $row->NatureID,
                 'name' => $row->Nature,
@@ -359,7 +368,7 @@ class SeminarAndTrainingController extends Controller
         //soure of fund
         $hrisfunds = $db_ext->select("SET NOCOUNT ON; EXEC GetSourceOfFunds");
         $funds = [];
-        foreach($hrisfunds as $row){
+        foreach ($hrisfunds as $row) {
             $funds[] = (object)[
                 'id' => $row->SourceOfFundID,
                 'name' => $row->SourceOfFund,
@@ -391,7 +400,7 @@ class SeminarAndTrainingController extends Controller
             'mimeTypePic' => $seminar->MimeTypePic,
         ];
 
-        if(session()->get('user_type') == 'Faculty Employee')
+        if (session()->get('user_type') == 'Faculty Employee')
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
         else
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
@@ -401,25 +410,25 @@ class SeminarAndTrainingController extends Controller
         //HRIS Document
         $hrisDocuments = [];
         $collegeOfDepartment = '';
-        if(LockController::isNotLocked($id, 25) && Report::where('report_reference_id', $id)
-                    ->where('report_quarter', $currentQuarterYear->current_quarter)
-                    ->where('report_year', $currentQuarterYear->current_year)
-                    ->where('report_category_id', 25)->exists()){
+        if (LockController::isNotLocked($id, 25) && Report::where('report_reference_id', $id)
+            ->where('report_quarter', $currentQuarterYear->current_quarter)
+            ->where('report_year', $currentQuarterYear->current_year)
+            ->where('report_category_id', 25)->exists()
+        ) {
 
             $hrisDocuments = HRISDocument::where('hris_form_id', 4)->where('reference_id', $id)->get()->toArray();
-            $report = Report::where('report_reference_id',$id)->where('report_category_id', 25)->first();
+            $report = Report::where('report_reference_id', $id)->where('report_category_id', 25)->first();
             $report_details = json_decode($report->report_details, true);
             $description = "";
 
-            foreach($seminarFields as $row){
-                if($row->name == 'description')
+            foreach ($seminarFields as $row) {
+                if ($row->name == 'description')
                     $description = $report_details[$row->name];
             }
 
             if ($report->department_id != null) {
-                $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(".$report->department_id.")");
-            }
-            else {
+                $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(" . $report->department_id . ")");
+            } else {
                 $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(0)");
             }
 
@@ -447,7 +456,7 @@ class SeminarAndTrainingController extends Controller
             ];
         }
 
-        if($seminar->ClassificationID >= 5){
+        if ($seminar->ClassificationID >= 5) {
             $training = $seminar;
             $trainingFields = $seminarFields;
             return view('submissions.hris.development.training.add', compact('id', 'training', 'trainingFields', 'values', 'colleges', 'collegeOfDepartment', 'hrisDocuments', 'departments', 'dropdown_options'));
@@ -456,7 +465,8 @@ class SeminarAndTrainingController extends Controller
         return view('submissions.hris.development.seminar.add', compact('id', 'seminar', 'seminarFields', 'values', 'colleges', 'collegeOfDepartment', 'hrisDocuments', 'departments', 'dropdown_options'));
     }
 
-    public function storeSeminar(Request $request, $id){
+    public function storeSeminar(Request $request, $id)
+    {
 
         $user = User::find(auth()->id());
         $emp_code = $user->emp_code;
@@ -466,7 +476,7 @@ class SeminarAndTrainingController extends Controller
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
 
         $is_paid = 'Y';
-        if($request->fund_source == '0' && $request->budget == 0){
+        if ($request->fund_source == '0' && $request->budget == 0) {
             $is_paid = 'N';
         }
 
@@ -542,7 +552,8 @@ class SeminarAndTrainingController extends Controller
 
                 SELECT @NewEmployeeTrainingProgramID as NewEmployeeTrainingProgramID;
 
-            ", $value
+            ",
+            $value
         );
 
         HRIS::create([
@@ -557,19 +568,21 @@ class SeminarAndTrainingController extends Controller
 
         LogActivity::addToLog('Had saved a Seminar/Webinar.');
 
-        if($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false){
-            return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
+        if ($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false) {
+            return redirect()->route('submissions.development.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.development.index')->with('error', 
-                $documentSO['message'] . " | " . 
-                $documentCert['message'] . " | " . 
-                $documentPic['message']
+            return redirect()->route('submissions.development.index')->with(
+                'error',
+                $documentSO['message'] . " | " .
+                    $documentCert['message'] . " | " .
+                    $documentPic['message']
                 // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
             );
         }
     }
 
-    public function storeTraining(Request $request, $id){
+    public function storeTraining(Request $request, $id)
+    {
         $user = User::find(auth()->id());
         $emp_code = $user->emp_code;
 
@@ -578,7 +591,7 @@ class SeminarAndTrainingController extends Controller
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
 
         $is_paid = 'Y';
-        if($request->fund_source == '0' && $request->budget == 0){
+        if ($request->fund_source == '0' && $request->budget == 0) {
             $is_paid = 'N';
         }
 
@@ -654,7 +667,8 @@ class SeminarAndTrainingController extends Controller
 
                 SELECT @NewEmployeeTrainingProgramID as NewEmployeeTrainingProgramID;
 
-            ", $value
+            ",
+            $value
         );
 
         HRIS::create([
@@ -669,21 +683,21 @@ class SeminarAndTrainingController extends Controller
 
         LogActivity::addToLog('Had saved a Training.');
 
-        if($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false){
-            return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
+        if ($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false) {
+            return redirect()->route('submissions.development.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.development.index')->with('error', 
-                $documentSO['message'] . " | " . 
-                $documentCert['message'] . " | " . 
-                $documentPic['message']
+            return redirect()->route('submissions.development.index')->with(
+                'error',
+                $documentSO['message'] . " | " .
+                    $documentCert['message'] . " | " .
+                    $documentPic['message']
                 // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
             );
         }
-
-        
     }
 
-    public function show($id){
+    public function show($id)
+    {
         $user = User::find(auth()->id());
 
         $currentQuarterYear = Quarter::find(1);
@@ -692,21 +706,21 @@ class SeminarAndTrainingController extends Controller
 
         $developments = $db_ext->select("SET NOCOUNT ON; EXEC GetEmployeeTrainingProgramByEmpCode N'$user->emp_code'");
         $seminar = new stdClass();
-        foreach($developments as $development){
-            if($development->EmployeeTrainingProgramID == $id){
+        foreach ($developments as $development) {
+            if ($development->EmployeeTrainingProgramID == $id) {
                 $seminar = $development;
                 break;
             }
         }
 
         $department_id = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '4')->pluck('department_id')->first();
-        if(is_null($department_id))
+        if (is_null($department_id))
             $department_id = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '5')->pluck('department_id')->first();
 
         $seminarFields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 4)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 4)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
         $values = [
             'title' => $seminar->TrainingProgram,
@@ -724,7 +738,7 @@ class SeminarAndTrainingController extends Controller
             'documentSO' => $seminar->AttachmentSO,
             'documentCert' => $seminar->AttachmentCert,
             'documentPic' => $seminar->AttachmentPic,
-            'description' => ($seminar->DescriptionSO.', '.$seminar->DescriptionCert.', '.$seminar->DescriptionPic) ?? "N/A",
+            'description' => ($seminar->DescriptionSO . ', ' . $seminar->DescriptionCert . ', ' . $seminar->DescriptionPic) ?? "N/A",
             'id' => $seminar->EmployeeTrainingProgramID,
             'mimeTypeSO' => $seminar->MimeTypeSO,
             'mimeTypeCert' => $seminar->MimeTypeCert,
@@ -738,7 +752,7 @@ class SeminarAndTrainingController extends Controller
         $departments = Department::whereIn('college_id', $colleges)->get();
 
         $forview = '';
-        if($seminar->ClassificationID >= 5){
+        if ($seminar->ClassificationID >= 5) {
             $training = $seminar;
             $trainingFields = $seminarFields;
             return view('submissions.hris.development.training.add', compact('id', 'training', 'trainingFields', 'values', 'colleges', 'departments', 'forview'));
@@ -747,19 +761,20 @@ class SeminarAndTrainingController extends Controller
         return view('submissions.hris.development.seminar.add', compact('id', 'seminar', 'seminarFields', 'values', 'colleges', 'departments', 'forview'));
     }
 
-    public function edit($id){
+    public function edit($id)
+    {
 
         $currentQuarterYear = Quarter::find(1);
         $currentQuarter = Quarter::find(1)->current_quarter;
 
         $developmentID = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '4')->pluck('hris_id')->first();
-        if(is_null($developmentID))
+        if (is_null($developmentID))
             $developmentID = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '5')->pluck('hris_id')->first();
 
-        if(LockController::isLocked($developmentID, 25)){
+        if (LockController::isLocked($developmentID, 25)) {
             return redirect()->back()->with('error', 'The accomplishment report has already been submitted.');
         }
-        if(LockController::isLocked($developmentID, 26)){
+        if (LockController::isLocked($developmentID, 26)) {
             return redirect()->back()->with('error', 'The accomplishment report has already been submitted.');
         }
 
@@ -771,8 +786,8 @@ class SeminarAndTrainingController extends Controller
 
         $developments = $db_ext->select("SET NOCOUNT ON; EXEC GetEmployeeTrainingProgramByEmpCode N'$user->emp_code'");
         $seminar = new stdClass();;
-        foreach($developments as $development){
-            if($development->EmployeeTrainingProgramID == $id){
+        foreach ($developments as $development) {
+            if ($development->EmployeeTrainingProgramID == $id) {
                 $seminar = $development;
                 break;
             }
@@ -783,7 +798,7 @@ class SeminarAndTrainingController extends Controller
         //classification
         $hrisclassifications = $db_ext->select("SET NOCOUNT ON; EXEC GetClassifications");
         $classifications = [];
-        foreach($hrisclassifications as $row){
+        foreach ($hrisclassifications as $row) {
             $classifications[] = (object)[
                 'id' => $row->ClassificationID,
                 'name' => $row->Classification,
@@ -794,7 +809,7 @@ class SeminarAndTrainingController extends Controller
         //level
         $hrislevels = $db_ext->select("SET NOCOUNT ON; EXEC GetLevel");
         $levels = [];
-        foreach($hrislevels as $row){
+        foreach ($hrislevels as $row) {
             $levels[] = (object)[
                 'id' => $row->LevelID,
                 'name' => $row->Level,
@@ -805,7 +820,7 @@ class SeminarAndTrainingController extends Controller
         //type
         $hristypes = $db_ext->select("SET NOCOUNT ON; EXEC GetType");
         $types = [];
-        foreach($hristypes as $row){
+        foreach ($hristypes as $row) {
             $types[] = (object)[
                 'id' => $row->TypeID,
                 'name' => $row->Type,
@@ -816,7 +831,7 @@ class SeminarAndTrainingController extends Controller
         //nature
         $hrisnatures = $db_ext->select("SET NOCOUNT ON; EXEC GetNature");
         $natures = [];
-        foreach($hrisnatures as $row){
+        foreach ($hrisnatures as $row) {
             $natures[] = (object)[
                 'id' => $row->NatureID,
                 'name' => $row->Nature,
@@ -827,7 +842,7 @@ class SeminarAndTrainingController extends Controller
         //soure of fund
         $hrisfunds = $db_ext->select("SET NOCOUNT ON; EXEC GetSourceOfFunds");
         $funds = [];
-        foreach($hrisfunds as $row){
+        foreach ($hrisfunds as $row) {
             $funds[] = (object)[
                 'id' => $row->SourceOfFundID,
                 'name' => $row->SourceOfFund,
@@ -860,13 +875,13 @@ class SeminarAndTrainingController extends Controller
         ];
 
         $department_id = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '4')->pluck('department_id')->first();
-        if(is_null($department_id))
+        if (is_null($department_id))
             $department_id = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '5')->pluck('department_id')->first();
 
         $seminarFields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 4)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 4)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
         $values = [
             'title' => $seminar->TrainingProgram,
@@ -892,14 +907,14 @@ class SeminarAndTrainingController extends Controller
             'department_id' => $department_id,
         ];
 
-        if(session()->get('user_type') == 'Faculty Employee')
+        if (session()->get('user_type') == 'Faculty Employee')
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
         else
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
 
         $departments = Department::whereIn('college_id', $colleges)->get();
 
-        if($seminar->ClassificationID >= 5){
+        if ($seminar->ClassificationID >= 5) {
             $training = $seminar;
             $trainingFields = $seminarFields;
             return view('submissions.hris.development.training.edit', compact('id', 'training', 'trainingFields', 'values', 'colleges', 'departments', 'dropdown_options', 'currentQuarter'));
@@ -908,7 +923,8 @@ class SeminarAndTrainingController extends Controller
         return view('submissions.hris.development.seminar.edit', compact('id', 'seminar', 'seminarFields', 'values', 'colleges', 'departments', 'dropdown_options', 'currentQuarter'));
     }
 
-    public function updateSeminar(Request $request, $id){
+    public function updateSeminar(Request $request, $id)
+    {
         $user = User::find(auth()->id());
         $emp_code = $user->emp_code;
 
@@ -917,7 +933,7 @@ class SeminarAndTrainingController extends Controller
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
 
         $is_paid = 'Y';
-        if($request->fund_source == '0' && $request->budget == 0){
+        if ($request->fund_source == '0' && $request->budget == 0) {
             $is_paid = 'N';
         }
 
@@ -1024,10 +1040,11 @@ class SeminarAndTrainingController extends Controller
 
                 SELECT @NewEmployeeTrainingProgramID as NewEmployeeTrainingProgramID;
 
-            ", $value
+            ",
+            $value
         );
 
-        if(HRIS::where('user_id', auth()->id())->where('hris_id', $id)->where('hris_type', '5')->exists()){
+        if (HRIS::where('user_id', auth()->id())->where('hris_id', $id)->where('hris_type', '5')->exists()) {
             HRIS::where('user_id', auth()->id())->where('hris_id', $id)->where('hris_type', '5')->delete();
             HRIS::create([
                 'hris_id' => $id,
@@ -1038,8 +1055,7 @@ class SeminarAndTrainingController extends Controller
                 'report_quarter' => $currentQuarterYear->current_quarter,
                 'report_year' => $currentQuarterYear->current_year,
             ]);
-        }
-        else{
+        } else {
             HRIS::where('user_id', auth()->id())->where('hris_id', $id)->where('hris_type', '4')->update([
                 'college_id' => $college_id,
                 'department_id' => $request->input('department_id'),
@@ -1050,19 +1066,21 @@ class SeminarAndTrainingController extends Controller
 
         LogActivity::addToLog('Had updated a Seminar/Webinar.');
 
-        if($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false){
-            return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
+        if ($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false) {
+            return redirect()->route('submissions.development.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.development.index')->with('error', 
-                $documentSO['message'] . " | " . 
-                $documentCert['message'] . " | " . 
-                $documentPic['message']
+            return redirect()->route('submissions.development.index')->with(
+                'error',
+                $documentSO['message'] . " | " .
+                    $documentCert['message'] . " | " .
+                    $documentPic['message']
                 // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
             );
         }
     }
 
-    public function updateTraining(Request $request, $id){
+    public function updateTraining(Request $request, $id)
+    {
         $user = User::find(auth()->id());
         $emp_code = $user->emp_code;
 
@@ -1071,7 +1089,7 @@ class SeminarAndTrainingController extends Controller
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
 
         $is_paid = 'Y';
-        if($request->fund_source == '0' && $request->budget == 0){
+        if ($request->fund_source == '0' && $request->budget == 0) {
             $is_paid = 'N';
         }
 
@@ -1182,10 +1200,11 @@ class SeminarAndTrainingController extends Controller
 
                 SELECT @NewEmployeeTrainingProgramID as NewEmployeeTrainingProgramID;
 
-            ", $value
+            ",
+            $value
         );
 
-        if(HRIS::where('user_id', auth()->id())->where('hris_id', $id)->where('hris_type', '4')->exists()){
+        if (HRIS::where('user_id', auth()->id())->where('hris_id', $id)->where('hris_type', '4')->exists()) {
             HRIS::where('user_id', auth()->id())->where('hris_id', $id)->where('hris_type', '4')->delete();
             HRIS::create([
                 'hris_id' => $id,
@@ -1196,8 +1215,7 @@ class SeminarAndTrainingController extends Controller
                 'report_quarter' => $currentQuarterYear->current_quarter,
                 'report_year' => $currentQuarterYear->current_year,
             ]);
-        }
-        else{
+        } else {
             HRIS::where('user_id', auth()->id())->where('hris_id', $id)->where('hris_type', '5')->update([
                 'college_id' => $college_id,
                 'department_id' => $request->input('department_id'),
@@ -1208,28 +1226,30 @@ class SeminarAndTrainingController extends Controller
 
         LogActivity::addToLog('Had saved a Training.');
 
-        if($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false){
-            return redirect()->route('submissions.development.index')->with('success','The accomplishment has been saved.');
+        if ($documentSO['isError'] == false && $documentCert['isError'] == false && $documentPic['isError'] == false) {
+            return redirect()->route('submissions.development.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.development.index')->with('error', 
-                $documentSO['message'] . " | " . 
-                $documentCert['message'] . " | " . 
-                $documentPic['message']
+            return redirect()->route('submissions.development.index')->with(
+                'error',
+                $documentSO['message'] . " | " .
+                    $documentCert['message'] . " | " .
+                    $documentPic['message']
                 // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
             );
         }
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
 
         $developmentID = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '4')->pluck('hris_id')->first();
-        if(is_null($developmentID))
+        if (is_null($developmentID))
             $developmentID = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '5')->pluck('hris_id')->first();
 
-        if(LockController::isLocked($developmentID, 25)){
+        if (LockController::isLocked($developmentID, 25)) {
             return redirect()->back()->with('error', 'The accomplishment report has already been submitted.');
         }
-        if(LockController::isLocked($developmentID, 26)){
+        if (LockController::isLocked($developmentID, 26)) {
             return redirect()->back()->with('error', 'The accomplishment report has already been submitted.');
         }
 
@@ -1241,38 +1261,39 @@ class SeminarAndTrainingController extends Controller
                 EXEC DeleteEmployeeTrainingProgram
                     @EmployeeTrainingProgramID = ?,
                     @EmpCode = ?;
-            ", array($id, $user->emp_code)
+            ",
+            array($id, $user->emp_code)
         );
 
-        if(!is_null($developmentID)){
+        if (!is_null($developmentID)) {
             HRIS::where('id', $developmentID)->delete();
         }
 
 
         LogActivity::addToLog('Had deleted a Seminar/Webinar or Training.');
 
-        return redirect()->route('submissions.development.index')->with('success','The accomplishment has been deleted.');
+        return redirect()->route('submissions.development.index')->with('success', 'The accomplishment has been deleted.');
     }
 
-    public function check($id){
+    public function check($id)
+    {
         $development = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '4')->first();
-        if(is_null($development))
+        if (is_null($development))
             $development = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '5')->first();
 
-        if(LockController::isLocked($development->hris_id, 25))
+        if (LockController::isLocked($development->hris_id, 25))
             return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
 
-        if(LockController::isLocked($development->hris_id, 26))
+        if (LockController::isLocked($development->hris_id, 26))
             return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
 
-        if($development->hris_type == '4'){
-            if($this->submitSeminar($development->id))
+        if ($development->hris_type == '4') {
+            if ($this->submitSeminar($development->id))
                 return redirect()->back()->with('success', 'Accomplishment submitted succesfully.');
             else
                 return redirect()->back()->with('error', 'Something went wrong.');
-        }
-        elseif($development->hris_type == '5'){
-            if($this->submitTraining($development->id))
+        } elseif ($development->hris_type == '5') {
+            if ($this->submitTraining($development->id))
                 return redirect()->back()->with('success', 'Accomplishment submitted succesfully.');
             else
                 return redirect()->back()->with('error', 'Something went wrong.');
@@ -1280,7 +1301,8 @@ class SeminarAndTrainingController extends Controller
         return redirect()->back()->with('cannot_access', 'Failed to submit the accomplishment.');
     }
 
-    public function submitSeminar($development_id){
+    public function submitSeminar($development_id)
+    {
         $user = User::find(auth()->id());
         $development = HRIS::where('id', $development_id)->first();
         $employee = Employee::where('user_id', auth()->id())->where('college_id', $development->college_id)->get();
@@ -1291,8 +1313,8 @@ class SeminarAndTrainingController extends Controller
 
         $seminar = new stdClass();
 
-        foreach($seminars as $row){
-            if($row->EmployeeTrainingProgramID == $development->hris_id){
+        foreach ($seminars as $row) {
+            if ($row->EmployeeTrainingProgramID == $development->hris_id) {
                 $seminar = $row;
                 break;
             }
@@ -1337,11 +1359,11 @@ class SeminarAndTrainingController extends Controller
             ->where('report_year', $currentQuarterYear->current_year)
             ->delete();
         $type = '';
-        if (count($employee) == 2){
+        if (count($employee) == 2) {
             $getUserTypeFromSession = session()->get('user_type');
-            if($getUserTypeFromSession == 'Faculty Employee')
+            if ($getUserTypeFromSession == 'Faculty Employee')
                 $type = 'f';
-            elseif($getUserTypeFromSession == 'Admin Employee')
+            elseif ($getUserTypeFromSession == 'Admin Employee')
                 $type = 'a';
         } elseif (count($employee) == 1) {
             if ($employee[0]['type'] == 'F')
@@ -1443,7 +1465,8 @@ class SeminarAndTrainingController extends Controller
         return true;
     }
 
-    public function submitTraining($development_id){
+    public function submitTraining($development_id)
+    {
         $user = User::find(auth()->id());
         $development = HRIS::where('id', $development_id)->first();
         $employee = Employee::where('user_id', auth()->id())->where('college_id', $development->college_id)->get();
@@ -1454,8 +1477,8 @@ class SeminarAndTrainingController extends Controller
 
         $training = new stdClass();;
 
-        foreach($trainings as $row){
-            if($row->EmployeeTrainingProgramID == $development->hris_id){
+        foreach ($trainings as $row) {
+            if ($row->EmployeeTrainingProgramID == $development->hris_id) {
                 $training = $row;
                 break;
             }
@@ -1467,7 +1490,10 @@ class SeminarAndTrainingController extends Controller
 
         $filenames = [];
         $filenames = (new SavePersonalDataDocumentService())->saveFilesFromPersonnelPortal(
-            $training, 4, $development_id);
+            $training,
+            4,
+            $development_id
+        );
 
         $description = [];
         array_push($description, $training->DescriptionSO);
@@ -1501,11 +1527,11 @@ class SeminarAndTrainingController extends Controller
             ->where('report_year', $currentQuarterYear->current_year)
             ->delete();
         $type = '';
-        if (count($employee) == 2){
+        if (count($employee) == 2) {
             $getUserTypeFromSession = session()->get('user_type');
-            if($getUserTypeFromSession == 'Faculty Employee')
+            if ($getUserTypeFromSession == 'Faculty Employee')
                 $type = 'f';
-            elseif($getUserTypeFromSession == 'Admin Employee')
+            elseif ($getUserTypeFromSession == 'Admin Employee')
                 $type = 'a';
         } elseif (count($employee) == 1) {
             if ($employee[0]['type'] == 'F')

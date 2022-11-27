@@ -59,14 +59,14 @@ class IPOAccomplishmentReportExport implements FromView, WithEvents
                     $table_contents[$format->id] =
                         Report::
                             whereIn('reports.format', ['a', 'x'])
+                            ->where('reports.ipqmso_approval', 1)
+                            ->where('reports.report_year', $this->year)
+                            ->whereBetween('reports.report_quarter', [$this->q1, $this->q2])
                             ->select('reports.*',
                             DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"),
                                 'sectors.name as sector_name',
                                 'colleges.name as college_name'
                             )->where('reports.report_category_id', $format->report_category_id)
-                            ->where('reports.ipqmso_approval', 1)
-                            ->where('reports.report_year', $this->year)
-                            ->whereBetween('reports.report_quarter', [$this->q1, $this->q2])
                             ->join('users', 'users.id', 'reports.user_id')
                             ->join('sectors', 'sectors.id', 'reports.sector_id')
                             ->join('colleges', 'colleges.id', 'reports.college_id')
@@ -87,14 +87,14 @@ class IPOAccomplishmentReportExport implements FromView, WithEvents
                 } elseif($format->type_id == 2) {
                     $table_contents[$format->id] =
                         Report::whereIn('reports.format', ['f', 'x'])
+                            ->where('reports.ipqmso_approval', 1)
+                            ->where('reports.report_year', $this->year)
+                            ->whereBetween('reports.report_quarter', [$this->q1, $this->q2])
                             ->select('reports.*',
                             DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"),
                                 'sectors.name as sector_name',
                                 'colleges.name as college_name'
                             )->where('reports.report_category_id', $format->report_category_id)
-                            ->where('reports.ipqmso_approval', 1)
-                            ->where('reports.report_year', $this->year)
-                            ->whereBetween('reports.report_quarter', [$this->q1, $this->q2])
                             ->join('users', 'users.id', 'reports.user_id')
                             ->join('sectors', 'sectors.id', 'reports.sector_id')
                             ->join('colleges', 'colleges.id', 'reports.college_id')
@@ -116,14 +116,14 @@ class IPOAccomplishmentReportExport implements FromView, WithEvents
                 } else {
                     $table_contents[$format->id] =
                         Report::where('reports.format', 'x')
+                            ->where('reports.ipqmso_approval', 1)
+                            ->where('reports.report_year', $this->year)
+                            ->whereBetween('reports.report_quarter', [$this->q1, $this->q2])
                             ->select('reports.*',
                             DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"),
                                 'sectors.name as sector_name',
                                 'colleges.name as college_name'
                             )->where('reports.report_category_id', $format->report_category_id)
-                            ->where('reports.ipqmso_approval', 1)
-                            ->where('reports.report_year', $this->year)
-                            ->whereBetween('reports.report_quarter', [$this->q1, $this->q2])
                             ->join('users', 'users.id', 'reports.user_id')
                             ->join('sectors', 'sectors.id', 'reports.sector_id')
                             ->join('colleges', 'colleges.id', 'reports.college_id')

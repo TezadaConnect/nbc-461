@@ -119,7 +119,7 @@ class SectorConsolidatedController extends Controller
                 );
     }
 
-    public function sectorReportYearFilter($sector, $year, $quarter) {
+    public function sectorReportYearFilter($sector, $year, $quarter, $quarter2) {
         $authorize = (new ManageConsolidatedReportAuthorizationService())->authorizeManageConsolidatedReportsBySector();
         if (!($authorize)) {
             abort(403, 'Unauthorized action.');
@@ -137,10 +137,6 @@ class SectorConsolidatedController extends Controller
         $departmentsExtension = [];
         $collegesForAssociate = [];
         $sectorsForAssistant = [];
-
-        $currentQuarterYear = Quarter::find(1);
-        $quarter = $currentQuarterYear->current_quarter;
-        $year = $currentQuarterYear->current_year;
 
         if(in_array(5, $roles)){
             $departments = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
@@ -185,7 +181,7 @@ class SectorConsolidatedController extends Controller
                 ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
                 ->join('users', 'users.id', 'reports.user_id')
                 ->where('reports.report_year', $year)
-                ->where('reports.report_quarter', $quarter)
+                ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
                 ->where('reports.sector_id', $sector)
                 ->orderBy('reports.updated_at', 'DESC')
                 ->get();
@@ -216,7 +212,7 @@ class SectorConsolidatedController extends Controller
 
         return view(
                     'reports.consolidate.sector',
-                    compact('roles', 'departments', 'colleges', 'sector_accomps', 'sector', 'department_names', 'college_names', 'sectors', 'departmentsResearch','departmentsExtension', 'quarter', 'year', 'collegesForAssociate', 'sectorsForAssistant')
+                    compact('roles', 'departments', 'colleges', 'sector_accomps', 'sector', 'department_names', 'college_names', 'sectors', 'departmentsResearch','departmentsExtension', 'quarter', 'quarter2', 'year', 'collegesForAssociate', 'sectorsForAssistant')
                 );
     }
 }

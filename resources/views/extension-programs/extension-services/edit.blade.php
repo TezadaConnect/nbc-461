@@ -19,6 +19,13 @@
                             @csrf
                             @method('put')
                             @include('quarter-field')
+                            <div class="form-group">
+                                <label class="font-weight-bold" for="collaborators-tagging">Tag your extension partners/persons from PUP that participated in the extension (eQAR system users).</label><br>
+                                <span class="form-notes">If none, leave it blank.</span>
+                                <select name="tagged_collaborators[]" id="tagged-collaborators" class="form-control custom-select">
+                                    <option value="" selected>Choose...</option>
+                                </select>
+                            </div>
                             @include('extension-programs.extension-services.form', ['formFields' => $extensionServiceFields, 'value' => $value, 'colleges' => $colleges, 'collegeOfDepartment' => $collegeOfDepartment])
                             @include('extension-programs.extension-services.no-of-beneficiaries', ['value' => $value])
                             @include('extension-programs.extension-services.form2', ['formFields' => $extensionServiceFields, 'value' => $value])
@@ -189,6 +196,16 @@
                     $('#funding_agency').removeAttr('disabled');
                     $('#funding_agency').attr('required', true);
                 }
+            });
+        </script>
+        <script>
+            $("#tagged-collaborators").selectize({
+              maxItems: null,
+              valueField: 'id',
+              labelField: 'fullname',
+              sortField: "fullname",
+              searchField: "fullname",
+              options: @json($allUsers),
             });
         </script>
         <script>

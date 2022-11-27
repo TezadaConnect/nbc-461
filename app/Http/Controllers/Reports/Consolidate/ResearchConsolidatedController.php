@@ -54,7 +54,8 @@ class ResearchConsolidatedController extends Controller
                         ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
         }
         if(in_array(10, $roles)){
-            $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
+            $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
+            // $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
         }
         if(in_array(11, $roles)){
             $departmentsExtension = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
@@ -83,7 +84,8 @@ class ResearchConsolidatedController extends Controller
                 ->join('users', 'users.id', 'reports.user_id')
                 ->whereIn('reports.report_category_id', [1, 2, 3, 4, 5, 6, 7])
                 ->where('reports.report_year', $year)
-                ->where('reports.research_cluster_id', $id)
+                ->where('reports.college_id', $id)
+                // ->where('reports.research_cluster_id', $id)
                 ->orderBy('reports.updated_at', 'DESC')
                 ->get();
         //get_department_and_college_name
@@ -105,8 +107,8 @@ class ResearchConsolidatedController extends Controller
         }
 
         //departmentdetails
-        $department = DropdownOption::find($id);
-
+        // $department = DropdownOption::find($id);
+        $department = College::find($id);
         return view(
                     'reports.consolidate.research',
                     compact('roles', 'departments', 'colleges', 'department_accomps', 'department' , 'department_names',

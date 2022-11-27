@@ -17,8 +17,41 @@ $("form").on("submit", () => {
     return true;
 });
 
-// $imageRecord = PartnershipDocument::where('partnership_id', $partnership->id)->get();
+// TODO TO ALL ACCOMPLISHMENT VIEWS MUST BE EDITED AND ALL CURRENT CONTROLLERS
+$("#accomplishment-form").on("submit", async function (e) {
+    e.preventDefault();
 
-// $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+    const formData = new FormData(this);
+    const url = this.action;
+    $("#loading").hide();
 
-// if($imageChecker) return redirect()->route('partnership.index')->with('warning', 'Need to attach supporting documents to enable submission');
+    const dataConfig = {
+        url: url,
+        type: "POST",
+        dataType: "json",
+        data: formData,
+        processData: false,
+        contentType: false,
+        cache: true,
+        async: true,
+    };
+
+    $.ajax({
+        ...dataConfig,
+        beforeSend: function () {
+            $("#loading").show();
+        },
+        complete: function () {
+            $("#loading").hide();
+        },
+        success: function (data) {
+            Swal.fire({
+                icon: "success",
+                title: "Successfully Saved!",
+                text: "Accomplishment is ready for submission!",
+                showConfirmButton: false,
+                // timer: 2200,
+            });
+        },
+    });
+});

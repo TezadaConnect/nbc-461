@@ -11,7 +11,7 @@
                     <div class="card-body">
                         <form action="{{ route('research.code.save', $research->id) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
                             <div class="mt-2 mb-3">
-                                <i class="bi bi-pencil-square mr-1"></i><strong>Instructions: </strong> Please fill in the necessary details. No abbreviations. All inputs with the symbol (<strong style="color: red;">*</strong>) are required.
+                                <i class="bi bi-pencil-square mr-1"></i><strong>Instructions: </strong> Please fill in the remaining blanks: Nature of Involvement & Department/Section where to commit.
                             </div>
                             <hr>
                             @csrf
@@ -110,6 +110,7 @@
             $('.document').remove();
             
             $('#classification').attr('disabled', true); 
+            $('#discipline').attr('disabled', true);
             $('#agenda').attr('disabled', true); 
             $('#research_type').attr('disabled', true); 
             $('#funding_type').attr('disabled', true); 

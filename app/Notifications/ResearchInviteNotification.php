@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
 
 class ResearchInviteNotification extends Notification
 {
@@ -30,8 +31,8 @@ class ResearchInviteNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
-        // return ['mail', 'database'];
+        // return ['database'];
+        return ['mail', 'database'];
     }
 
     /**

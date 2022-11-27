@@ -18,20 +18,23 @@ class RegistrationController extends Controller
 {
     private $userData;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->db_ext = DB::connection('mysql_external');
     }
 
-    public function index(){
+    public function index()
+    {
 
         return view('hris-regi.check');
     }
 
     // CollegeId 211 159 137 for october 4
-    public function verify(Request $request){
-        
+    public function verify(Request $request)
+    {
+
         $user = $this->db_ext->update("SET NOCOUNT ON; EXEC ValidateLogIn N'$request->email',N'$request->password' ");
-        
+
         $userLocal =  User::where('email', $request->email)->first();
 
         /* if(!in_array($userLocal->email,['j1delacruz@pup.edu.ph','j2delacruz@pup.edu.ph','j3delacruz@pup.edu.ph'])){
@@ -39,17 +42,17 @@ class RegistrationController extends Controller
         } */
 
         if ($user == '-1') {
-            
-            if (!empty($userLocal)){
+
+            if (!empty($userLocal)) {
                 $isAdmin = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [9])->exists();
-                if(!$this->scheduleCheck($userLocal->id) && !$isAdmin){
+                if (!$this->scheduleCheck($userLocal->id) && !$isAdmin) {
                     return redirect()->back()->with('error', 'The college you are in is not scheduled to login today');
                 }
                 Auth::login($userLocal);
 
-                $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1,3])->first();
-                session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
-                if(Employee::where('user_id', $userLocal->id)->exists()){
+                // $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1, 3])->first();
+                // session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
+                if (Employee::where('user_id', $userLocal->id)->exists()) {
                     return redirect()->route('home');
                 }
                 return redirect()->route('account')->with('incomplete_account', 'incomplete_account');
@@ -57,12 +60,12 @@ class RegistrationController extends Controller
 
             $user = $this->db_ext->select(" EXEC ValidateLogIn N'$request->email',N'$request->password' ");
 
-            if($this->save($user)){
+            if ($this->save($user)) {
                 $userLocal = User::where('email', $request->email)->first();
                 Auth::login($userLocal);
-                $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1,3])->first();
-                session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
-                if(Employee::where('user_id', $userLocal->id)->exists()){
+                // $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1, 3])->first();
+                // session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
+                if (Employee::where('user_id', $userLocal->id)->exists()) {
                     return redirect()->route('home');
                 }
                 return redirect()->route('account')->with('incomplete_account', 'incomplete_account');
@@ -72,7 +75,8 @@ class RegistrationController extends Controller
         return redirect()->back()->with('error', 'Invalid username or password');
     }
 
-    public function scheduleCheck($userId) {
+    public function scheduleCheck($userId)
+    {
         // Sched name, start_date, end_date,start_time,end_time
         /*$loginSchedulesTable = array(
             array(
@@ -131,14 +135,14 @@ class RegistrationController extends Controller
         );*/
         // query this userid, roleid, sectorid, collegeid, department, office
         $schedSummary = array(
-            array("role","2022-10-18","04:00 PM","11:59 PM",array(5,6)),
-            array("role","2022-10-19","12:00 AM","06:00 AM",array(5,6)),
-            array("college","2022-10-18","04:00 PM","11:59 PM",array(94,19,137)),
-            array("college","2022-10-19","12:00 AM","06:00 AM",array(94,19,137)),
-            array("college","2022-10-19","07:00 AM","01:00 PM",array(61,66,8,159,137)),
-            array("college","2022-10-19","01:00 PM","07:00 PM",array(176,137,211,120,27,226,59,94,75)),
-            array("college","2022-10-20","07:00 AM","01:00 PM",array(238,243,233,239)),
-            array("college","2022-10-20","01:00 PM","07:00 PM",array(25,36,40,274,18))
+            array("role", "2022-10-18", "04:00 PM", "11:59 PM", array(5, 6)),
+            array("role", "2022-10-19", "12:00 AM", "06:00 AM", array(5, 6)),
+            array("college", "2022-10-18", "04:00 PM", "11:59 PM", array(94, 19, 137)),
+            array("college", "2022-10-19", "12:00 AM", "06:00 AM", array(94, 19, 137)),
+            array("college", "2022-10-19", "07:00 AM", "01:00 PM", array(61, 66, 8, 159, 137)),
+            array("college", "2022-10-19", "01:00 PM", "07:00 PM", array(176, 137, 211, 120, 27, 226, 59, 94, 75)),
+            array("college", "2022-10-20", "07:00 AM", "01:00 PM", array(238, 243, 233, 239)),
+            array("college", "2022-10-20", "01:00 PM", "07:00 PM", array(25, 36, 40, 274, 18))
         );
 
         $dateToday = Carbon::today()->toDateString();
@@ -147,7 +151,7 @@ class RegistrationController extends Controller
             $schedDate = $value[1];
             $schedStart = $value[2];
             $schedStop = $value[3];
-            if(($dateToday == $schedDate) && (Carbon::now()->between($schedStart,$schedStop,true))){
+            if (($dateToday == $schedDate) && (Carbon::now()->between($schedStart, $schedStop, true))) {
                 array_push($selectedScheds, $key);
             }
         }
@@ -156,10 +160,10 @@ class RegistrationController extends Controller
         }
         error_log('Some message here.');
         foreach ($selectedScheds as $sched) {
-            if ($schedSummary[$sched][0]=="role" && UserRole::where('user_id', $userId)->whereIn('role_id',$schedSummary[$sched][4])->exists()){
+            if ($schedSummary[$sched][0] == "role" && UserRole::where('user_id', $userId)->whereIn('role_id', $schedSummary[$sched][4])->exists()) {
                 error_log('Some message here. ROLE');
                 return true;
-            } elseif ($schedSummary[$sched][0]=="college" && Employee::where('user_id', $userId)->whereIn('college_id',$schedSummary[$sched][4])->exists()){
+            } elseif ($schedSummary[$sched][0] == "college" && Employee::where('user_id', $userId)->whereIn('college_id', $schedSummary[$sched][4])->exists()) {
                 error_log('Some message here. COLLEGE');
                 return true;
             }
@@ -173,24 +177,24 @@ class RegistrationController extends Controller
         // $allowedColleges = array();
         // $dateRange = ['2022-10-11','2022-10-12','2022-10-13','2022-10-14'];
         // $dateToday = Carbon::today()->toDateString();
-        
+
         // switch ($dateToday) {
         //     /*case '2022-10-06':
         //         array_push($allowedColleges,239,233,238,243);
         //         array_push($allowedColleges,176,159,137,211,200);
         //         break;*/
-        
+
         //     case in_array($dateToday,$dateRange):
         //         /*array_push($allowedColleges,120,226,94);
         //         array_push($allowedColleges,59,75,18,2);*/
         //         array_push($allowedColleges,36);
         //         break;
-            
+
         //     default:
         //         # code...
         //         break;
         // }
-        
+
         // $startTime = Carbon::createFromFormat('H:i a', '08:00 AM');
         // $endTime = Carbon::createFromFormat('H:i a', '05:00 PM');
         // $timeCheck = Carbon::now()->between($startTime,$endTime,true);
@@ -202,7 +206,8 @@ class RegistrationController extends Controller
         // }
     }
 
-    public function create(Request $request, $key){
+    public function create(Request $request, $key)
+    {
 
         $user = $request->session()->get($key)[0];
 
@@ -211,7 +216,8 @@ class RegistrationController extends Controller
         return view('hris-regi.form', compact('user'));
     }
 
-    public function save($user){
+    public function save($user)
+    {
 
 
         $user = User::create([
@@ -225,14 +231,14 @@ class RegistrationController extends Controller
         ]);
 
         $currentPos = $this->db_ext->select(" EXEC GetEmployeeCurrentPositionByEmpCode N'$user->emp_code' ");
-        if(empty($currentPos)){
+        if (empty($currentPos)) {
             return false;
         }
 
         $roleID = 1;
 
         //if admin
-        if($currentPos[0]->EmployeeTypeID == '1')
+        if ($currentPos[0]->EmployeeTypeID == '1')
             $roleID = 3;
 
         UserRole::create(['user_id' => $user->id, 'role_id' => $roleID]);
@@ -240,59 +246,58 @@ class RegistrationController extends Controller
         return true;
     }
 
-    public function alternate(){
+    public function alternate()
+    {
         return view('hris-regi.alternate');
     }
 
-    public function alternateLog(Request $request){
+    public function alternateLog(Request $request)
+    {
 
         try {
             $userLocal = User::where('user_account_id', $request->email)->first();
 
-            if($userLocal == null){
-                if($this->scheduleCheck($userLocal->id)){
+            if ($userLocal == null) {
+                if ($this->scheduleCheck($userLocal->id)) {
                     return redirect()->back()->with('error', 'The college you are in is not scheduled to login today');
                 }
                 $user = $this->db_ext->select(" EXEC GetUserAccount '$request->email' ");
-    
-                if($this->save($user)){
+
+                if ($this->save($user)) {
                     $userLocal = User::where('user_account_id', $request->email)->first();
                     Auth::login($userLocal);
-                    $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1,3])->first();
+                    $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1, 3])->first();
                     session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
-                    if(Employee::where('user_id', $userLocal->id)->exists()){
+                    if (Employee::where('user_id', $userLocal->id)->exists()) {
                         return redirect()->route('home');
                     }
                     return redirect()->route('account')->with('incomplete_account', 'incomplete_account');
                 }
-            }
-            else{
+            } else {
                 Auth::login($userLocal);
-                $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1,3])->first();
+                $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1, 3])->first();
                 session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
-                if(Employee::where('user_id', $userLocal->id)->exists()){
+                if (Employee::where('user_id', $userLocal->id)->exists()) {
                     return redirect()->route('home');
                 }
                 return redirect()->route('account')->with('incomplete_account', 'incomplete_account');
             }
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', 'Failed to login, pleasse try again later');
         }
-
     }
 
-    public function switch_type(){
+    public function switch_type()
+    {
         $pastvalue = session()->get('user_type');
         $newvalue = '';
-        if($pastvalue == 'Faculty Employee'){
+        if ($pastvalue == 'Faculty Employee') {
             session()->put('user_type', 'Admin Employee');
             $newvalue = 'Admin Employee';
-        }
-        else{
+        } else {
             session()->put('user_type', 'Faculty Employee');
             $newvalue = 'Faculty Employee';
         }
-        return redirect()->route('dashboard')->with('success_switch', 'Successfully switched the individual reporting as '.$newvalue.'!');
+        return redirect()->route('dashboard')->with('success_switch', 'Successfully switched the individual reporting as ' . $newvalue . '!');
     }
 }

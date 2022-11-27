@@ -13,10 +13,10 @@ class AddResearchClusterIdColumnInReports extends Migration
      */
     public function up()
     {
-        Schema::table('reports', function (Blueprint $table) {
-            $table->foreignId('research_cluster_id')->onUpdate('cascade')->onDelete('cascade')->after('report_code');
+        // Schema::table('reports', function (Blueprint $table) {
+        //     $table->foreignId('research_cluster_id')->onUpdate('cascade')->onDelete('cascade')->after('report_code');
             
-        });
+        // });
     }
 
     /**

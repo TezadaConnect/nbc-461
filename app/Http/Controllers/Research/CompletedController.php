@@ -76,12 +76,12 @@ class CompletedController extends Controller
         
         $value = $this->commonService->getDropdownValues($completionFields, $completionValues);
 
-        $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
-        $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
-        $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+        // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        // $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
 
         return view('research.completed.index', compact('research', 'completionFields',
-            'value', 'completionDocuments', 'submissionStatus', 'submitRole', 'noRequisiteRecords'));
+            'value', 'completionDocuments', 'submissionStatus', 'submitRole'));
     }
 
     /**
@@ -181,7 +181,7 @@ class CompletedController extends Controller
 
         \LogActivity::addToLog('Had marked the research "'.$research->title.'" as completed.');
 
-        return redirect()->route('research.index')->with('success', 'Research completetion has been added.');
+        return redirect()->route('research.index')->with('success', 'Research completion has been added.');
     }
 
     /**
@@ -239,11 +239,11 @@ class CompletedController extends Controller
 
         $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', $research['status'])->first();
 
-        $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
-        $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
-        $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+        // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        // $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
 
-        return view('research.completed.edit', compact('research', 'researchFields', 'researchDocuments', 'value', 'researchStatus', 'dropdown_options', 'currentQuarter', 'noRequisiteRecords'));
+        return view('research.completed.edit', compact('research', 'researchFields', 'researchDocuments', 'value', 'researchStatus', 'dropdown_options', 'currentQuarter'));
     }
 
     /**
@@ -305,7 +305,7 @@ class CompletedController extends Controller
 
         if($imageChecker) return redirect()->route('research.completed.index')->with('warning', 'Need to attach supporting documents to enable submission');
         
-        return redirect()->route('research.index')->with('success', 'Research completetion has been updated.');
+        return redirect()->route('research.index')->with('success', 'Research completion has been updated.');
     }
 
     /**

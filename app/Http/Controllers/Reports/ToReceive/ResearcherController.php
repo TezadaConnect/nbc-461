@@ -54,7 +54,8 @@ class ResearcherController extends Controller
                         ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
         }
         if(in_array(10, $roles)){
-            $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
+            // $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
+            $departmentsResearch = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
         }
         if(in_array(11, $roles)){
             $departmentsExtension = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
@@ -77,11 +78,14 @@ class ResearcherController extends Controller
         foreach ($departmentsResearch as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
                 // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
+                ->whereIn('reports.report_quarter', [3,4])
                 ->where('reports.format', 'f')
                 ->whereIn('reports.report_category_id', [1, 2, 3, 4, 5, 6, 7])
-                ->where('reports.research_cluster_id', $row->cluster_id)->where('researcher_approval', null)
-                ->select('reports.*', 'dropdown_options.name as college_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
-                ->join('dropdown_options', 'reports.research_cluster_id', 'dropdown_options.id')
+                // ->where('reports.research_cluster_id', $row->cluster_id)->where('researcher_approval', null)
+                ->where('reports.college_id', $row->college_id)->where('researcher_approval', null)
+                ->select('reports.*', 'colleges.name as college_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
+                // ->join('dropdown_options', 'reports.research_cluster_id', 'dropdown_options.id')
+                ->join('colleges', 'colleges.id', 'reports.college_id')
                 ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
                 ->join('users', 'reports.user_id', 'users.id')
                 ->orderBy('reports.created_at', 'DESC')

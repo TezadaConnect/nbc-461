@@ -20,7 +20,7 @@
                             @csrf
                             @include('quarter-field')
                             <div class="form-group">
-                                <label class="font-weight-bold" for="collaborators-tagging">Tag your extension partners/persons participated in the extension (Tagging PUP employees who use the eQAR system only).</label><br>
+                                <label class="font-weight-bold" for="collaborators-tagging">Tag your extension partners/persons from PUP that participated in the extension (eQAR system users).</label><br>
                                 <span class="form-notes">If none, leave it blank.</span>
                                 <select name="tagged_collaborators[]" id="tagged-collaborators" class="form-control custom-select">
                                     <option value="" selected>Choose...</option>

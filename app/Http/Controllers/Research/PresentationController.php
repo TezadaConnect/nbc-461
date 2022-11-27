@@ -79,12 +79,12 @@ class PresentationController extends Controller
 
         $value = $this->commonService->getDropdownValues($presentationFields, $presentationValues);
 
-        $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
-        $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
-        $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+        // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        // $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
 
         return view('research.presentation.index', compact('research', 'presentationFields',
-            'value', 'presentationDocuments', 'submissionStatus', 'submitRole', 'noRequisiteRecords'));
+            'value', 'presentationDocuments', 'submissionStatus', 'submitRole'));
     }
 
     /**
@@ -261,11 +261,11 @@ class PresentationController extends Controller
             $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', 31)->first();
         }
 
-        $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
-        $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
-        $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+        // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        // $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
 
-        return view('research.presentation.edit', compact('research', 'researchFields', 'researchDocuments', 'value', 'researchStatus', 'dropdown_options', 'currentQuarter', 'noRequisiteRecords'));
+        return view('research.presentation.edit', compact('research', 'researchFields', 'researchDocuments', 'value', 'researchStatus', 'dropdown_options', 'currentQuarter'));
     }
 
     /**
