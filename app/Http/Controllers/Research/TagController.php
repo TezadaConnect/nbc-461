@@ -19,7 +19,7 @@ class TagController extends Controller
 {
     public function index($research_id){
         $research = Research::find($research_id);
-        $coResearchers = ResearchInvite::
+        $coResearchers = ResearchTag::
                             where('research_tags.research_id', $research_id)
                             ->join('users', 'users.id', 'research_tags.user_id')
                             ->select('research_tags.id as invite_id', 'research_tags.status as research_status','users.*')
@@ -35,7 +35,7 @@ class TagController extends Controller
             }
         }
         
-        $allEmployees = User::whereNotIn('users.id', (ResearchInvite::where('research_id', $research_id)->pluck('user_id')->all()))->
+        $allEmployees = User::whereNotIn('users.id', (ResearchTag::where('research_id', $research_id)->pluck('user_id')->all()))->
                             where('users.id', '!=', auth()->id())->
                             join('user_roles', 'user_roles.user_id', 'users.id')->
                             whereIn('user_roles.role_id', [1,3])->
@@ -49,7 +49,7 @@ class TagController extends Controller
 
         $count = 0;
         foreach($request->input('employees') as $row){
-            ResearchInvite::create([
+            ResearchTag::create([
                 'user_id' => $row,
                 'sender_id' => auth()->id(),
                 'research_id' => $research_id
@@ -110,7 +110,7 @@ class TagController extends Controller
     public function cancel($research_id , Request $request){
         $user = User::find(auth()->id());
 
-        ResearchInvite::where('research_id', $research_id)->where('user_id', auth()->id())->update([
+        ResearchTag::where('research_id', $research_id)->where('user_id', auth()->id())->update([
             'status' => 0
         ]);
 
@@ -164,13 +164,13 @@ class TagController extends Controller
                 'researchers' => implode("/", $researchersExplode)
             ]);
 
-            ResearchInvite::where('research_id', $research_id)->where('user_id', $request->input('user_id'))->delete();
+            ResearchTag::where('research_id', $research_id)->where('user_id', $request->input('user_id'))->delete();
 
             return redirect()->route('research.invite.index', $research_id)->with('success', 'Action successful.');
 
         }
         
-        ResearchInvite::where('research_id', $research_id)->where('user_id', $request->input('user_id'))->delete();
+        ResearchTag::where('research_id', $research_id)->where('user_id', $request->input('user_id'))->delete();
 
         LogActivity::addToLog('Research Involvement removed.');
         

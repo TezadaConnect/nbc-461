@@ -5,6 +5,7 @@ namespace App\Exports;
 use App\Models\{
     User,
     Report,
+    SharedAccomplishment,
 };
 use Illuminate\Support\Facades\DB;
 use App\Models\Maintenance\College;
@@ -93,19 +94,39 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
                 foreach ($tableFormat as $format){
                     if($format->is_table == "0" || $format->report_category_id == null)
                         $tableContents[$format->id] = [];
-                    else
+                    else{
                         $tableContents[$format->id] = Report::
-                        // ->where('user_roles.role_id', 1)
-                        whereIn('reports.format', ['a', 'x'])
-                        ->where('reports.report_category_id', $format->report_category_id)
-                        ->where('reports.department_id', $this->departmentID)
-                        ->where('reports.chairperson_approval', 1)
-                        ->where('reports.report_year', $this->yearGenerate)
-                        ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
-                        ->join('users', 'users.id', 'reports.user_id')
-                        ->select('reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
-                        ->orderBy('users.last_name')
-                        ->get()->toArray();
+                            // ->where('user_roles.role_id', 1)
+                            whereIn('reports.format', ['a', 'x'])
+                            ->where('reports.report_category_id', $format->report_category_id)
+                            ->where('reports.department_id', $this->departmentID)
+                            ->where('reports.chairperson_approval', 1)
+                            ->where('reports.report_year', $this->yearGenerate)
+                            ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
+                            ->join('users', 'users.id', 'reports.user_id')
+                            ->select('reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
+                            ->orderBy('users.last_name')
+                            ->get()->toArray();
+                        if (in_array($format->report_category_id, [1,2,3,4,5,6,7])){
+                                foreach(SharedAccomplishment::where('report_id', $tableContents[$format->id]['id'])->get() as $collaborator){
+                                    $tableContents[$format->id] = Report::
+                                    // ->where('user_roles.role_id', 1)
+                                    whereIn('reports.format', ['a', 'x'])
+                                    ->where('reports.report_category_id', $format->report_category_id)
+                                    ->where('reports.department_id', $this->departmentID)
+                                    ->where('reports.chairperson_approval', 1)
+                                    ->where('reports.report_year', $this->yearGenerate)
+                                    ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
+                                    ->join('shared_accomplishments', 'shared_accomplishments.report_id', 'reports.id')
+                                    ->join('users', 'users.id', 'reports.user_id')
+                                    ->select('shared_accomplishments.*', 'reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
+                                    ->orderBy('users.last_name')
+                                    ->get()->toArray();
+                                    dd($tableContents[$format->id]);
+                                }
+                        }
+
+                    }
                 }
             }
 

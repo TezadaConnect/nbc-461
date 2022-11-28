@@ -13,9 +13,9 @@ class AddDisciplineColumnInResearch extends Migration
      */
     public function up()
     {
-        // Schema::table('research', function (Blueprint $table) {
-        //     $table->foreignId('discipline')->nullable()->after('agenda');
-        // });
+        Schema::table('research', function (Blueprint $table) {
+            $table->foreignId('discipline')->nullable()->after('agenda');
+        });
     }
 
     /**

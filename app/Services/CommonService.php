@@ -23,6 +23,7 @@ use App\Models\Extensionist;
 use App\Models\ExtensionTag;
 use App\Models\TemporaryFile;
 use App\Models\ResearchInvite;
+use App\Models\ResearchTag;
 use App\Models\ExtensionInvite;
 use App\Models\ExtensionProgram;
 use App\Models\FacultyResearcher;
@@ -331,8 +332,8 @@ class CommonService
         if ($formName == "research") {
             if ($collaborators != null) {
                 foreach ($collaborators as $collab) {
-                    if ($collab != auth()->id() && ResearchInvite::where('research_id', $id)->where('user_id', $collab)->doesntExist()) {
-                        ResearchInvite::create([
+                    if ($collab != auth()->id() && ResearchTag::where('research_id', $id)->where('user_id', $collab)->doesntExist()) {
+                        ResearchTag::create([
                             'user_id' => $collab,
                             'sender_id' => auth()->id(),
                             'research_id' => $id
@@ -527,10 +528,10 @@ class CommonService
     public function updateTaggedCollaborators($request, $objectRecord, $formName){
         if ($formName == "research"){
             // $researchersNeedUpdate = 0;
-            $taggedUsersID = ResearchInvite::where('research_id', $objectRecord->id)->pluck('user_id')->all();
+            $taggedUsersID = ResearchTag::where('research_id', $objectRecord->id)->pluck('user_id')->all();
             if ($request->input('tagged_collaborators') == null){
                 Researcher::where('research_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
-                ResearchInvite::where('research_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
+                ResearchTag::where('research_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
                 $objectRecord->update([
                     'researchers' => $request->input('researchers'),
                     'untagged_researchers' => $request->input('researchers'),
@@ -539,13 +540,13 @@ class CommonService
             elseif (array_diff($taggedUsersID, $request->input('tagged_collaborators')) != null){
                 foreach($request->input('tagged_collaborators') as $tagID){
                     if (!in_array($tagID, $taggedUsersID)){
-                        ResearchInvite::create(['research_id' => $objectRecord->id, 'user_id' => $tagID, 'sender_id' => auth()->id(), ]);
+                        ResearchTag::create(['research_id' => $objectRecord->id, 'user_id' => $tagID, 'sender_id' => auth()->id(), ]);
                         // $researchersNeedUpdate = 1;
                     }
                 }
                 foreach($taggedUsersID as $notifiedUser){
                     if (!in_array($notifiedUser, $request->input('tagged_collaborators'))){
-                        ResearchInvite::where('research_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
+                        ResearchTag::where('research_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
                         Researcher::where('research_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
                         // $researchersNeedUpdate = 1;
                     }
@@ -554,7 +555,7 @@ class CommonService
     
             // if ($researchersNeedUpdate == 1){
                 $researcherExploded = explode("/", $request->input('researchers'));
-                foreach(ResearchInvite::where('research_id', $objectRecord->id)->pluck('user_id')->all() as $finalResearcherID){
+                foreach(ResearchTag::where('research_id', $objectRecord->id)->pluck('user_id')->all() as $finalResearcherID){
                     $user = User::find($finalResearcherID);
                     if ($user->middle_name != '') {
                         array_push($researcherExploded, $user->last_name.', '.$user->first_name.' '.substr($user->middle_name,0,1).'.');

@@ -54,7 +54,7 @@ class DepartmentConsolidatedController extends Controller
         $employees = DepartmentEmployee::where('department_employees.department_id', $id)->join('users', 'users.id', 'department_employees.user_id')->get();
         return view(
                     'reports.consolidate.department',
-                    compact('roles', 'department_accomps', 'department', 'department_names', 'college_names', 
+                    compact('roles', 'department_accomps', 'department',
                     'year', 'quarter', 'quarter2', 'user', 'id', 'assignments', 'employees', 'colleges')
                 );
     }

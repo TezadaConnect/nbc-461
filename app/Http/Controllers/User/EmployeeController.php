@@ -91,29 +91,21 @@ class EmployeeController extends Controller
         session(['user_type' => Role::where('id', $request->input('role'))->first()->name]);
 
         if ($request->has('yes')) {
-            if (UserRole::where('user_id', auth()->id())->where('role_id', $request->input('role'))->doesntExist()) {
+            UserRole::where('user_id', auth()->id())->whereIn('role_id', [1,3])->delete();
+            UserRole::create([
+                'user_id' => auth()->id(),
+                'role_id' => $request->input('role')
+            ]);
+            if ($request->input('role') == 3) {
                 UserRole::create([
                     'user_id' => auth()->id(),
-                    'role_id' => $request->input('role')
+                    'role_id' => 1,
                 ]);
-                if ($request->input('role') == 3) {
-                    UserRole::create([
-                        'user_id' => auth()->id(),
-                        'role_id' => 1,
-                    ]);
-                } else {
-                    UserRole::create([
-                        'user_id' => auth()->id(),
-                        'role_id' => 3,
-                    ]);
-                }
-            }
-        } else{
-            if (UserRole::where('user_id', auth()->id())->where('role_id', $request->input('role'))->exists()){
-                if ($request->input('role') == 3)
-                    UserRole::where('user_id', auth()->id())->where('role_id', 1)->delete();
-                else
-                    UserRole::where('user_id', auth()->id())->where('role_id', 3)->delete();
+            } else {
+                UserRole::create([
+                    'user_id' => auth()->id(),
+                    'role_id' => 3,
+                ]);
             }
         }
         if ($request->has('designee_cbco')){

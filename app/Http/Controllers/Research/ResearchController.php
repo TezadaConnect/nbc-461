@@ -36,7 +36,6 @@ use App\Models\{
     Maintenance\Quarter,
 };
 use App\Notifications\ResearchInviteNotification;
-use App\Notifications\ResearchTagNotification;
 use App\Rules\Keyword;
 use App\Services\CommonService;
 use App\Services\DateContentService;
@@ -514,9 +513,10 @@ class ResearchController extends Controller
         $researchers = Research::where('id', $research->id)->pluck('researchers')->all();
 
         $researchDocuments = ResearchDocument::where('research_id', $research->id)->where('research_form_id', 1)->get()->toArray();
-
-        $colleges = Employee::where('user_id', auth()->id())->pluck('college_id')->all();
-
+        if(session()->get('user_type') == 'Faculty Employee')
+            $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
+        else
+            $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
         $departments = Department::whereIn('college_id', $colleges)->get();
 
         $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', $research->status)->first();
@@ -553,7 +553,7 @@ class ResearchController extends Controller
             'type' => 'res-confirm'
         ];
 
-        Notification::send($receiver, new ResearchTagNotification($notificationData));
+        Notification::send($receiver, new ResearchInviteNotification($notificationData));
 
         if($request->has('notif_id'))
             $sender->notifications()
