@@ -11,9 +11,10 @@ use App\Models\{
     Report,
     Research,
     ResearchInvite,
+    ResearchTag,
     User,
 };
-use App\Notifications\ResearchInviteNotification;
+use App\Notifications\ResearchTagNotification;
 
 class TagController extends Controller
 {
@@ -87,7 +88,7 @@ class TagController extends Controller
                 'type' => 'res-invite'
             ];
 
-            Notification::send($user, new ResearchInviteNotification($notificationData));
+            Notification::send($user, new ResearchTagNotification($notificationData));
             $count++;
         }
         LogActivity::addToLog('Had added '.$count.' co-researcher/s in the research "'.$research_title.'".');

@@ -35,7 +35,7 @@ use App\Models\{
     Maintenance\Department,
     Maintenance\Quarter,
 };
-use App\Notifications\ResearchInviteNotification;
+use App\Notifications\ResearchTagNotification;
 use App\Rules\Keyword;
 use App\Services\CommonService;
 use App\Services\DateContentService;
@@ -553,7 +553,7 @@ class ResearchController extends Controller
             'type' => 'res-confirm'
         ];
 
-        Notification::send($receiver, new ResearchInviteNotification($notificationData));
+        Notification::send($receiver, new ResearchTagNotification($notificationData));
 
         if($request->has('notif_id'))
             $sender->notifications()

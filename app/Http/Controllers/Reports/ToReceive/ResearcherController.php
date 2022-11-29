@@ -52,10 +52,10 @@ class ResearcherController extends Controller
                 ->whereIn('reports.report_quarter', [3,4])
                 ->where('reports.format', 'f')
                 ->whereIn('reports.report_category_id', [1, 2, 3, 4, 5, 6, 7])
-                // ->where('reports.research_cluster_id', $row->cluster_id)->where('researcher_approval', null)
-                ->where('reports.college_id', $row->college_id)->where('researcher_approval', null)
-                ->select('reports.*', 'colleges.name as college_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
-                // ->join('dropdown_options', 'reports.research_cluster_id', 'dropdown_options.id')
+                ->where('reports.research_cluster_id', $row->cluster_id)->where('researcher_approval', null)
+                // ->where('reports.college_id', $row->college_id)->where('researcher_approval', null)
+                // ->select('reports.*', 'colleges.name as college_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
+                ->join('dropdown_options', 'reports.research_cluster_id', 'dropdown_options.id')
                 ->join('colleges', 'colleges.id', 'reports.college_id')
                 ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
                 ->join('users', 'reports.user_id', 'users.id')
@@ -91,39 +91,31 @@ class ResearcherController extends Controller
         if (!($authorize)) {
             abort(403, 'Unauthorized action.');
         }
-
-        Report::where('id', $report_id)->update(['researcher_approval' => 1, 'chairperson_approval' => 1]);
-
         $report = Report::find($report_id);
-
-        $receiverData = User::find($report->user_id);
         $senderName = FacultyResearcher::
                             join('users', 'users.id', 'faculty_researchers.user_id')
                             ->select('users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
                             ->first();
-
         $report_category_name = ReportCategory::where('id', $report->report_category_id)->pluck('name')->first();
-
         $url = route('reports.consolidate.myaccomplishments');
-
-
-        $notificationData = [
-            'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' (Research Coord.)',
-            'receiver' => $receiverData->first_name,
-            'url' => $url,
-            'category_name' => $report_category_name,
-            'user_id' => $receiverData->id,
-            'accomplishment_type' => 'individual',
-            'date' => date('F j, Y, g:i a'),
-            'databaseOnly' => 1
-        ];
-
-        Notification::send($receiverData, new ReceiveNotification($notificationData));
-
+        $indivReport = Report::where('report_category_id', $report->report_category_id)->where('report_reference_id', $report->report_reference_id)->get();
+        foreach($indivReport as $row){
+            Report::where('id', $row->id)->update(['researcher_approval' => 1, 'chairperson_approval' => 1]);
+            $receiverData = User::find($row->user_id);
+            $notificationData = [
+                'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' (Research Coord.)',
+                'receiver' => $receiverData->first_name,
+                'url' => $url,
+                'category_name' => $report_category_name,
+                'user_id' => $receiverData->id,
+                'accomplishment_type' => 'individual',
+                'date' => date('F j, Y, g:i a'),
+                'databaseOnly' => 1
+            ];
+            Notification::send($receiverData, new ReceiveNotification($notificationData));
+        }
         \LogActivity::addToLog('Researcher received an accomplishment.');
-
         return redirect()->route('researcher.index')->with('success', 'Report has been added in college consolidation of reports');
-
     }
     public function rejectCreate($report_id){
         $authorize = (new ToReceiveReportAuthorizationService())->authorizeReceiveIndividualResearch();
@@ -139,45 +131,37 @@ class ResearcherController extends Controller
         if (!($authorize)) {
             abort(403, 'Unauthorized action.');
         }
-
-        DenyReason::create([
-            'report_id' => $report_id,
-            'user_id' => auth()->id(),
-            'position_name' => 'researcher',
-            'reason' => $request->input('reason'),
-        ]);
-
-        Report::where('id', $report_id)->update([
-            'researcher_approval' => 0
-        ]);
-
-
+        
         $report = Report::find($report_id);
-
-        $returnData = User::find($report->user_id);
         $senderName = FacultyResearcher::
-                            join('users', 'users.id', 'faculty_researchers.user_id')
-                            ->select('users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
-                            ->first();
-
+            join('users', 'users.id', 'faculty_researchers.user_id')
+            ->select('users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
+            ->first();
         $report_category_name = ReportCategory::where('id', $report->report_category_id)->pluck('name')->first();
-
         $url = route('reports.consolidate.myaccomplishments');
-
-
-        $notificationData = [
-            'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' (Research Coord.)',
-            'receiver' => $returnData->first_name,
-            'url' => $url,
-            'category_name' => $report_category_name,
-            'user_id' => $returnData->id,
-            'reason' => $request->input('reason'),
-            'accomplishment_type' => 'individual',
-            'date' => date('F j, Y, g:i a'),
-            'databaseOnly' => 0
-        ];
-
-        Notification::send($returnData, new ReturnNotification($notificationData));
+        $indivReport = Report::where('report_category_id', $report->report_category_id)->where('report_reference_id', $report->report_reference_id)->get();
+        foreach($indivReport as $row){
+            DenyReason::create([
+                'report_id' => $row->id,
+                'user_id' => auth()->id(),
+                'position_name' => 'researcher',
+                'reason' => $request->input('reason'),
+            ]);
+            Report::where('id', $row->id)->update(['researcher_approval' => 0]);
+            $returnData = User::find($row->user_id);
+            $notificationData = [
+                'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' (Research Coord.)',
+                'receiver' => $returnData->first_name,
+                'url' => $url,
+                'category_name' => $report_category_name,
+                'user_id' => $returnData->id,
+                'reason' => $request->input('reason'),
+                'accomplishment_type' => 'individual',
+                'date' => date('F j, Y, g:i a'),
+                'databaseOnly' => 0
+            ];
+            Notification::send($returnData, new ReturnNotification($notificationData));
+        }
 
         \LogActivity::addToLog('Researcher returned an accomplishment.');
 

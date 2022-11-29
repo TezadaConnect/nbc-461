@@ -2496,49 +2496,67 @@ class SubmissionController extends Controller
 
                 $type = $this->employeeType($employeeTypes); //Param array
                 $sectorIDs = Sector::pluck('id')->all();
-                if ($research->is_registrant == 1){
-                    if ($type == 'a') {
-                        if ($research->department_id == $research->college_id) {
-                            if (in_array($research->college_id, $sectorIDs)){
-                                $sharedReport = Report::create([
-                                    'user_id' =>  $user_id,
-                                    'sector_id' => $sector_id,
-                                    'college_id' => $research->college_id,
-                                    'department_id' => $research->department_id,
-                                    'format' => $type,
-                                    'report_category_id' => $report_values_array[0],
-                                    // 'report_code' => null,
-                                    'research_cluster_id' => $research->discipline,
-                                    'report_reference_id' => $report_values_array[1] ?? null,
-                                    'report_details' => json_encode($report_details),
-                                    'report_documents' => json_encode($report_documents),
-                                    'report_date' => date("Y-m-d", time()),
-                                    'chairperson_approval' => 1,
-                                    'dean_approval' => 1,
-                                    'report_quarter' => $currentQuarterYear->current_quarter,
-                                    'report_year' => $currentQuarterYear->current_year,
-                                ]);
-                            } else{
-                                $sharedReport = Report::create([
-                                    'user_id' =>  $user_id,
-                                    'sector_id' => $sector_id,
-                                    'college_id' => $research->college_id,
-                                    'department_id' => $research->department_id,
-                                    'format' => $type,
-                                    'report_category_id' => $report_values_array[0],
-                                    // 'report_code' => null,
-                                    'research_cluster_id' => $research->discipline,
-                                    'report_reference_id' => $report_values_array[1] ?? null,
-                                    'report_details' => json_encode($report_details),
-                                    'report_documents' => json_encode($report_documents),
-                                    'report_date' => date("Y-m-d", time()),
-                                    'chairperson_approval' => 1,
-                                    'report_quarter' => $currentQuarterYear->current_quarter,
-                                    'report_year' => $currentQuarterYear->current_year,
-                                ]);
-                            }
-                        } else {
-                            $sharedReport = Report::create([
+                if ($type == 'a') {
+                    if ($research->department_id == $research->college_id) {
+                        if (in_array($research->college_id, $sectorIDs)){
+                            Report::create([
+                                'user_id' =>  $user_id,
+                                'sector_id' => $sector_id,
+                                'college_id' => $research->college_id,
+                                'department_id' => $research->department_id,
+                                'format' => $type,
+                                'report_category_id' => $report_values_array[0],
+                                // 'report_code' => null,
+                                'research_cluster_id' => $research->discipline,
+                                'report_reference_id' => $report_values_array[1] ?? null,
+                                'report_details' => json_encode($report_details),
+                                'report_documents' => json_encode($report_documents),
+                                'report_date' => date("Y-m-d", time()),
+                                'chairperson_approval' => 1,
+                                'dean_approval' => 1,
+                                'report_quarter' => $currentQuarterYear->current_quarter,
+                                'report_year' => $currentQuarterYear->current_year,
+                            ]);
+                        } else{
+                            Report::create([
+                                'user_id' =>  $user_id,
+                                'sector_id' => $sector_id,
+                                'college_id' => $research->college_id,
+                                'department_id' => $research->department_id,
+                                'format' => $type,
+                                'report_category_id' => $report_values_array[0],
+                                // 'report_code' => null,
+                                'research_cluster_id' => $research->discipline,
+                                'report_reference_id' => $report_values_array[1] ?? null,
+                                'report_details' => json_encode($report_details),
+                                'report_documents' => json_encode($report_documents),
+                                'report_date' => date("Y-m-d", time()),
+                                'chairperson_approval' => 1,
+                                'report_quarter' => $currentQuarterYear->current_quarter,
+                                'report_year' => $currentQuarterYear->current_year,
+                            ]);
+                        }
+                    } else {
+                        Report::create([
+                            'user_id' =>  $user_id,
+                            'sector_id' => $sector_id,
+                            'college_id' => $research->college_id,
+                            'department_id' => $research->department_id,
+                            'format' => $type,
+                            'report_category_id' => $report_values_array[0],
+                            'research_cluster_id' => $research->discipline,
+                            'report_reference_id' => $report_values_array[1] ?? null,
+                            'report_details' => json_encode($report_details),
+                            'report_documents' => json_encode($report_documents),
+                            'report_date' => date("Y-m-d", time()),
+                            'report_quarter' => $currentQuarterYear->current_quarter,
+                            'report_year' => $currentQuarterYear->current_year,
+                        ]);
+                    }
+                } elseif ($type == 'f') {
+                    if ($research->department_id == $research->college_id) {
+                        if ($research->department_id >= 227 && $research->department_id <= 248) { // If branch
+                            Report::create([
                                 'user_id' =>  $user_id,
                                 'sector_id' => $sector_id,
                                 'college_id' => $research->college_id,
@@ -2553,11 +2571,9 @@ class SubmissionController extends Controller
                                 'report_quarter' => $currentQuarterYear->current_quarter,
                                 'report_year' => $currentQuarterYear->current_year,
                             ]);
-                        }
-                    } elseif ($type == 'f') {
-                        if ($research->department_id == $research->college_id) {
-                            if ($research->department_id >= 227 && $research->department_id <= 248) { // If branch
-                                $sharedReport = Report::create([
+                        } else {
+                            if ($report_values_array[0] >= 1 && $report_values_array[0] <= 8) {
+                                Report::create([
                                     'user_id' =>  $user_id,
                                     'sector_id' => $sector_id,
                                     'college_id' => $research->college_id,
@@ -2573,72 +2589,41 @@ class SubmissionController extends Controller
                                     'report_year' => $currentQuarterYear->current_year,
                                 ]);
                             } else {
-                                if ($report_values_array[0] >= 1 && $report_values_array[0] <= 8) {
-                                    $sharedReport = Report::create([
-                                        'user_id' =>  $user_id,
-                                        'sector_id' => $sector_id,
-                                        'college_id' => $research->college_id,
-                                        'department_id' => $research->department_id,
-                                        'format' => $type,
-                                        'report_category_id' => $report_values_array[0],
-                                        'research_cluster_id' => $research->discipline,
-                                        'report_reference_id' => $report_values_array[1] ?? null,
-                                        'report_details' => json_encode($report_details),
-                                        'report_documents' => json_encode($report_documents),
-                                        'report_date' => date("Y-m-d", time()),
-                                        'report_quarter' => $currentQuarterYear->current_quarter,
-                                        'report_year' => $currentQuarterYear->current_year,
-                                    ]);
-                                } else {
-                                    $sharedReport = Report::create([
-                                        'user_id' =>  $user_id,
-                                        'sector_id' => $sector_id,
-                                        'college_id' => $research->college_id,
-                                        'department_id' => $research->department_id,
-                                        'format' => $type,
-                                        'report_category_id' => $report_values_array[0],
-                                        'research_cluster_id' => $research->discipline,
-                                        'report_reference_id' => $report_values_array[1] ?? null,
-                                        'report_details' => json_encode($report_details),
-                                        'report_documents' => json_encode($report_documents),
-                                        'report_date' => date("Y-m-d", time()),
-                                        'chairperson_approval' => 1,
-                                        'report_quarter' => $currentQuarterYear->current_quarter,
-                                        'report_year' => $currentQuarterYear->current_year,
-                                    ]);
-                                }
+                                Report::create([
+                                    'user_id' =>  $user_id,
+                                    'sector_id' => $sector_id,
+                                    'college_id' => $research->college_id,
+                                    'department_id' => $research->department_id,
+                                    'format' => $type,
+                                    'report_category_id' => $report_values_array[0],
+                                    'research_cluster_id' => $research->discipline,
+                                    'report_reference_id' => $report_values_array[1] ?? null,
+                                    'report_details' => json_encode($report_details),
+                                    'report_documents' => json_encode($report_documents),
+                                    'report_date' => date("Y-m-d", time()),
+                                    'chairperson_approval' => 1,
+                                    'report_quarter' => $currentQuarterYear->current_quarter,
+                                    'report_year' => $currentQuarterYear->current_year,
+                                ]);
                             }
-                        } else {
-                            $sharedReport = Report::create([
-                                'user_id' =>  $user_id,
-                                'sector_id' => $sector_id,
-                                'college_id' => $research->college_id,
-                                'department_id' => $research->department_id,
-                                'format' => $type,
-                                'report_category_id' => $report_values_array[0],
-                                'research_cluster_id' => $research->discipline,
-                                'report_reference_id' => $report_values_array[1] ?? null,
-                                'report_details' => json_encode($report_details),
-                                'report_documents' => json_encode($report_documents),
-                                'report_date' => date("Y-m-d", time()),
-                                'report_quarter' => $currentQuarterYear->current_quarter,
-                                'report_year' => $currentQuarterYear->current_year,
-                            ]);
                         }
+                    } else {
+                        Report::create([
+                            'user_id' =>  $user_id,
+                            'sector_id' => $sector_id,
+                            'college_id' => $research->college_id,
+                            'department_id' => $research->department_id,
+                            'format' => $type,
+                            'report_category_id' => $report_values_array[0],
+                            'research_cluster_id' => $research->discipline,
+                            'report_reference_id' => $report_values_array[1] ?? null,
+                            'report_details' => json_encode($report_details),
+                            'report_documents' => json_encode($report_documents),
+                            'report_date' => date("Y-m-d", time()),
+                            'report_quarter' => $currentQuarterYear->current_quarter,
+                            'report_year' => $currentQuarterYear->current_year,
+                        ]);
                     }
-                    $deletedAccomplishment = Report::where('report_category_id', $report_values_array[0])->where('report_reference_id', $report_values_array[1])->latest()->withTrashed();
-                    SharedAccomplishment::where('report_id', $deletedAccomplishment->id)->update([
-                        'report_id' => $sharedReport->id,
-                    ]);
-                } else{
-                    $sharedReport = Report::where('report_category_id', $report_values_array[0])->where('report_reference_id', $report_values_array[1])->first();
-                    SharedAccomplishment::create([
-                        'report_id' => $sharedReport->id,
-                        'format' => $type,
-                        'user_id' => auth()->id(),
-                        'college_id' => $research->college_id,
-                        'department_id' => $research->department_id,
-                    ]);
                 }
                 $successToSubmit++;
                 return 1;

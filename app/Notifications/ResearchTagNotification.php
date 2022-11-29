@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 
-class ResearchInviteNotification extends Notification
+class ResearchTagNotification extends Notification
 {
     use Queueable;
     private $notificationData;

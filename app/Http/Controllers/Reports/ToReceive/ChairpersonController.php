@@ -182,32 +182,44 @@ class ChairpersonController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        Report::where('id', $report_id)->update(['chairperson_approval' => 1]);
-
         $report = Report::find($report_id);
-
-        $receiverData = User::find($report->user_id);
         $senderName = Chairperson::join('departments', 'departments.id', 'chairpeople.department_id')
                             ->join('users', 'users.id', 'chairpeople.user_id')
                             ->where('chairpeople.department_id', $report->department_id)
                             ->select('departments.code as department_code', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
                             ->first();
-
         $report_category_name = ReportCategory::where('id', $report->report_category_id)->pluck('name')->first();
-
         $url = route('reports.consolidate.myaccomplishments');
-
-
-        $notificationData = [
-            'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->department_code.')',
-            'receiver' => $receiverData->first_name,
-            'url' => $url,
-            'category_name' => $report_category_name,
-            'user_id' => $receiverData->id,
-            'accomplishment_type' => 'individual',
-            'date' => date('F j, Y, g:i a'),
-            'databaseOnly' => 1
-        ];
+        if (in_array($report->report_category_id, [1,2,3,4,5,6,7,12])){
+            $indivReport = Report::where('report_category_id', $report->report_category_id)->where('report_reference_id', $report->report_reference_id)->get();
+            foreach($indivReport as $row){
+                Report::where('id', $row->id)->update(['chairperson_approval' => 1]);
+                $receiverData = User::find($row->user_id);
+                $notificationData = [
+                    'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->department_code.')',
+                    'receiver' => $receiverData->first_name,
+                    'url' => $url,
+                    'category_name' => $report_category_name,
+                    'user_id' => $receiverData->id,
+                    'accomplishment_type' => 'individual',
+                    'date' => date('F j, Y, g:i a'),
+                    'databaseOnly' => 1
+                ];
+            }
+        } else{
+            Report::where('id', $report_id)->update(['chairperson_approval' => 1]);
+            $receiverData = User::find($report->user_id);
+            $notificationData = [
+                'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->department_code.')',
+                'receiver' => $receiverData->first_name,
+                'url' => $url,
+                'category_name' => $report_category_name,
+                'user_id' => $receiverData->id,
+                'accomplishment_type' => 'individual',
+                'date' => date('F j, Y, g:i a'),
+                'databaseOnly' => 1
+            ];
+        }
 
         Notification::send($receiverData, new ReceiveNotification($notificationData));
 
@@ -229,47 +241,63 @@ class ChairpersonController extends Controller
         if (!($authorize)) {
             abort(403, 'Unauthorized action.');
         }
-
-        DenyReason::create([
-            'report_id' => $report_id,
-            'user_id' => auth()->id(),
-            'position_name' => 'chairperson',
-            'reason' => $request->input('reason'),
-        ]);
-
-        Report::where('id', $report_id)->update([
-            'chairperson_approval' => 0
-        ]);
-
         $report = Report::find($report_id);
-
-        $returnData = User::find($report->user_id);
         $senderName = Chairperson::join('departments', 'departments.id', 'chairpeople.department_id')
-                            ->join('users', 'users.id', 'chairpeople.user_id')
-                            ->where('chairpeople.department_id', $report->department_id)
-                            ->select('departments.code as department_code', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
-                            ->first();
-
+        ->join('users', 'users.id', 'chairpeople.user_id')
+        ->where('chairpeople.department_id', $report->department_id)
+        ->select('departments.code as department_code', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
+        ->first();
         $report_category_name = ReportCategory::where('id', $report->report_category_id)->pluck('name')->first();
+        $url = route('report.manage', [$report->id, $report->report_category_id]);
 
-
-        $url = route('report.manage', [$report_id, $report->report_category_id]);
-        // $url = route('reports.consolidate.myaccomplishments');
-
-
-        $notificationData = [
-            'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->department_code.')',
-            'receiver' => $returnData->first_name,
-            'url' => $url,
-            'category_name' => $report_category_name,
-            'user_id' => $returnData->id,
-            'reason' => $request->input('reason'),
-            'accomplishment_type' => 'individual',
-            'date' => date('F j, Y, g:i a'),
-            'databaseOnly' => 0
-        ];
-
-        Notification::send($returnData, new ReturnNotification($notificationData));
+        if (in_array($report->report_category_id, [1,2,3,4,5,6,7,12])){
+            $indivReport = Report::where('report_category_id', $report->report_category_id)->where('report_reference_id', $report->report_reference_id)->get();
+            foreach($indivReport as $row){
+                DenyReason::create([
+                    'report_id' => $row->id,
+                    'user_id' => auth()->id(),
+                    'position_name' => 'chairperson',
+                    'reason' => $request->input('reason'),
+                ]);
+                Report::where('id', $row->id)->update(['chairperson_approval' => 0]);
+                $returnData = User::find($row->user_id);
+                $notificationData = [
+                    'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->department_code.')',
+                    'receiver' => $returnData->first_name,
+                    'url' => $url,
+                    'category_name' => $report_category_name,
+                    'user_id' => $returnData->id,
+                    'reason' => $request->input('reason'),
+                    'accomplishment_type' => 'individual',
+                    'date' => date('F j, Y, g:i a'),
+                    'databaseOnly' => 0
+                ];
+                Notification::send($returnData, new ReturnNotification($notificationData));
+            }
+        } else{
+            DenyReason::create([
+                'report_id' => $report_id,
+                'user_id' => auth()->id(),
+                'position_name' => 'chairperson',
+                'reason' => $request->input('reason'),
+            ]);
+            Report::where('id', $report_id)->update([
+                'chairperson_approval' => 0
+            ]);
+            $returnData = User::find($report->user_id);
+            $notificationData = [
+                'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->department_code.')',
+                'receiver' => $returnData->first_name,
+                'url' => $url,
+                'category_name' => $report_category_name,
+                'user_id' => $returnData->id,
+                'reason' => $request->input('reason'),
+                'accomplishment_type' => 'individual',
+                'date' => date('F j, Y, g:i a'),
+                'databaseOnly' => 0
+            ];
+            Notification::send($returnData, new ReturnNotification($notificationData));
+        }
 
         \LogActivity::addToLog('Chair/Chief returned an accomplishment.');
 
