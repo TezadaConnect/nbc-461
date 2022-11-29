@@ -10,6 +10,7 @@ use App\Models\{
     Chairperson,
     Dean,
     Employee,
+    Extensionist,
     FacultyExtensionist,
     FacultyResearcher,
     Report,
@@ -19,6 +20,7 @@ use App\Models\{
     Maintenance\Department,
     Maintenance\Quarter,
     Maintenance\ReportCategory,
+    Researcher,
 };
 use App\Models\Authentication\UserRole;
 use App\Services\CommonService;
@@ -34,116 +36,67 @@ class MyAccomplishmentController extends Controller
 
     public function index() {
         $authorize = (new ManageConsolidatedReportAuthorizationService())->authorizeManageConsolidatedIndividualReports();
-        if (!($authorize)) {
-            abort(403, 'Unauthorized action.');
-        }
-        $currentQuarterYear = Quarter::find(1);
-        $quarter = $currentQuarterYear->current_quarter;
-        $quarter2 = $currentQuarterYear->current_quarter;
-        $year = $currentQuarterYear->current_year;
-
+        if (!($authorize)) { abort(403, 'Unauthorized action.'); }
+        $currentQY = Quarter::find(1);
+        $quarter = $currentQY->current_quarter;
+        $quarter2 = $currentQY->current_quarter;
+        $year = $currentQY->current_year;
+        /************/
         $user = User::find(auth()->id());
-        $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-        $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
         $report_categories = ReportCategory::all();
+        $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
+        $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles); //determine the assigned offices/area of consolidation
+        //get my individual accomplishment
         $my_accomplishments =
-            Report::select(
-                            'reports.*',
-                            'report_categories.name as report_category',
-                        )
-                ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
-                ->where('reports.report_year', $year)
+            Report::where('reports.report_year', $year)
                 ->where('reports.report_quarter', $quarter)
                 ->where('reports.user_id', auth()->id())
+                ->select('reports.*', 'report_categories.name as report_category')
+                ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
                 ->orderBy('reports.updated_at', 'DESC')
-                ->get(); //get my individual accomplishment
+                ->get();
 
-        //get_department_and_college_name
-        $college_names = [];
-        $department_names = [];
-        foreach($my_accomplishments as $row){
-            $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
-            $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
-
-            $row->report_details = json_decode($row->report_details, false);
-
-            if($temp_college_name == null)
-                $college_names[$row->id] = '-';
-            else
-                $college_names[$row->id] = $temp_college_name->name;
-            if($temp_department_name == null)
-                $department_names[$row->id] = '-';
-            else
-            $department_names[$row->id] = $temp_department_name->name;
-        }
-
-        //Get distinct colleges from the colleges that had been reported with repeatedly
+        //Get department tagged in each report
+        $department_names = $this->commonService->getCollegeDepartmentNames($my_accomplishments)['department_names'];
+        //Get distinct colleges based on the assignment of employee
         $collegeList = Employee::where('user_id', auth()->id())->join('colleges', 'colleges.id', 'employees.college_id')->select('colleges.*')->distinct()->get();
 
         return view(
-            'reports.consolidate.myaccomplishments',
-            compact(
-                'roles','my_accomplishments', 'college_names', 'department_names',
-                'year', 'quarter', 'quarter2', 'report_categories', 'user', 'collegeList',
-                'assignments'
-            ));
-
+            'reports.consolidate.myaccomplishments', compact(
+                'roles','my_accomplishments', 'department_names', 'year', 'quarter', 'quarter2', 
+                'report_categories', 'user', 'collegeList', 'assignments'
+        ));
     }
-
 
     public function individualReportYearFilter($year, $quarter, $quarter2) {
         $authorize = (new ManageConsolidatedReportAuthorizationService())->authorizeManageConsolidatedIndividualReports();
-        if (!($authorize)) {
-            abort(403, 'Unauthorized action.');
-        }
-
+        if (!($authorize)) { abort(403, 'Unauthorized action.'); }
+        $currentQY = Quarter::find(1);
+        $quarter = $currentQY->current_quarter;
+        $quarter2 = $currentQY->current_quarter;
+        $year = $currentQY->current_year;
+        /************/
         $report_categories = ReportCategory::all();
-        if ($year == "default") {
-            return redirect()->route('submissions.myaccomp.index');
-        }
+        if ($year == "default") { return redirect()->route('submissions.myaccomp.index'); }
         else {
             $user = User::find(auth()->id());
-            $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-
-            $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
             $report_categories = ReportCategory::all();
-            $my_accomplishments =
-                Report::where('reports.report_year', $year)
-                    ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
+            $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
+            $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
+            $my_accomplishments = Report::where('reports.report_year', $this->getQuarterYear()['year'])
+                    ->whereBetween('reports.report_quarter', [$this->quarter, $this->quarter2])
                     ->where('reports.user_id', auth()->id())
-                    ->select(
-                                'reports.*',
-                                'report_categories.name as report_category',
-                            )
+                    ->select('reports.*', 'report_categories.name as report_category')
                     ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
                     ->orderBy('reports.updated_at', 'DESC')
                     ->get(); //get my individual accomplishment
 
-            //get_department_and_college_name
-            $college_names = [];
-            $department_names = [];
-            foreach($my_accomplishments as $row){
-                $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
-                $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
-
-                $row->report_details = json_decode($row->report_details, false);
-
-                if($temp_college_name == null)
-                    $college_names[$row->id] = '-';
-                else
-                    $college_names[$row->id] = $temp_college_name->name;
-                if($temp_department_name == null)
-                    $department_names[$row->id] = '-';
-                else
-                $department_names[$row->id] = $temp_department_name->name;
-            }
-
-            //Get distinct colleges from the colleges that had been reported with repeatedly
+            //Get department tagged in each report
+            $department_names = $this->commonService->getCollegeDepartmentNames($my_accomplishments)['department_names'];
+            //Get distinct colleges based on the assignment of employee
             $collegeList = Employee::where('user_id', auth()->id())->join('colleges', 'colleges.id', 'employees.college_id')->select('colleges.*')->distinct()->get();
-
             return view(
-                'reports.consolidate.myaccomplishments',
-                compact(
+                'reports.consolidate.myaccomplishments', compact(
                     'roles','my_accomplishments', 'college_names', 'department_names',
                     'year', 'quarter', 'quarter2', 'report_categories', 'user', 'collegeList',
                     'assignments'

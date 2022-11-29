@@ -3,7 +3,7 @@
 // TITLE: COMMON SERVICE SERVICE
 // DESCRIPTION: USED FOR HANDLING REPETATIVE FUNCTION IN THE PROGRAM
 // DEVELOPER: TERRENCE CALZADA
-// DATE: OCTOBER 16, $reportCategoryId022
+// DATE: OCTOBER 16, 2022
 // =============================================================================================
 
 namespace App\Services;
@@ -23,6 +23,7 @@ use App\Models\Extensionist;
 use App\Models\ExtensionTag;
 use App\Models\TemporaryFile;
 use App\Models\ResearchInvite;
+use App\Models\ResearchTag;
 use App\Models\ExtensionInvite;
 use App\Models\ExtensionProgram;
 use App\Models\FacultyResearcher;
@@ -34,7 +35,7 @@ use App\Models\FormBuilder\DropdownOption;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Controllers\StorageFileController;
 use App\Notifications\ResearchInviteNotification;
-use App\Notifications\ExtensionInviteNotification;
+use App\Notifications\ExtensionTagNotification;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
 
@@ -262,8 +263,8 @@ class CommonService
                 ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
         }
         if (in_array(10, $roles)) {
-            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
-            // $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
+            // $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
+            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
         }
         if (in_array(11, $roles)) {
             $assignment[11] = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
@@ -331,8 +332,8 @@ class CommonService
         if ($formName == "research") {
             if ($collaborators != null) {
                 foreach ($collaborators as $collab) {
-                    if ($collab != auth()->id() && ResearchInvite::where('research_id', $id)->where('user_id', $collab)->doesntExist()) {
-                        ResearchInvite::create([
+                    if ($collab != auth()->id() && ResearchTag::where('research_id', $id)->where('user_id', $collab)->doesntExist()) {
+                        ResearchTag::create([
                             'user_id' => $collab,
                             'sender_id' => auth()->id(),
                             'research_id' => $id
@@ -408,7 +409,7 @@ class CommonService
                             'type' => 'ext-invite'
                         ];
 
-                        Notification::send($user, new ExtensionInviteNotification($notificationData));
+                        Notification::send($user, new ExtensionTagNotification($notificationData));
                         ExtensionProgram::where('id', $id)->update([
                             'extensionists' => implode("/", $extensionistsExploded),
                         ]);
@@ -527,10 +528,10 @@ class CommonService
     public function updateTaggedCollaborators($request, $objectRecord, $formName){
         if ($formName == "research"){
             // $researchersNeedUpdate = 0;
-            $taggedUsersID = ResearchInvite::where('research_id', $objectRecord->id)->pluck('user_id')->all();
+            $taggedUsersID = ResearchTag::where('research_id', $objectRecord->id)->pluck('user_id')->all();
             if ($request->input('tagged_collaborators') == null){
                 Researcher::where('research_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
-                ResearchInvite::where('research_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
+                ResearchTag::where('research_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
                 $objectRecord->update([
                     'researchers' => $request->input('researchers'),
                     'untagged_researchers' => $request->input('researchers'),
@@ -539,13 +540,13 @@ class CommonService
             elseif (array_diff($taggedUsersID, $request->input('tagged_collaborators')) != null){
                 foreach($request->input('tagged_collaborators') as $tagID){
                     if (!in_array($tagID, $taggedUsersID)){
-                        ResearchInvite::create(['research_id' => $objectRecord->id, 'user_id' => $tagID, 'sender_id' => auth()->id(), ]);
+                        ResearchTag::create(['research_id' => $objectRecord->id, 'user_id' => $tagID, 'sender_id' => auth()->id(), ]);
                         // $researchersNeedUpdate = 1;
                     }
                 }
                 foreach($taggedUsersID as $notifiedUser){
                     if (!in_array($notifiedUser, $request->input('tagged_collaborators'))){
-                        ResearchInvite::where('research_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
+                        ResearchTag::where('research_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
                         Researcher::where('research_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
                         // $researchersNeedUpdate = 1;
                     }
@@ -554,7 +555,7 @@ class CommonService
     
             // if ($researchersNeedUpdate == 1){
                 $researcherExploded = explode("/", $request->input('researchers'));
-                foreach(ResearchInvite::where('research_id', $objectRecord->id)->pluck('user_id')->all() as $finalResearcherID){
+                foreach(ResearchTag::where('research_id', $objectRecord->id)->pluck('user_id')->all() as $finalResearcherID){
                     $user = User::find($finalResearcherID);
                     if ($user->middle_name != '') {
                         array_push($researcherExploded, $user->last_name.', '.$user->first_name.' '.substr($user->middle_name,0,1).'.');
@@ -608,5 +609,40 @@ class CommonService
                 ]);
             // }
         }
+    }
+
+    public function getCollegeDepartmentNames($reports){
+        //get_department_and_college_name
+        $college_names = [];
+        $department_names = [];
+        $researchReportCategoryIDs = array(1,2,3,4,5,6,7); // Research and extension categories
+        $extensionReportCategoryIDs = array(12, 13, 14, 22, 23, 34, 35, 36, 37);
+        foreach($reports as $row){
+            if (in_array($row->report_category_id, $researchReportCategoryIDs)){
+                $temp_college_name = Researcher::where('college_id', $row->college_id)->join('colleges', 'colleges.id', 'researchers.college_id')->select('colleges.name')->first();
+                $temp_department_name = Researcher::where('department_id', $row->department_id)->join('departments', 'departments.id', 'researchers.department_id')->select('departments.name')->first();
+            } elseif (in_array($row->report_category_id, $extensionReportCategoryIDs)){
+                $temp_college_name = Extensionist::where('college_id', $row->college_id)->join('colleges', 'colleges.id', 'extensionists.college_id')->select('colleges.name')->first();
+                $temp_department_name = Extensionist::where('department_id', $row->department_id)->join('departments', 'departments.id', 'extensionists.department_id')->select('departments.name')->first();
+            } else{
+                $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
+                $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
+            }
+            $row->report_details = json_decode($row->report_details, false);
+
+            if($temp_college_name == null)
+                $college_names[$row->id] = '-';
+            else
+                $college_names[$row->id] = $temp_college_name->name;
+            if($temp_department_name == null)
+                $department_names[$row->id] = '-';
+            else
+            $department_names[$row->id] = $temp_department_name->name;
+        }
+
+        return [
+            'college_names' => $college_names,
+            'department_names' => $department_names,
+        ];
     }
 }

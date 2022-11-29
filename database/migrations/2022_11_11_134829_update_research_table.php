@@ -24,6 +24,17 @@ class UpdateResearchTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        Schema::create('research_tags', function (Blueprint $table) {
+            //extensionists that were tagged waiting for confirmation
+            $table->id();
+            $table->foreignId('research_id')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('sender_id');
+            $table->foreignId('user_id')->onUpdate('cascade')->onDelete('cascade');
+            $table->boolean('status')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+        });
     }
 
     /**

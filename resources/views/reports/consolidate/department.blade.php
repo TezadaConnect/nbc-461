@@ -11,14 +11,9 @@
         <div class="card mb-3">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col">
                         <div class="form-group">
-                            <label for="yearFilter" class="mr-2">Year Reported: </label>
-                            <select id="yearFilter" class="custom-select">
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="quarterFilter" class="mr-2">Quarter Period </label>
+                            <label for="quarterFilter" class="mr-2">Quarter Period</label>
                             <div class="d-flex">
                                 <select id="quarterFilter" class="custom-select" name="quarterGenerate">
                                     <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
@@ -28,6 +23,8 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                    <div class="col">
                         <div class="form-group">
                             <label for="quarterFilter2" class="mr-2">-</label>
                             <div class="d-flex">
@@ -39,7 +36,16 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                    <div class="col">
                         <div class="form-group">
+                            <label for="yearFilter" class="mr-2">Year</label>
+                            <select id="yearFilter" class="custom-select">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group mb-0">
                             <form action="{{ route('report.generate.index', $user->id)}}" method="POST" id="export_level_form">
                                 @csrf
                                 <input type="hidden" name="level" value="department_wide">
@@ -47,9 +53,11 @@
                                 <input type="hidden" id="dw_quarter" name="dw_quarter" value="">
                                 <input type="hidden" id="dw_year" name="dw_year" value="">
                                 <input type="hidden" id="department_id" name="department_id" value="{{ $department['id'] }}">
-                                <button id="filter" type="button" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
-                                <button id="export" type="button" class="btn btn-warning mr-2" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export Dept./Section QAR File</button>
-                                <button id="exportLevel" type="button" class="btn btn-warning mr-2"><i class="bi bi-filetype-xlsx"></i> Export QAR Filled-in by Chair/Chief</button>
+                                <div class="btn-group" role="group" aria-label="button-group">
+                                    <button id="filter" type="button" class="btn btn-primary"><i class="bi bi-list-ol"></i> Generate Table</button>
+                                    <button id="export" type="button" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export Dept./Section QAR File</button>
+                                    <button id="exportLevel" type="button" class="btn btn-warning"><i class="bi bi-filetype-xlsx"></i> Export QAR Filled-in by Chair/Chief</button>
+                                </div>
                                 <!-- <button id="individualExport" type="button" class="btn btn-warning" data-target="#GenerateIndiv" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export Individual QAR</button> -->
                             </form>
                         </div>

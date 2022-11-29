@@ -89,9 +89,7 @@
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="optionDropdownMenuButton">
     @switch($research_status)
         @case('26')
-            @if ($isSubmitted[1][$research->id] == false)
             <a class="dropdown-item" href="{{ route('research.mark-as-ongoing', $research->id) }}"><i class="bi bi-check2-circle"></i> Mark as Ongoing</a>
-            @endif
             @break
         @case('27')
             <a class="dropdown-item" href="{{ route('research.completed.create', $research->id) }}"><i class="bi bi-check2-circle"></i> Mark as Completed</a>
@@ -136,7 +134,12 @@
         @if ($submissionStatus[1][$research->id] == 0)
             <a href="{{ url('submissions/check/1/'.$research->id) }}" class="dropdown-item"><i class="bi bi-check-square"></i> Submit Registration Record</a>
         @elseif ($submissionStatus[1][$research->id] == 1)
-            <a href="#" style="pointer-events: none;" class="dropdown-item bg-success">Registration Submitted {{ $submitRole[1][$research->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+            @if ($research->status == 27)
+                <a href="#" style="pointer-events: none;" class="dropdown-item bg-success">Registration Submitted {{ $submitRole[1][$research->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                <a href="{{ url('submissions/check/1/'.$research->id) }}" class="dropdown-item"><i class="bi bi-check-square"></i> Submit Ongoing Record</a>
+            @else
+                <a href="#" style="pointer-events: none;" class="dropdown-item bg-success">Registration Submitted {{ $submitRole[1][$research->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+            @endif    
         @elseif ($submissionStatus[1][$research->id] == 2)
             <a href="{{ route('research.edit', $research->id) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Registration - No Document</a>
         @else

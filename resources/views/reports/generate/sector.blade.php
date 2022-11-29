@@ -32,7 +32,7 @@
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="employeeDiv">
                         <label for="employee">Employee</label>
                         <span class="d-flex" tabindex="0" data-container="body" data-bs-placement="left" data-toggle="tooltip" title="Selection required for Individual-level report.">
                             <select name="employee" id="employee" class="form-control" required>
@@ -43,7 +43,7 @@
                             </select>
                         </span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="deptDiv">
                         <label for="department">Department/Section</label>
                         <span class="d-flex" tabindex="0" data-container="body" data-bs-placement="left" data-toggle="tooltip" title="Selection required for Department-level report.">
                             <select name="department" id="department" class="form-control" required>
@@ -54,7 +54,7 @@
                             </select>
                         </span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="cbcoDiv">
                         <label for="cbco">College/Branch/Campus/Office</label>
                         <span class="d-flex" tabindex="0" data-container="body" data-bs-placement="left" data-toggle="tooltip" title="Selection required for College-level report.">
                             <select name="cbco" id="cbco" class="form-control" required>
@@ -105,71 +105,71 @@
         }
         
         $('#sector').removeAttr('required');
-        $('#sector').attr('disabled', true);
+        $('#sector').hide();
 
         $('#level').on('change', function (){
             if ($(this).val() == 'ipo') {
                 //Univ. Funded
                 $('#sector').removeAttr('required');
-                $('#sector').attr('disabled', true);
+                $('#sector').hide();
             }
             else if($(this).val() == 'sector'){
-                $('#sector').removeAttr('disabled');
+                $('#sector').show();
                 $('#sector').attr('required', true);
             }
         });
         $('#cbco').removeAttr('required');
-        $('#cbco').attr('disabled', true);
+        $('#cbcoDiv').hide();
         $('#department').removeAttr('required');
-        $('#department').attr('disabled', true);
+        $('#deptDiv').hide();
         $('#employee').removeAttr('required');
-        $('#employee').attr('disabled', true);
+        $('#employeeDiv').hide();
         var alert = document.getElementById('exportInstruction');
 
         $('#level').on('change', function (){
             if($(this).val() == 'sector'){
                 $('#cbco').removeAttr('required');
-                $('#cbco').attr('disabled', true);
+                $('#cbcoDiv').hide();
                 $('#cbco').val('');
                 $('#department').removeAttr('required');
-                $('#department').attr('disabled', true);
+                $('#deptDiv').hide();
                 $('#department').val('');
                 $('#employee').removeAttr('required');
-                $('#employee').attr('disabled', true);
+                $('#employeeDiv').hide();
                 $('#employee').val('');
                 alert.innerHTML = 'Select the <strong>format</strong> to be exported.';
             }
             else if($(this).val() == 'department'){
                 $('#sector').val('');
                 $('#cbco').removeAttr('required');
-                $('#cbco').attr('disabled', true);
+                $('#cbcoDiv').hide();
                 $('#cbco').val('');
-                $('#department').removeAttr('disabled');
+                $('#deptDiv').show();
                 $('#department').attr('required', true);
                 $('#employee').removeAttr('required');
-                $('#employee').attr('disabled', true);
+                $('#employeeDiv').hide();
                 $('#employee').val('');
                 alert.innerHTML = 'Select the <strong>format and department/section</strong> to be exported.';
             }
             else if($(this).val() == 'individual'){
-                $('#cbco').removeAttr('disabled');
+                $('#cbcoDiv').show();
                 $('#cbco').attr('required', true);
                 $('#department').removeAttr('required');
-                $('#department').attr('disabled', true);
+                $('#deptDiv').hide();
                 $('#department').val('');
-                $('#employee').removeAttr('disabled');
+                $('#employeeDiv').show();
                 $('#employee').attr('required', true);
                 alert.innerHTML = 'Select the <strong>format, employee, and college/branch/campus/office</strong> to be exported.';
             } else if ($(this).val() == 'college') {
                 //Univ. Funded
-                $('#cbco').removeAttr('disabled');
+                $('#cbcoDiv').show();
                 $('#cbco').attr('required', true);
                 $('#cbco').val('');
                 $('#department').removeAttr('required');
-                $('#department').attr('disabled', true);
+                $('#deptDiv').hide();
                 $('#department').val('');
                 $('#employee').removeAttr('required');
-                $('#employee').attr('disabled', true);
+                $('#employeeDiv').hide();
                 $('#employee').val('');
                 alert.innerHTML = 'Select the <strong>format and college/branch/campus/office</strong> to be exported.';
             }

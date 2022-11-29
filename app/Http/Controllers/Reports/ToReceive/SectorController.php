@@ -80,7 +80,10 @@ class SectorController extends Controller
             else
                 $department_names[$row->id] = $temp_department_name;
         }
-        $colleges = College::select('colleges.id', 'colleges.name')->orderBy('colleges.name')->get();
+
+        $colleges = College::select('colleges.id', 'colleges.name')
+                            ->orderBy('colleges.name')
+                            ->get();
         return view('reports.to-receive.sector.index', compact('reportsToReview', 'roles', 'colleges', 'college_names', 'department_names', 'assignments'));
     }
 
@@ -153,14 +156,9 @@ class SectorController extends Controller
     public function accept($report_id)
     {
         $authorize = (new ToReceiveReportAuthorizationService())->authorizeReceiveIndividualToSector();
-        if (!($authorize)) {
-            abort(403, 'Unauthorized action.');
-        }
-
+        if (!($authorize)) { abort(403, 'Unauthorized action.'); }
         $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-
         $report = Report::find($report_id);
-
         $receiverData = User::find($report->user_id);
 
         if (in_array(13, $roles)) {
@@ -172,24 +170,28 @@ class SectorController extends Controller
                 ->first();
         }
         if (in_array(7, $roles)) {
-            Report::where('id', $report_id)->update(['sector_approval' => 1]); //sector_head
+            if (in_array($report->report_category_id, [1,2,3,4,5,6,7,12])){
+                $indivReport = Report::where('report_category_id', $report->report_category_id)->where('report_reference_id', $report->report_reference_id)->get();
+                foreach($indivReport as $row){
+                    Report::where('id', $row->id)->update(['sector_approval' => 1]); //sector_head
+                }
+            } else
+                Report::where('id', $report_id)->update(['sector_approval' => 1]); //sector_head
+
             $senderName = SectorHead::join('sectors', 'sectors.id', 'sector_heads.sector_id')
-                ->join('users', 'users.id', 'sector_heads.user_id')
-                ->where('sector_heads.sector_id', $report->sector_id)
-                ->select('sectors.code as sector_code', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
-                ->first();
+            ->join('users', 'users.id', 'sector_heads.user_id')
+            ->where('sector_heads.sector_id', $report->sector_id)
+            ->select('sectors.code as sector_code', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
+            ->first();
         }
 
         $report_category_name = ReportCategory::where('id', $report->report_category_id)->pluck('name')->first();
-
         $url = '';
         $acc_type = '';
         if ($report->report_category_id > 16) {
-
             if ($report->department_id == 0) {
                 $url = route('reports.consolidate.college', $report->college_id);
                 $acc_type = "college";
-
                 $college_name = College::where('id', $report->college_id)->pluck('name')->first();
 
                 $notificationData = [
@@ -221,27 +223,29 @@ class SectorController extends Controller
                     'department_name' => $department_name,
                 ];
             }
+            Notification::send($receiverData, new ReceiveNotification($notificationData));
         } else {
             $url = route('reports.consolidate.myaccomplishments');
             $acc_type = 'individual';
-
-            $notificationData = [
-                'sender' => $senderName->sector_code,
-                'receiver' => $receiverData->first_name,
-                'url' => $url,
-                'category_name' => $report_category_name,
-                'user_id' => $receiverData->id,
-                'accomplishment_type' => $acc_type,
-                'date' => date('F j, Y, g:i a'),
-                'databaseOnly' => 1
-            ];
+            if (in_array($report->report_category_id, [1,2,3,4,5,6,7,12])){
+                $indivReport = Report::where('report_category_id', $report->report_category_id)->where('report_reference_id', $report->report_reference_id)->get();
+                foreach($indivReport as $row){
+                    $receiverData = User::find($row->user_id);
+                    $notificationData = [
+                        'sender' => $senderName->sector_code,
+                        'receiver' => $receiverData->first_name,
+                        'url' => $url,
+                        'category_name' => $report_category_name,
+                        'user_id' => $receiverData->id,
+                        'accomplishment_type' => $acc_type,
+                        'date' => date('F j, Y, g:i a'),
+                        'databaseOnly' => 1
+                    ];
+                    Notification::send($receiverData, new ReceiveNotification($notificationData));
+                }
+            }
         }
-
-        Notification::send($receiverData, new ReceiveNotification($notificationData));
-
         \LogActivity::addToLog('Sector Head received an accomplishment.');
-
-
         return redirect()->route('sector.index')->with('success', 'Report has been added in sector consolidation of reports.');
     }
 

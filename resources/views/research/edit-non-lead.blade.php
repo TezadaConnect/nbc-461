@@ -3,8 +3,8 @@
     <div class="container">
         {{-- Denied Details --}}
         @if ($deniedDetails = Session::get('denied'))
-        <div class="alert alert-danger alert-index">
-            <i class="bi bi-x-circle"></i> Remarks: {{ $deniedDetails->reason }}
+        <div class="alert alert-info alert-index">
+            <i class="bi bi-exclamation-circle"></i> Remarks: {{ $deniedDetails->reason }} If the registrant will edit the research, just click save and resubmit again.
         </div>
         @endif
         <h3 class="font-weight-bold mr-2">Edit Registration Details {{ isset($research->title) ? 'of '.$research->title : '' }}</h3>

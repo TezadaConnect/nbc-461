@@ -65,8 +65,6 @@ class ExtensionProgramController extends Controller
                             ->select(DB::raw('extension_programs.*, dropdown_options.name as status, colleges.name as college_name'))
                             ->orderBy('extension_programs.updated_at', 'desc')
                             ->get();
-
-
         $tags = ExtensionTag::where('extension_tags.user_id', auth()->id())
             ->where('extension_tags.status', null)
             ->join('extension_programs', 'extension_programs.id', 'extension_tags.extension_program_id')
@@ -76,8 +74,7 @@ class ExtensionProgramController extends Controller
                 'extension_programs.id', 'extension_tags.extension_program_id',
                 'extension_tags.status', 'extension_programs.title_of_extension_program',
                 'extension_programs.title_of_extension_project', 'extension_programs.title_of_extension_activity', 
-            )
-            ->get();
+            )->get();
 
         $submissionStatus = array();
         $submitRole = array();
@@ -86,10 +83,7 @@ class ExtensionProgramController extends Controller
             $submissionStatus[12][$extension->id] = $this->commonService->getSubmissionStatus($extension->id, 12)['submissionStatus'];
             $submitRole[$extension->id] = $this->commonService->getSubmissionStatus($extension->id, 12)['submitRole'];
         }
-
-        // dd($reportdata->getDocuments(12, $extension->id));
-
-        return view('extension-programs.extension-programs.index', compact('extensionServices', 'currentQuarterYear', 'tags', 'submissionStatus', 'submitRole'));
+        return view('extension-programs.index', compact('extensionServices', 'currentQuarterYear', 'tags', 'submissionStatus', 'submitRole'));
     }
 
     /**
@@ -123,7 +117,7 @@ class ExtensionProgramController extends Controller
         $departments = Department::whereIn('college_id', $colleges)->get();
 
         $allUsers = $this->commonService->getAllUserNames();
-        return view('extension-programs.extension-programs.create', compact('extensionServiceFields', 'colleges', 'departments', 'dropdown_options', 'allUsers', 'currentQuarter'));
+        return view('extension-programs.create', compact('extensionServiceFields', 'colleges', 'departments', 'dropdown_options', 'allUsers', 'currentQuarter'));
     }
 
     /**
@@ -209,15 +203,14 @@ class ExtensionProgramController extends Controller
 
         $extension_program = ExtensionProgram::where('extension_programs.id', $extension_program->id)
                 ->join('extensionists', 'extensionists.extension_program_id', 'extension_programs.id')
-                ->select('extension_programs.*', 'extensionists.*')->first();
+                ->select('extension_programs.*', 'extensionists.nature_of_involvement', 'extensionists.department_id',
+                    'extensionists.college_id')->first();
         $extensionServiceFields = DB::select("CALL get_extension_program_fields_by_form_id(4)");
         $extensionServiceDocuments = ExtensionProgramDocument::where('extension_program_id', $extension_program->id)->get()->toArray();
-
         $values = $extension_program->toArray();
-        $extensionRole = Extensionist::where('user_id', auth()->id())->where('extension_program_id', $extension_program->id )->pluck('is_registrant')->first();
         $values = $this->commonService->getDropdownValues($extensionServiceFields, $values);
 
-        return view('extension-programs.extension-programs.show', compact('extension_program', 'extensionServiceDocuments', 'values', 'extensionServiceFields', 'extensionRole'));
+        return view('extension-programs.show', compact('extension_program', 'extensionServiceDocuments', 'values', 'extensionServiceFields'));
     }
 
     /**
@@ -232,7 +225,7 @@ class ExtensionProgramController extends Controller
         $currentQuarter = Quarter::find(1)->current_quarter;
 
         if(LockController::isLocked($extension_program->id, 12)){
-            return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
+            return redirect()->back()->with('cannot_access', 'This accomplishment was already submitted. If you wish to edit, you may request to return the accomplishment.');
         }
         if(ExtensionProgramForm::where('id', 4)->pluck('is_active')->first() == 0)
             return view('inactive');
@@ -258,11 +251,7 @@ class ExtensionProgramController extends Controller
             $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(".$extension_program->department_id.")");
         else
             $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(0)");
-
-        // $value = $extension_program;
-        // $value->toArray();
-        // $value = collect($extension_program);
-        // $value = $value->toArray();
+            
         $extensionist = Extensionist::where('extension_program_id', $extension_program->id)->where('user_id', auth()->id())->first();
         $value = $extension_program->toArray();
         $value['nature_of_involvement'] = $extensionist->nature_of_involvement;
@@ -271,9 +260,9 @@ class ExtensionProgramController extends Controller
         $allUsers = $this->commonService->getAllUserNames();
         $taggedUserIDs = ExtensionTag::where('extension_program_id', $extension_program->id)->pluck('user_id')->all();
         if (Extensionist::where('user_id', auth()->id())->where('extension_program_id', $extension_program->id)->first()['is_registrant'] == '1')
-            return view('extension-programs.extension-programs.edit', compact('value', 'extensionServiceFields', 'extensionServiceDocuments', 'colleges', 'collegeOfDepartment', 'departments', 'dropdown_options', 'currentQuarter', 'allUsers', 'taggedUserIDs'));
+            return view('extension-programs.edit', compact('value', 'extensionServiceFields', 'extensionServiceDocuments', 'colleges', 'collegeOfDepartment', 'departments', 'dropdown_options', 'currentQuarter', 'allUsers', 'taggedUserIDs'));
 
-        return view('extension-programs.extension-programs.edit-code', compact('value', 'extensionServiceFields', 'extensionServiceDocuments', 'colleges', 'collegeOfDepartment', 'departments', 'dropdown_options', 'currentQuarter', 'allUsers', 'taggedUserIDs'));
+        return view('extension-programs.edit-code', compact('value', 'extensionServiceFields', 'extensionServiceDocuments', 'colleges', 'collegeOfDepartment', 'departments', 'dropdown_options', 'currentQuarter', 'allUsers', 'taggedUserIDs'));
     }
 
     /**
@@ -340,7 +329,7 @@ class ExtensionProgramController extends Controller
         if(!empty($request->file(['document']))){      
             foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'ES-', 'extension-programs.index');
-                if(is_string($fileName)) ExtensionProgramDocument::create(['extension_program_id' => $extension_program->id, 'ext_code' => $extension_program->ext_code, 'filename' => $fileName]);
+                if(is_string($fileName)) ExtensionProgramDocument::create(['extension_program_id' => $extension_program->id, 'filename' => $fileName]);
                 else return $fileName;
             }
         }
@@ -363,13 +352,13 @@ class ExtensionProgramController extends Controller
         $this->authorize('delete', ExtensionProgram::class);
 
         if(LockController::isLocked($extension_program->id, 12)){
-            return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
+            return redirect()->back()->with('cannot_access', 'This accomplishment was already submitted. If you wish to edit, you may request to return the accomplishment.');
         }
 
         if(ExtensionProgramForm::where('id', 4)->pluck('is_active')->first() == 0)
             return view('inactive');
 
-        if(ExtensionTag::where('ext_code', $extension_program->ext_code)->where('user_id', auth()->id())->pluck('is_owner')->first() == '1'){
+        if(ExtensionTag::where('extension_program_id', $extension_program->id)->where('user_id', auth()->id())->pluck('is_owner')->first() == '1'){
             $extension_program->delete();
             ExtensionTag::where('extension_program_id', $extension_program->id)->delete();
             ExtensionProgramDocument::where('extension_program_id', $extension_program->id)->delete();
@@ -438,7 +427,7 @@ class ExtensionProgramController extends Controller
         $is_owner = 0;
 
 
-        $extensionServiceDocuments = ExtensionProgramDocument::where('ext_code', $extension_program->ext_code)->get();
+        $extensionServiceDocuments = ExtensionProgramDocument::where('extension_program_id', $extension_program->id)->get();
         if ($extension_program->department_id != null) {
             $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(".$extension_program->department_id.")");
         }
@@ -446,7 +435,7 @@ class ExtensionProgramController extends Controller
             $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(0)");
         }
 
-        return view('extension-programs.extension-programs.create-code', compact('value', 'extensionServiceFields', 'colleges', 'is_owner', 'notificationID', 'departments', 'collegeOfDepartment', 'extensionServiceDocuments', 'dropdown_options', 'currentQuarter'));
+        return view('extension-programs.code-create', compact('value', 'extensionServiceFields', 'colleges', 'is_owner', 'notificationID', 'departments', 'collegeOfDepartment', 'extensionServiceDocuments', 'dropdown_options', 'currentQuarter'));
     }
 
 
@@ -461,26 +450,16 @@ class ExtensionProgramController extends Controller
         if ($extensionService == null)
             return redirect()->route('extension-programs.index')->with('cannot_access', 'Extension program/project/activity not found in the system.');
 
-        $extensionService = collect($extensionService);
-        $extensionService = $extensionService->except(['id']);
-        $extensionService = $extensionService->toArray();
-
-        $request->merge([
+        Extensionist::create([
+            'extension_program_id' => $id,
             'college_id' => Department::where('id', $request->input('department_id'))->pluck('college_id')->first(),
+            'department_id' => $request->input('department_id'),
+            'user_id' => auth()->id(),
+            'nature_of_involvement' => $request->input('nature_of_involvement'),
         ]);
+        ExtensionTag::where('user_id', auth()->id())->where('extension_program_id', $id)->update(['status' => '1']);
 
-        $input = $request->except(['_token', '_method', 'notif_id']);
-
-
-        $eService = ExtensionProgram::create($extensionService);
-        $eService->update(['user_id' => auth()->id()]);
-        $eService->update($input);
-
-        ExtensionTag::where('user_id', auth()->id())->where('extension_program_id', $id)->update([
-            'status' => '1'
-        ]);
-
-        $receiver_user_id = ExtensionProgram::where("id", $id)->pluck('user_id')->first();
+        $receiver_user_id = Extensionist::where("extension_program_id", $id)->pluck('user_id')->first();
         $receiver = User::find($receiver_user_id);
         $sender = User::find(auth()->id());
         $url = route('extension-programs.show', $id);

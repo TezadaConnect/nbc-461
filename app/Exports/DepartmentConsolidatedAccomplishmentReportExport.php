@@ -93,7 +93,7 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
                 foreach ($tableFormat as $format){
                     if($format->is_table == "0" || $format->report_category_id == null)
                         $tableContents[$format->id] = [];
-                    else
+                    else{
                         $tableContents[$format->id] = Report::
                         // ->where('user_roles.role_id', 1)
                         whereIn('reports.format', ['a', 'x'])

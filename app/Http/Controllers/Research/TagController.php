@@ -11,18 +11,19 @@ use App\Models\{
     Report,
     Research,
     ResearchInvite,
+    ResearchTag,
     User,
 };
-use App\Notifications\ResearchInviteNotification;
+use App\Notifications\ResearchTagNotification;
 
-class InviteController extends Controller
+class TagController extends Controller
 {
     public function index($research_id){
         $research = Research::find($research_id);
-        $coResearchers = ResearchInvite::
-                            where('research_invites.research_id', $research_id)
-                            ->join('users', 'users.id', 'research_invites.user_id')
-                            ->select('research_invites.id as invite_id', 'research_invites.status as research_status','users.*')
+        $coResearchers = ResearchTag::
+                            where('research_tags.research_id', $research_id)
+                            ->join('users', 'users.id', 'research_tags.user_id')
+                            ->select('research_tags.id as invite_id', 'research_tags.status as research_status','users.*')
                             ->get();
         //get Nature of involvement
         $involvement = [];
@@ -35,7 +36,7 @@ class InviteController extends Controller
             }
         }
         
-        $allEmployees = User::whereNotIn('users.id', (ResearchInvite::where('research_id', $research_id)->pluck('user_id')->all()))->
+        $allEmployees = User::whereNotIn('users.id', (ResearchTag::where('research_id', $research_id)->pluck('user_id')->all()))->
                             where('users.id', '!=', auth()->id())->
                             join('user_roles', 'user_roles.user_id', 'users.id')->
                             whereIn('user_roles.role_id', [1,3])->
@@ -49,7 +50,7 @@ class InviteController extends Controller
 
         $count = 0;
         foreach($request->input('employees') as $row){
-            ResearchInvite::create([
+            ResearchTag::create([
                 'user_id' => $row,
                 'sender_id' => auth()->id(),
                 'research_id' => $research_id
@@ -87,7 +88,7 @@ class InviteController extends Controller
                 'type' => 'res-invite'
             ];
 
-            Notification::send($user, new ResearchInviteNotification($notificationData));
+            Notification::send($user, new ResearchTagNotification($notificationData));
             $count++;
         }
         LogActivity::addToLog('Had added '.$count.' co-researcher/s in the research "'.$research_title.'".');
@@ -103,17 +104,19 @@ class InviteController extends Controller
 
         $user->notifications->where('id', $request->get('id'))->markAsRead();
         
-        return redirect()->route('research.code.create', ['research_id' => $research_id, 'id' => $request->get('id') ])->with('info', 'Please fill in the remaining blanks: Nature of Involvement and Department/Section where to commit.');
+        return redirect()->route('research.code.create', ['research_id' => $research_id, 'id' => $request->get('id') ])->with('info', 'Please fill in the remaining blanks: Nature of Involvement and
+         Department/Section where to commit.');
     }
     
     public function cancel($research_id , Request $request){
         $user = User::find(auth()->id());
 
-        ResearchInvite::where('research_id', $research_id)->where('user_id', auth()->id())->update([
+        ResearchTag::where('research_id', $research_id)->where('user_id', auth()->id())->update([
             'status' => 0
         ]);
 
         $user->notifications->where('id', $request->get('id'))->markAsRead();
+
         DB::table('notifications')
             ->where('id', $request->get('id'))
             ->delete();
@@ -162,13 +165,13 @@ class InviteController extends Controller
                 'researchers' => implode("/", $researchersExplode)
             ]);
 
-            ResearchInvite::where('research_id', $research_id)->where('user_id', $request->input('user_id'))->delete();
+            ResearchTag::where('research_id', $research_id)->where('user_id', $request->input('user_id'))->delete();
 
             return redirect()->route('research.invite.index', $research_id)->with('success', 'Action successful.');
 
         }
         
-        ResearchInvite::where('research_id', $research_id)->where('user_id', $request->input('user_id'))->delete();
+        ResearchTag::where('research_id', $research_id)->where('user_id', $request->input('user_id'))->delete();
 
         LogActivity::addToLog('Research Involvement removed.');
         

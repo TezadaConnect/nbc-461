@@ -1,8 +1,8 @@
-<div class="modal fade" id="invitesModal" data-backdrop="static" tabindex="-1" aria-labelledby="invitesModalLabel" aria-hidden="true">
+<div class="modal fade" id="tagsModal" data-backdrop="static" tabindex="-1" aria-labelledby="tagsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="invitesModalLabel">Research Shared by Lead</h5>
+                <h5 class="modal-title" id="tagsModalLabel">Extension Tagged by Partner</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -13,18 +13,18 @@
                         <thead>
                             <tr>
                                 <th>Title</th>
-                                <th>Registrant</th>
+                                <th>Extension Partner</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($invites as $row)
+                            @foreach ($tags as $row)
                             <tr>
-                                <td>{{ $row->title }}</td>
+                                <td>{{ ($row->title_of_extension_program != null ? $row->title_of_extension_program : ($row->title_of_extension_project != null ? $row->title_of_extension_project : ($row->title_of_extension_activity != null ? $row->title_of_extension_activity : ''))) }}</td>
                                 <td>{{ $row->last_name.', '.$row->first_name.' '.$row->middle_name.' '.$row->suffix }}</td>
                                 <td>
-                                    <a href="{{ route('research.invite.confirm', [ "research_id" => $row->research_id]) }}" class="btn btn-sm btn-primary mr-1">Confirm</a>
-                                    <a href="{{ route('research.invite.cancel', [ "research_id" => $row->research_id]) }}" class="btn btn-sm btn-secondary ">Remove</a>
+                                    <a href="{{ route('extension.invite.confirm', [ "id" => $row->extension_program_id]) }}" class="btn btn-sm btn-primary mr-1">Confirm</a>
+                                    <a href="{{ route('extension.invite.cancel', [ "id" => $row->extension_program_id]) }}" class="btn btn-sm btn-secondary ">Remove</a>
                                 </td>
                             </tr>
                             @endforeach

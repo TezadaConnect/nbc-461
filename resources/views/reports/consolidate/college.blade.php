@@ -13,20 +13,56 @@
             <div class="col-md-12">
                 <div class="card mb-3">
                     <div class="card-body">
-                        <div class="form-group">
-                            <label for="yearFilter" class="mr-2">Year Reported: </label>
-                            <select id="yearFilter" class="custom-select">
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="quarterFilter" class="mr-2">Quarter: </label>
-                            <div class="d-flex">
-                                <select id="quarterFilter" class="custom-select" name="quarterGenerate">
-                                    <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                    <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                    <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                    <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
-                                </select>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="quarterFilter" class="mr-2">Quarter Period</label>
+                                    <div class="d-flex">
+                                        <select id="quarterFilter" class="custom-select" name="quarterGenerate">
+                                            <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
+                                            <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
+                                            <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
+                                            <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="quarterFilter2" class="mr-2">-</label>
+                                    <div class="d-flex">
+                                        <select id="quarterFilter2" class="custom-select" name="quarterGenerate2">
+                                            <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarter">1</option>
+                                            <option value="2" {{ $quarter2 == 2 ? 'selected' : ''  }} class="quarter">2</option>
+                                            <option value="3" {{ $quarter2 == 3 ? 'selected' : ''  }} class="quarter">3</option>
+                                            <option value="4" {{ $quarter2 == 4 ? 'selected' : ''  }} class="quarter">4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="yearFilter" class="mr-2">Year</label>
+                                    <select id="yearFilter" class="custom-select">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <form action="{{ route('report.generate.index', $user->id)}}" method="POST" id="export_level_form2">
+                                    @csrf
+                                    <div class="form-group mb-0">
+                                        <input type="hidden" name="level" value="college_wide">
+                                        <input type="hidden" name="type" value="dean_director">
+                                        <input type="hidden" id="cw_quarter" name="cw_quarter" value="">
+                                        <input type="hidden" id="cw_year" name="cw_year" value="">
+                                        <input type="hidden" id="college_id" name="college_id" value="{{ $college['id'] }}">
+                                        <div class="btn-group" role="group" aria-label="button-group">
+                                            <button id="filter" type="button" class="btn btn-primary"><i class="bi bi-list-ol"></i> Generate Table</button>
+                                            <button id="export" type="button" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export College/Office QAR File</button>
+                                            <button id="exportLevel" type="button" class="btn btn-warning"><i class="bi bi-filetype-xlsx"></i> Export QAR Filled-in by Dean/Director</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                         <div class="form-group">

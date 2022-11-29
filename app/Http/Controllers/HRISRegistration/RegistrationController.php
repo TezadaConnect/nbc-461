@@ -63,8 +63,8 @@ class RegistrationController extends Controller
             if ($this->save($user)) {
                 $userLocal = User::where('email', $request->email)->first();
                 Auth::login($userLocal);
-                // $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1, 3])->first();
-                // session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
+                $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1, 3])->first();
+                session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
                 if (Employee::where('user_id', $userLocal->id)->exists()) {
                     return redirect()->route('home');
                 }

@@ -17,7 +17,7 @@
                         <div class="row">
                             <div class="col">
                                 <label for="quarterFilter" class="mr-2">Quarter Period</label>
-                                <div class="form-group m-0">
+                                <div class="form-group">
                                     <div class="d-flex">
                                         <select id="quarterFilter" class="custom-select" name="quarterGenerate">
                                             <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
@@ -29,7 +29,7 @@
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="form-group m-0">
+                                <div class="form-group">
                                     <label for="quarterFilter2" class="mr-2">-</label>
                                     <div class="d-flex">
                                         <select id="quarterFilter2" class="custom-select" name="quarterGenerate2">
@@ -42,14 +42,14 @@
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="form-group m-0">
+                                <div class="form-group">
                                     <label for="yearFilter" class="mr-2">Year</label>
                                     <select id="yearFilter" class="custom-select">
                                     </select>
                                 </div>
                             </div>
-                            <div class="col">
-                                <div class="form-group m-0">
+                            <div class="col-12">
+                                <div class="form-group mb-0">
                                     <div class="btn-group" role="group" aria-label="button-group">
                                         <button id="filter" class="btn btn-primary"><i class="bi bi-list-ol"></i> Generate Table</button>
                                         <button id="export" type="button" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
