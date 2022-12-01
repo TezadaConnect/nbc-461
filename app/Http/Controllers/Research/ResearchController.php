@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
     DB,
     Notification,
-    Session,
     Validator,
 };
 use App\Models\{
@@ -346,7 +345,7 @@ class ResearchController extends Controller
      */
     public function update(Request $request, Research $research)
     {
-        if ($research->status != 27){
+        if ($research->status > 27){
             if(LockController::isLocked($research->id, 1))
                 return redirect()->back()->with('cannot_access', 'Accomplishment was already submitted!');
         }
@@ -539,7 +538,7 @@ class ResearchController extends Controller
             'nature_of_involvement' => $request->input('nature_of_involvement'),
         ]);
 
-        $receiver = User::find(auth()->id());
+        $receiver = User::find(Researcher::where("research_id", $research_id)->pluck('user_id')->first());
         $research_title = Research::where('id', $research_id)->pluck('title')->first();
         $sender = User::find(auth()->id());
         $url = route('research.show', $research_id);
@@ -566,6 +565,12 @@ class ResearchController extends Controller
 
 
         return redirect()->route('research.index')->with('success', 'Research has been saved.');
+    }
+
+    public function markAsOngoing($researchID){
+        Research::where('id', $researchID)->update(['status' => 27]);
+        Report::where('report_category_id', 1)->where('report_reference_id', $researchID)->delete();
+        return redirect()->route('research.edit', $researchID)->with('info', 'Please fill in the remaining blanks: Actual Date Started and Target Date of Completion.');
     }
 }
 

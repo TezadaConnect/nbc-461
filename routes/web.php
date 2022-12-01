@@ -320,11 +320,11 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::resource('college-department-award', \App\Http\Controllers\AcademicDevelopment\CollegeDepartmentAwardController::class);
     Route::resource('technical-extension', \App\Http\Controllers\AcademicDevelopment\TechnicalExtensionController::class);
     // Invite Co-Extensionist/s in a Extension
-    Route::get('/extension/{id}/invite', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'index'])->name('extension.invite.index');
-    Route::post('/extension/{id}/invite/add', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'add'])->name('extension.invite.add');
-    Route::post('/extension/{id}/invite/remove', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'remove'])->name('extension.invite.remove');
-    Route::get('/extension/{id}/invite/cancel', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'cancel'])->name('extension.invite.cancel');
-    Route::get('/extension/{id}/invite/confirm', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'confirm'])->name('extension.invite.confirm');
+    Route::get('/extension/{id}/invite', [\App\Http\Controllers\ExtensionPrograms\TagController::class, 'index'])->name('extension.invite.index');
+    Route::post('/extension/{id}/invite/add', [\App\Http\Controllers\ExtensionPrograms\TagController::class, 'add'])->name('extension.invite.add');
+    Route::post('/extension/{id}/invite/remove', [\App\Http\Controllers\ExtensionPrograms\TagController::class, 'remove'])->name('extension.invite.remove');
+    Route::get('/extension/{id}/invite/cancel', [\App\Http\Controllers\ExtensionPrograms\TagController::class, 'cancel'])->name('extension.invite.cancel');
+    Route::get('/extension/{id}/invite/confirm', [\App\Http\Controllers\ExtensionPrograms\TagController::class, 'confirm'])->name('extension.invite.confirm');
     // Use Extension By Co-Extensionists
     Route::get('/extension-service/with-code/create/{extension_program_id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'addExtension'])->name('extension.code.create');
     Route::post('/extension-service/with-code/save/{id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'saveExtension'])->name('extension.code.save');

@@ -405,11 +405,12 @@ class ExtensionProgramController extends Controller
             }
         }
 
-        // $colleges = Employee::where('user_id', auth()->id())->join('colleges', 'colleges.id', 'employees.college_id')->select('colleges.*')->get();
-        $colleges = Employee::where('user_id', auth()->id())->pluck('college_id')->all();
+        if(session()->get('user_type') == 'Faculty Employee')
+            $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
+        else
+            $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
 
         $departments = Department::whereIn('college_id', $colleges)->get();
-
 
         $extension_program = ExtensionProgram::where('id', $id)->first();
         $value = $extension_program;
@@ -417,16 +418,8 @@ class ExtensionProgramController extends Controller
         $value = collect($extension_program);
         $value = $value->except(['nature_of_involvement', 'college_id', 'department_id']);
         $value = $value->toArray();
-
-        $colleges = Employee::where('user_id', auth()->id())->pluck('college_id')->all();
-
-        $departments = Department::whereIn('college_id', $colleges)->get();
-
         $notificationID = $request->get('id');
-
         $is_owner = 0;
-
-
         $extensionServiceDocuments = ExtensionProgramDocument::where('extension_program_id', $extension_program->id)->get();
         if ($extension_program->department_id != null) {
             $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(".$extension_program->department_id.")");

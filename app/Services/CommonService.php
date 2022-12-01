@@ -18,12 +18,12 @@ use App\Models\DenyReason;
 use App\Models\Researcher;
 use App\Models\SectorHead;
 use App\Models\Chairperson;
+use App\Models\ResearchTag;
 use App\Helpers\LogActivity;
 use App\Models\Extensionist;
 use App\Models\ExtensionTag;
 use App\Models\TemporaryFile;
 use App\Models\ResearchInvite;
-use App\Models\ResearchTag;
 use App\Models\ExtensionInvite;
 use App\Models\ExtensionProgram;
 use App\Models\FacultyResearcher;
@@ -33,9 +33,10 @@ use App\Models\Maintenance\Department;
 use Illuminate\Support\Facades\Storage;
 use App\Models\FormBuilder\DropdownOption;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\ResearchTagNotification;
 use App\Http\Controllers\StorageFileController;
-use App\Notifications\ResearchInviteNotification;
 use App\Notifications\ExtensionTagNotification;
+use App\Notifications\ResearchInviteNotification;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
 
@@ -364,7 +365,7 @@ class CommonService
                             'type' => 'res-invite'
                         ];
 
-                        Notification::send($user, new ResearchInviteNotification($notificationData));
+                        Notification::send($user, new ResearchTagNotification($notificationData));
                         Research::where('id', $id)->update([
                             'researchers' => implode("/", $researcherExploded),
                         ]);

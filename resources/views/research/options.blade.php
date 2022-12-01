@@ -132,14 +132,9 @@
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="submitDropdownMenuButton">
         <!-- Submit buttons -->
         @if ($submissionStatus[1][$research->id] == 0)
-            <a href="{{ url('submissions/check/1/'.$research->id) }}" class="dropdown-item"><i class="bi bi-check-square"></i> Submit Registration Record</a>
+            <a href="{{ url('submissions/check/1/'.$research->id) }}" class="dropdown-item"><i class="bi bi-check-square"></i> Submit New Commit/Ongoing Record</a>
         @elseif ($submissionStatus[1][$research->id] == 1)
-            @if ($research->status == 27)
-                <a href="#" style="pointer-events: none;" class="dropdown-item bg-success">Registration Submitted {{ $submitRole[1][$research->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
-                <a href="{{ url('submissions/check/1/'.$research->id) }}" class="dropdown-item"><i class="bi bi-check-square"></i> Submit Ongoing Record</a>
-            @else
-                <a href="#" style="pointer-events: none;" class="dropdown-item bg-success">Registration Submitted {{ $submitRole[1][$research->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
-            @endif    
+            <a href="#" style="pointer-events: none;" class="dropdown-item bg-success">New Commit/Ongoing Submitted {{ $submitRole[1][$research->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
         @elseif ($submissionStatus[1][$research->id] == 2)
             <a href="{{ route('research.edit', $research->id) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Registration - No Document</a>
         @else

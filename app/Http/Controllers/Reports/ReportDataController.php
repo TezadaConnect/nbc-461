@@ -316,8 +316,8 @@ class ReportDataController extends Controller
             $report_docs = ResearchDocument::where('research_id', $id)->where('research_form_id', 4)->pluck('filename')->all();
         }
         elseif($report_category_id == 5){
-            $citation_id = ResearchCitation::where('research_id', $id)->pluck('id')->first();
-            $report_docs = ResearchDocument::where('research_id', $id)->where('research_citation_id', $citation_id)->where('research_form_id', 5)->pluck('filename')->all();
+            // $citation_id = ResearchCitation::where('research_id', $id)->pluck('id')->first();
+            $report_docs = ResearchDocument::where('research_citation_id', $id)->where('research_form_id', 5)->pluck('filename')->all();
         }
         elseif($report_category_id == 6){
             $utilization_id = ResearchUtilization::where('research_id', $id)->pluck('id')->first();

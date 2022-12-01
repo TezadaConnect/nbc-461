@@ -90,10 +90,8 @@
             </div>
         </div>
     </div>
-
     {{-- Delete Modal --}}
     @include('delete')
-
     @push('scripts')
     <script>
        var deleteModal = document.getElementById('deleteModal')

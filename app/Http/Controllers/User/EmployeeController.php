@@ -89,7 +89,6 @@ class EmployeeController extends Controller
             }
         }
         session(['user_type' => Role::where('id', $request->input('role'))->first()->name]);
-
         if ($request->has('yes')) {
             UserRole::where('user_id', auth()->id())->whereIn('role_id', [1,3])->delete();
             UserRole::create([
@@ -108,6 +107,7 @@ class EmployeeController extends Controller
                 ]);
             }
         }
+        
         if ($request->has('designee_cbco')){
             foreach($request->input('designee_cbco') as $cbco) {
                 if (Employee::where('user_id', auth()->id())->where('type', $request->input('designee_type'))->where('college_id', $cbco)->doesntExist()) {
