@@ -1466,5 +1466,129 @@ class GenerateColumn4Seeder extends Seeder
             'is_active' => 1,
             'order' => 1
         ]);
+
+        for($id = 92; $id <= 93; $id++){
+            //Research with New Commitment Tag and Research with Deferred Status - added on December 02, 2022 as part of new requirement
+            GenerateColumn::insert([
+                'name' => 'Research Classification*',
+                'table_id' => $id,
+                'report_column' => 'classification',
+                'is_active' => 1,
+                'order' => 1
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Category**',
+                'table_id' => $id,
+                'report_column' => 'category',
+                'is_active' => 1,
+                'order' => 2,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'University Research Agenda***',
+                'table_id' => $id,
+                'report_column' => 'agenda',
+                'is_active' => 1,
+                'order' => 3,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Discipline****',
+                'table_id' => $id,
+                'report_column' => 'discipline',
+                'is_active' => 1,
+                'order' => 4,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Title of Research',
+                'table_id' => $id,
+                'report_column' => 'title',
+                'is_active' => 1,
+                'order' => 5,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Researcher/s (Surname,First Name,M.I.)',
+                'table_id' => $id,
+                'report_column' => 'researchers',
+                'is_active' => 1,
+                'order' => 6,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Nature of Involvement*****',
+                'table_id' => $id,
+                'report_column' => 'nature_of_involvement',
+                'is_active' => 1,
+                'order' => 7,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Type of Research******',
+                'table_id' => $id,
+                'report_column' => 'research_type',
+                'is_active' => 1,
+                'order' => 8,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Keywords (at least five (5) keywords)',
+                'table_id' => $id,
+                'report_column' => 'keywords',
+                'is_active' => 1,
+                'order' => 9,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Type of Funding*******',
+                'table_id' => $id,
+                'report_column' => 'funding_type',
+                'is_active' => 1,
+                'order' => 10,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Amount of Funding',
+                'table_id' => $id,
+                'report_column' => 'funding_amount',
+                'is_active' => 1,
+                'order' => 11,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Funding Agency',
+                'table_id' => $id,
+                'report_column' => 'funding_agency',
+                'is_active' => 1,
+                'order' => 12,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Actual Date Started (mm/dd/yyyy)',
+                'table_id' => $id,
+                'report_column' => 'start_date',
+                'is_active' => 1,
+                'order' => 13,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Target Date of Completion (mm/dd/yyyy)',
+                'table_id' => $id,
+                'report_column' => 'target_date',
+                'is_active' => 1,
+                'order' => 14,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Status (Ongoing/Completed)',
+                'table_id' => $id,
+                'report_column' => 'status',
+                'is_active' => 1,
+                'order' => 15,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Date Completed',
+                'table_id' => $id,
+                'report_column' => 'completion_date',
+                'is_active' => 1,
+                'order' => $id,
+            ]);
+            GenerateColumn::insert([
+                'name' => 'Description of Supporting Documents',
+                'table_id' => $id,
+                'report_column' => 'description',
+                'is_active' => 1,
+                'order' => 17,
+            ]);
+        }
+
     }
 }

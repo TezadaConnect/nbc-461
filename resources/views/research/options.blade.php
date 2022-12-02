@@ -126,20 +126,27 @@
     @endif
 </div>
 <div class="dropdown">
+    @if ($research->status == 26)
+    <span class="d-flex" tabindex="0" data-toggle="tooltip" title="Research with 'New Commitment' status will not reflect in generated QAR but will be viewed by the Research Coordinator.">
+        <button class="btn btn-primary btn-disabled btn-sm dropdown-toggle py-3" type="button" disabled>Submit</button>
+    </span>
+    @else
     <button class="btn btn-primary btn-sm dropdown-toggle py-3" type="button" id="submitDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Submit
     </button>
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="submitDropdownMenuButton">
-        <!-- Submit buttons -->
-        @if ($submissionStatus[1][$research->id] == 0)
-            <a href="{{ url('submissions/check/1/'.$research->id) }}" class="dropdown-item"><i class="bi bi-check-square"></i> Submit New Commit/Ongoing Record</a>
-        @elseif ($submissionStatus[1][$research->id] == 1)
-            <a href="#" style="pointer-events: none;" class="dropdown-item bg-success">New Commit/Ongoing Submitted {{ $submitRole[1][$research->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
-        @elseif ($submissionStatus[1][$research->id] == 2)
-            <a href="{{ route('research.edit', $research->id) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Registration - No Document</a>
-        @else
-            -
-        @endif 
+        @if ($research->status == 27)
+            <!-- Submit buttons -->
+            @if ($submissionStatus[1][$research->id] == 0)
+                <a href="{{ url('submissions/check/1/'.$research->id) }}" class="dropdown-item"><i class="bi bi-check-square"></i> Submit Ongoing Record</a>
+            @elseif ($submissionStatus[1][$research->id] == 1)
+                <a href="#" style="pointer-events: none;" class="dropdown-item bg-success">Ongoing Research Submitted {{ $submitRole[1][$research->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+            @elseif ($submissionStatus[1][$research->id] == 2)
+                <a href="{{ route('research.edit', $research->id) }}#upload-document" class="dropdown-item"><i class="bi bi-exclamation-circle-fill text-danger"></i> Ongoing Research - No Document</a>
+            @else
+                -
+            @endif 
+        @endif
         @if ($isSubmitted[1][$research->id])
             <!-- Completion -->
             @if ($researchRecords['completion'][$research->id])
@@ -209,6 +216,7 @@
             @endif
         @endif
     </div>
+    @endif
 </div>
 @if($research_status <= 27)
 <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#deleteModal">Defer</button>

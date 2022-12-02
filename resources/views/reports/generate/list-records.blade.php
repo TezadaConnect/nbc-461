@@ -23,11 +23,6 @@ $table_format_json = json_encode($table_format, JSON_FORCE_OBJECT);
             <table class="table table-bordered table-hover table-sm">
                 <thead> 
                     <tr>
-                        <th>Quarter</th>
-                        <th>Sector</th>
-                        <th>Delivery Unit</th>
-                        <th>Department</th>
-                        <th>Name of Employee</th>
                         {{-- load the addtl columns --}}
                         @foreach ($table_columns[$format->id] as $column)
                             <th>{{ $column['name'] }}</th>
@@ -35,44 +30,44 @@ $table_format_json = json_encode($table_format, JSON_FORCE_OBJECT);
                     </tr>
                 </thead>
                 <tbody>
+
                     @forelse ($table_contents[$format->id] as $content)
+                    @isset ($content['report_details'])
                         @php
                             $data = json_decode($content['report_details'], true);
                             $documents =  json_decode($content['report_documents'], true);
                         @endphp
+                    @endisset
                         <tr>
-                            <td>{{ $content['report_quarter'] }}</td>
-                            <td>{{ $content['sector_name'] }}</td>
-                            <td>{{ $content['college_name'] }}</td>
-                            <td>{{ $content['department_name'] }}</td>
-                            <td>{{ $content['faculty_name'] }}</td>
+                            @if($format->id == 92 || $format->id == 93)
+                            @foreach ($table_columns[$format->id] as $column )
+                                    @if (isset($content[$column['report_column']]))
+                                        <td>{{ $content[$column['report_column']] }}</td>
+                                    @else
+                                        <td>-</td>
+                                    @endif
+                                @endforeach
+                            @else
                             @foreach ($table_columns[$format->id] as $column )
                                 @if (isset($data[$column['report_column']]))
                                     <td>{{ $data[$column['report_column']] }}</td>
                                 @else
-                                    @if ($column == 'fund_source' && $data[$column['report_column']] == 0)
-                                        <td>Not Paid</td>
-                                    @else
-                                        <td>-</td>
-                                    @endif
+                                    <td>-</td>
                                 @endif
                             @endforeach
+                            @endif
                             <td><a href="{{ route('report.generate.document-view', $content['id']) }}" target="_blank">View Documents</a></td>
                             <td></td>
                         </tr>
                             
                     @empty
                     <tr>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
                         @foreach ($table_columns[$format->id] as $column )
-                        <td>-</td>
-                    @endforeach
+                            <td>-</td>
+                        @endforeach
                     </tr>
                     @endforelse
+     
                 </tbody>
                 <tfoot>
                     @php

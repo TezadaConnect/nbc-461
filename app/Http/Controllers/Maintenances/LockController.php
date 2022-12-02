@@ -117,9 +117,4 @@ class LockController extends Controller
                 return true;
         } return false;
     }
-
-    public function isLockedBasedOnStatus(){
-
-    }
-
 }

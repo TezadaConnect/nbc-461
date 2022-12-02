@@ -46,8 +46,7 @@ class ResearchConsolidatedController extends Controller
         //Get department tagged in each report
         $department_names = $this->commonService->getCollegeDepartmentNames($department_accomps)['department_names'];
         $cluster = DropdownOption::find($id); //Cluster record is in the dropdown as it appears in the research form
-        return view('reports.consolidate.research', compact('roles','department_accomps', 'cluster' , 'department_names',
-            'college_names', 'year', 'id', 'assignments',
+        return view('reports.consolidate.research', compact('roles','department_accomps', 'cluster', 'year', 'id', 'assignments',
         ));
     }
 

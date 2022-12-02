@@ -208,7 +208,9 @@ class ResearchController extends Controller
         $input = $request->except(['_token', 'document', 'funding_amount', 'tagged_collaborators', 'nature_of_involvement', 'college_id', 'department_id']);
         $funding_amount = $request->funding_amount;
         $funding_amount = str_replace( ',' , '', $funding_amount);
-        $research = Research::create([ 'funding_amount' => $funding_amount,]);
+        $hasNewCommit = 0;
+        if($request->status == 26) $hasNewCommit = 1;
+        $research = Research::create([ 'funding_amount' => $funding_amount, 'has_new_commitment' => $hasNewCommit]);
         Researcher::create([
             'research_id' => $research->id,
             'department_id' => $request->input('department_id'),
@@ -345,10 +347,8 @@ class ResearchController extends Controller
      */
     public function update(Request $request, Research $research)
     {
-        if ($research->status > 27){
-            if(LockController::isLocked($research->id, 1))
-                return redirect()->back()->with('cannot_access', 'Accomplishment was already submitted!');
-        }
+        if(LockController::isLocked($research->id, 1))
+            return redirect()->back()->with('cannot_access', 'Accomplishment was already submitted!');
         if(ResearchForm::where('id', 1)->pluck('is_active')->first() == 0)
             return view('inactive');
 
@@ -372,10 +372,9 @@ class ResearchController extends Controller
         $input = $request->except(['_token', '_method', 'document', 'funding_amount', 'tagged_collaborators', 'nature_of_involvement', 'college_id', 'department_id']);
         $funding_amount = $request->funding_amount;
         $funding_amount = str_replace( ',' , '', $funding_amount);
-
         $research->update(['description' => '-clear']);
         $research->update($input);
-        $research->update(['funding_amount' => $funding_amount,]);
+        $research->update(['funding_amount' => $funding_amount]);
 
         Researcher::where('research_id', $research->id)->where('user_id', auth()->id())
             ->update([
@@ -568,8 +567,7 @@ class ResearchController extends Controller
     }
 
     public function markAsOngoing($researchID){
-        Research::where('id', $researchID)->update(['status' => 27]);
-        Report::where('report_category_id', 1)->where('report_reference_id', $researchID)->delete();
+        // Research::where('id', $researchID)->update(['status' => 27]);
         return redirect()->route('research.edit', $researchID)->with('info', 'Please fill in the remaining blanks: Actual Date Started and Target Date of Completion.');
     }
 }

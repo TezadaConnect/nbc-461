@@ -18,15 +18,17 @@
                             <select id="yearFilter" class="custom-select">
                             </select>
                         </div>
-                        <form action="{{ route('report.generate.index', $cluster['id'] ?? '') }}" method="post">
-                            <div class="form-group">
+                        <div class="form-group">
+                            <form action="{{ route('report.generate.index', $cluster['id'] ?? '') }}" method="post">
                                 @csrf
                                 <input type="hidden" name="level" value="research">
                                 <input type="hidden" name="year_generate" id="year_generate" class="form-control" >
+                                <input type="hidden" name="report_type" id="report_type" class="form-control">
                                 <button id="quarterYearFilter" type="button" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
-                                <button id="export" type="submit" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
-                            </div>
-                        </form>
+                                <button id="export" type="submit" class="btn btn-warning mr-2" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
+                                <button id="btn-list" type="submit" onclick="" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export List of Research</button>
+                            </form>
+                        </div>
                         <hr>
                         <div class="row">
                             <div class="col-md-12">
@@ -594,7 +596,15 @@
                 var selectedYear = $('#yearFilter').val();
                 $('#quarter_generate').val(selectedQuarter);
                 $('#year_generate').val(selectedYear);
-            })
+                $('#report_type').val('qar');
+            });
+            $('#btn-list').on('click', function() {
+                var selectedQuarter = $('#quarterFilter').val();
+                var selectedYear = $('#yearFilter').val();
+                $('#quarter_generate').val(selectedQuarter);
+                $('#year_generate').val(selectedYear);
+                $('#report_type').val('researchList');
+            });
         </script>
     @endpush
 </x-app-layout>
