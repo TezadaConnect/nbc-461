@@ -6,62 +6,63 @@ use App\Helpers\LogActivity;
 use App\Models\User;
 use App\Models\Report;
 use Illuminate\Http\Request;
-use App\Models\ExtensionInvite;
+use App\Models\ExtensionTag;
+use App\Models\ExtensionProgram;
 use App\Models\ExtensionService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\ExtensionInviteNotification;
+use App\Notifications\ExtensionTagNotification;
 use Illuminate\Support\Facades\DB;
 
-class InviteController extends Controller
+class TagController extends Controller
 {
     public function index($id){
 
-        $extension = ExtensionService::find($id);
+        $extension = ExtensionProgram::find($id);
 
-        $coExtensionists = ExtensionInvite::
-                    where('extension_invites.ext_code', $extension->ext_code)
-                    ->join('users', 'users.id', 'extension_invites.user_id')
-                    ->select('extension_invites.id as invite_id', 'extension_invites.status as extension_status','users.*', 'extension_invites.is_owner')
+        $coExtensionists = ExtensionTag::
+                    where('extension_tags.extension_program_id', $extension->extension_program_id)
+                    ->join('users', 'users.id', 'extension_tags.user_id')
+                    ->select('extension_tags.id as invite_id', 'extension_tags.status as extension_status','users.*', 'extension_tags.is_owner')
                     ->get();
 
         //get Nature of involvement
         $involvement = [];
         foreach($coExtensionists as $row){
             if($row->extension_status == "1"){
-                $temp = ExtensionService::where('user_id', $row->id)
-                            ->where('ext_code', $extension->ext_code)
+                $temp = ExtensionProgram::where('user_id', $row->id)
+                            ->where('extension_program_id', $extension->extension_program_id)
                             ->pluck('nature_of_involvement')->first();
                 $involvement[$row->id] = $temp;
             }
         }
 
-        $allEmployees = User::whereNotIn('users.id', (ExtensionInvite::where('extension_service_id', $id)->pluck('user_id')->all()))->
+        $allEmployees = User::whereNotIn('users.id', (ExtensionTag::where('extension_program_id', $id)->pluck('user_id')->all()))->
                             where('users.id', '!=', auth()->id())->
                             select('users.*')->
                             get();
         
-        return view('extension-programs.extension-services.invite.index', compact('coExtensionists', 'allEmployees', 'extension', 'involvement'));
+        return view('extension-programs.invite.index', compact('coExtensionists', 'allEmployees', 'extension', 'involvement'));
     }
 
     public function add($id, Request $request){
 
         $count = 0;
 
-        $extension = ExtensionService::where('id', $id)->first();
+        $extension = ExtensionProgram::where('id', $id)->first();
         foreach($request->input('employees') as $row){
-            ExtensionInvite::create([
+            ExtensionTag::create([
                 'user_id' => $row,
                 'sender_id' => auth()->id(),
-                'extension_service_id' => $id,
-                'ext_code' => $extension->ext_code
+                'extension_program_id' => $id,
+                'extension_program_id' => $extension->extension_program_id
             ]);
 
             $user = User::find($row);
             $extension_title = "Extension";
-            $sender = User::join('extension_services', 'extension_services.user_id', 'users.id')
-                            ->where('extension_services.user_id', auth()->id())
-                            ->where('extension_services.id', $id)
+            $sender = User::join('extension_programs', 'extension_programs.user_id', 'users.id')
+                            ->where('extension_programs.user_id', auth()->id())
+                            ->where('extension_programs.id', $id)
                             ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
             $url_accept = route('extension.invite.confirm', $id);
             $url_deny = route('extension.invite.cancel', $id);
@@ -76,7 +77,7 @@ class InviteController extends Controller
                 'type' => 'ext-invite'
             ];
 
-            Notification::send($user, new ExtensionInviteNotification($notificationData));
+            Notification::send($user, new ExtensionTagNotification($notificationData));
             $count++;
         }
         LogActivity::addToLog('Had added '.$count.' extension partners in an extension program/project/activity.');
@@ -92,13 +93,13 @@ class InviteController extends Controller
 
         $user->notifications->where('id', $request->get('id'))->markAsRead();
         
-        return redirect()->route('extension.code.create', ['extension_service_id' => $id, 'id' => $request->get('id') ]);
+        return redirect()->route('extension.code.create', ['extension_program_id' => $id, 'id' => $request->get('id') ])->with('info', 'Fill in your Nature of Involvement and Department where to commit the extension.');;
     }
     
     public function cancel($id , Request $request){
         $user = User::find(auth()->id());
 
-        ExtensionInvite::where('extension_service_id', $id)->where('user_id', auth()->id())->update([
+        ExtensionTag::where('extension_program_id', $id)->where('user_id', auth()->id())->update([
             'status' => 0
         ]);
 
@@ -109,27 +110,27 @@ class InviteController extends Controller
         
         LogActivity::addToLog('Had denied as an extension partner in an extension program/project/activity.');
 
-        return redirect()->route('extension-service.index')->with('success', 'Invitation cancelled.');
+        return redirect()->route('extension-programs.index')->with('success', 'Tagged extension has been successfully removed.');
     }
 
     public function remove($id, Request $request){
-        $extension = ExtensionService::find($id);
+        $extension = ExtensionProgram::find($id);
 
-        if(ExtensionService::where('user_id', $request->input('user_id'))->where('ext_code', $extension->ext_code)->exists()){
-            $coESID = ExtensionService::where('ext_code', $extension->ext_code)->where('user_id', $request->input('user_id'))->pluck('id')->first();
+        if(ExtensionProgram::where('user_id', $request->input('user_id'))->where('extension_program_id', $extension->extension_program_id)->exists()){
+            $coESID = ExtensionProgram::where('extension_program_id', $extension->extension_program_id)->where('user_id', $request->input('user_id'))->pluck('id')->first();
             if(Report::where('report_reference_id', $coESID)->where('report_category_id', 12)->where('user_id', $request->input('user_id'))->exists()){
                 return redirect()->route('extension.invite.index', $id)->with('error', 'Cannot do this action given that the person has already submitted the extension.');
             }
 
-            ExtensionService::where('user_id', $request->input('user_id'))->where('ext_code', $extension->ext_code)->delete();
+            ExtensionProgram::where('user_id', $request->input('user_id'))->where('extension_program_id', $extension->extension_program_id)->delete();
 
-            ExtensionInvite::where('extension_service_id', $id)->where('user_id', $request->input('user_id'))->delete();
+            ExtensionTag::where('extension_program_id', $id)->where('user_id', $request->input('user_id'))->delete();
 
             return redirect()->route('extension.invite.index', $id)->with('success', 'Action successful.');
 
         }
         
-        ExtensionInvite::where('extension_service_id', $id)->where('user_id', $request->input('user_id'))->delete();
+        ExtensionTag::where('extension_program_id', $id)->where('user_id', $request->input('user_id'))->delete();
 
         LogActivity::addToLog('Extensionists removed.');
 

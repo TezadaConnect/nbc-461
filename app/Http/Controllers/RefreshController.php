@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Report;
 use Illuminate\Http\Request;
+use App\Models\Maintenance\Sector;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
@@ -28,6 +29,7 @@ class RefreshController extends Controller
         return redirect()->route('home');
     }
 
+    //This method is for the adjustment of report approvals of reports that were committed directly to the college/branch/campus/office
     public function reportsAlignment() {
         $reports = Report::all();
 
@@ -70,6 +72,26 @@ class RefreshController extends Controller
         }
 
         return redirect()->route('home');
+    }
+
+    //This method is for the adjustment of report approvals of reports that were committed directly to the sector.
+    //If committed to sector, it must go directly to sector head for approval.
+    public function reportsDirectToSector(){
+        $reports = Report::all();
+        $sectorIDs = Sector::pluck('id')->all();
+        foreach ($reports as $row) {
+            if ($row->format == 'a') {
+                if ($row->department_id == $row->college_id) {
+                    if (in_array($row->college_id, $sectorIDs)){
+                        Report::find($row->id)->update([
+                            'chairperson_approval' => 1,
+                            'dean_approval' => 1,
+                            'updated_at' => DB::raw('updated_at')
+                        ]);
+                    }
+                }
+            }
+        }
     }
 }
 

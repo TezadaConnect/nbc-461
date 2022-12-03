@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h3 class="font-weight-bold mr-2">Register {{ $research->research_code }} Research/Book Chapter</h3>
+                <h3 class="font-weight-bold mr-2">Add Research/Book Chapter</h3>
                 <div class="mb-3">
                     <a class="back_link" href="{{ route('research.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Research</a>
                 </div>

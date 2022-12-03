@@ -6,33 +6,23 @@ use App\Helpers\LogActivity;
 use App\Http\Controllers\{
     Controller,
     Maintenances\LockController,
-    Reports\ReportDataController,
     StorageFileController,
 };
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
     DB,
-    Storage,
 };
 use App\Models\{
     Research,
-    ResearchCitation,
-    ResearchComplete,
-    ResearchCopyright,
+    Researcher,
     ResearchDocument,
     ResearchPresentation,
     ResearchPublication,
-    ResearchUtilization,
-    TemporaryFile,
     FormBuilder\DropdownOption,
-    FormBuilder\ResearchField,
     FormBuilder\ResearchForm,
     Maintenance\Quarter,
-    Maintenance\College,
-    Maintenance\Department,
 };
 use App\Services\CommonService;
-use Exception;
 
 class PresentationController extends Controller
 {
@@ -56,12 +46,8 @@ class PresentationController extends Controller
         $this->authorize('viewAny', ResearchPresentation::class);
         $presentationFields = DB::select("CALL get_research_fields_by_form_id('4')");
 
-        $presentationDocuments = ResearchDocument::where('research_code', $research->research_code)->where('research_form_id', 4)->get()->toArray();
-        $research = Research::where('research_code', $research->research_code)->where('user_id', auth()->id())
-                ->join('dropdown_options', 'dropdown_options.id', 'research.status')
-                ->select('research.*', 'dropdown_options.name as status_name')->first();
-
-        $presentationRecord = ResearchPresentation::where('research_code', $research->research_code)->first();
+        $presentationDocuments = ResearchDocument::where('research_id', $research->id)->where('research_form_id', 4)->get()->toArray();
+        $presentationRecord = ResearchPresentation::where('research_id', $research->id)->first();
         
         if($presentationRecord == null){
             if ($research->status >= 28)
@@ -72,7 +58,7 @@ class PresentationController extends Controller
             }
         }
 
-        $presentationValues = array_merge(collect($presentationRecord)->except(['research_code'])->toArray(), collect($research)->except(['description'])->toArray());
+        $presentationValues = array_merge(collect($presentationRecord)->toArray(), collect($research)->except(['description'])->toArray());
 
         $submissionStatus[4][$presentationValues['id']] = $this->commonService->getSubmissionStatus($presentationValues['id'], 4)['submissionStatus'];
         $submitRole[$presentationValues['id']] = $this->commonService->getSubmissionStatus($presentationValues['id'], 4)['submitRole'];
@@ -122,15 +108,12 @@ class PresentationController extends Controller
         $value = $value->except(['description', 'status']);
         $value = $value->toArray();
 
-        $publicationChecker = ResearchPublication::where('research_code', $research->research_code)->first();
+        $publicationChecker = ResearchPublication::where('research_id', $research->id)->first();
 
-        if($publicationChecker == null){
+        if($publicationChecker == null)
             $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', 29)->first();
-        }
-        else{
+        else
             $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', 31)->first();
-        }
-
 
         return view('research.presentation.create', compact('researchFields', 'research', 'researchStatus', 'value', 'dropdown_options', 'currentQuarter'));
     }
@@ -152,28 +135,16 @@ class PresentationController extends Controller
         $date_presented = date("Y-m-d", strtotime($request->input('date_presented')));
         $currentQuarterYear = Quarter::find(1);
 
-        $request->merge([
-            'date_presented' => $date_presented,
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-            'research_id' => $research->id,
-        ]);
-
+        $request->merge(['date_presented' => $date_presented, 'research_id' => $research->id,]);
         $input = $request->except(['_token', '_method', 'status', 'document']);
+        $publicationChecker = ResearchPublication::where('research_id', $research->id)->first();
 
-        $publicationChecker = ResearchPublication::where('research_code', $research->research_code)->first();
-
-        if($publicationChecker == null){
+        if($publicationChecker == null)
             $researchStatus = 29;
-        }
-        else{
+        else
             $researchStatus = 31;
-        }
-
-        Research::where('research_code', $research->research_code)->update([
-            'status' => $researchStatus
-        ]);
-
+        
+        $research->update(['status' => $researchStatus]);
         $presentation = ResearchPresentation::create($input);
 
         if(!empty($request->file(['document']))){      
@@ -181,7 +152,6 @@ class PresentationController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RPRE-", 'research.presentation.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 4,
                         'filename' => $fileName,
@@ -220,7 +190,7 @@ class PresentationController extends Controller
         $currentQuarter = Quarter::find(1)->current_quarter;
         $this->authorize('update', ResearchPresentation::class);
 
-        if (auth()->id() !== $research->user_id)
+        if (Researcher::where('research_id', $research->id)->first()->is_registrant == 0)
             abort(403);
 
         if(LockController::isLocked($presentation->id, 4)){
@@ -243,7 +213,7 @@ class PresentationController extends Controller
         }
 
         // $research = array_merge($research->toArray(), $presentation->toArray());
-        $researchDocuments = ResearchDocument::where('research_code', $research['research_code'])->where('research_form_id', 4)->get()->toArray();
+        $researchDocuments = ResearchDocument::where('research_id', $research['id'])->where('research_form_id', 4)->get()->toArray();
 
         $value = $research;
         $value = collect($research);
@@ -251,15 +221,12 @@ class PresentationController extends Controller
         $value = $value->toArray();
         $value = array_merge($value, $presentation->toArray());
 
+        $publicationChecker = ResearchPublication::where('research_id', $research->id)->first();
 
-        $presentationChecker = ResearchPresentation::where('research_code', $research->research_code)->first();
-
-        if($presentationChecker == null){
+        if($publicationChecker == null)
             $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', 29)->first();
-        }
-        else{
+        else
             $researchStatus = DropdownOption::where('dropdown_options.dropdown_id', 7)->where('id', 31)->first();
-        }
 
         // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
         // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
@@ -285,17 +252,9 @@ class PresentationController extends Controller
             return view('inactive');
 
         $date_presented = date("Y-m-d", strtotime($request->input('date_presented')));
-
-        $request->merge([
-            'date_presented' => $date_presented,
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-        ]);
-
+        $request->merge(['date_presented' => $date_presented,]);
         $input = $request->except(['_token', '_method', 'status', 'document']);
-
         $presentation->update(['description' => '-clear']);
-
         $presentation->update($input);
 
         if(!empty($request->file(['document']))){      
@@ -303,7 +262,6 @@ class PresentationController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RPRE-", 'research.presentation.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 4,
                         'filename' => $fileName,

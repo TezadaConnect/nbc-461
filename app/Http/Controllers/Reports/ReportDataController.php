@@ -15,6 +15,8 @@ use App\Models\{
     ExpertServiceConsultantDocument,
     ExtensionService,
     ExtensionServiceDocument,
+    ExtensionProgram,
+    ExtensionProgramDocument,
     IntraMobilityDocument,
     InventionDocument,
     MobilityDocument,
@@ -62,49 +64,22 @@ class ReportDataController extends Controller
         $report_data_array = [];
 
         if($report_category_id <= 7){
-            if($report_category_id == 1){
-                $research_id = $id;
-            }
-            if($report_category_id == 2){
-                $research_code = ResearchComplete::where('id', $id)->pluck('research_code')->first();
-                $research_id = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
-            }
-            elseif($report_category_id == 3){
-                $research_code = ResearchPublication::where('id', $id)->pluck('research_code')->first();
-                $research_id = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
-            }
-            elseif($report_category_id == 4){
-                $research_code = ResearchPresentation::where('id', $id)->pluck('research_code')->first();
-                $research_id = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
-            }
-            elseif($report_category_id == 5){
-                $research_code = ResearchCitation::where('id', $id)->pluck('research_code')->first();
-                $research_id = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
-            }
-            elseif($report_category_id == 6){
-                $research_code = ResearchUtilization::where('id', $id)->pluck('research_code')->first();
-                $research_id = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
-            }
-            elseif($report_category_id == 7){
-                $research_code = ResearchCopyright::where('id', $id)->pluck('research_code')->first();
-                $research_id = Research::where('research_code', $research_code)->where('user_id', auth()->id())->pluck('id')->first();
-            }
             foreach($report_columns as $column){
                 if($column->table == 'research_citations'){
                     if (Schema::hasColumn('research_citations', $column->column))
-                        $data = DB::table('research_citations')->where('id', $id)->value($column->column);
+                        $data = DB::table('research_citations')->where('research_id', $id)->value($column->column);
                     else
                         $data = null;
                 }
                 elseif($column->table == 'research_utilizations'){
                     if (Schema::hasColumn($column->table, $column->column))
-                        $data = DB::table($column->table)->where('id', $id)->value($column->column);
+                        $data = DB::table($column->table)->where('research_id', $id)->value($column->column);
                     else
                         $data = null;
                 }
                 elseif($column->table == 'research'){
                     if (Schema::hasColumn($column->table, $column->column))
-                        $data = DB::table($column->table)->where('id', $research_id)->value($column->column);
+                        $data = DB::table($column->table)->where('id', $id)->value($column->column);
                     else
                         $data = null;
 
@@ -119,7 +94,7 @@ class ReportDataController extends Controller
                 }
                 else {
                     if (Schema::hasColumn($column->table, $column->column))
-                        $data = DB::table($column->table)->where('id', $id)->value($column->column);
+                        $data = DB::table($column->table)->where('research_id', $id)->value($column->column);
                     else
                         $data = null;
 
@@ -170,31 +145,34 @@ class ReportDataController extends Controller
                 }
 
                 if($column->column == 'college_id'){
-                    $data = DB::table('research')->where($column->table.'.id', $research_id)
-                        ->join('colleges', 'colleges.id', $column->table.'.college_id')
-                        ->where($column->table.'.user_id', auth()->id())
+                    $data = DB::table('researchers')->where('researchers.research_id', $id)
+                        ->join('colleges', 'colleges.id', 'researchers.college_id')
+                        ->where('researchers.user_id', auth()->id())
                         ->pluck('colleges.name')->first();
 
                 }
                 if($column->column == 'department_id'){
-                    $data = DB::table('research')->where($column->table.'.id', $research_id)
-                        ->join('departments', 'departments.id', $column->table.'.department_id')
-                        ->where($column->table.'.user_id', auth()->id())
+                    $data = DB::table('researchers')->where('researchers.research_id', $id)
+                        ->join('departments', 'departments.id', 'researchers.department_id')
+                        ->where('researchers.user_id', auth()->id())
                         ->pluck('departments.name')->first();
                 }
                 if($column->column == 'funding_amount'){
                     if ($column->table == 'research') {
-                        $curr = DB::table($column->table)->where('id', $research_id)->value('currency_funding_amount');
+                        $curr = DB::table($column->table)->where('id', $id)->value('currency_funding_amount');
                     }
                     else {
-                        $curr = DB::table($column->table)->where('id', $research_id)->value('currency_funding_amount');
+                        $curr = DB::table($column->table)->where('research_id', $id)->value('currency_funding_amount');
                     }
                     $currName = Currency::where('id', $curr)->pluck('code')->first();
                     $data = number_format($data, 2, '.', ',');
                     $data = $currName.' '.$data;
                 }
                 if($column->column == 'researchers'){
-                    $data = DB::table($column->table)->where('id', $research_id)->pluck($column->column)->first();
+                    $data = DB::table($column->table)->where('id', $id)->pluck($column->column)->first();
+                }
+                if($column->column == 'nature_of_involvement'){
+                    $data = DB::table('researchers')->where('research_id', $id)->join('dropdown_options', 'dropdown_options.id', 'researchers.'.$column->column)->pluck('dropdown_options.name as '.$column->column)->first();
                 }
 
                 array_push($report_data_array, $data);
@@ -287,15 +265,27 @@ class ReportDataController extends Controller
                         $data = $currName.' '.$data;
                     }
                     if($column->column == 'college_id'){
-                        $data = DB::table($column->table)->where($column->table.'.id', $id)
-                            ->join('colleges', 'colleges.id', $column->table.'.college_id')
-                            ->pluck('colleges.name')->first();
+                        if ($report_category_id == 12){ // For extension programs where the colleges are stored in separate table
+                            $data = DB::table("extensionists")->where('extensionists.user_id', auth()->id())->where('extensionists.extension_program_id', $id)
+                                ->join('colleges', 'colleges.id', 'extensionists.college_id')
+                                ->pluck('colleges.name')->first();
+                        } else{
+                            $data = DB::table($column->table)->where($column->table.'.id', $id)
+                                ->join('colleges', 'colleges.id', $column->table.'.college_id')
+                                ->pluck('colleges.name')->first();
+                        }
 
                     }
                     if($column->column == 'department_id'){
-                        $data = DB::table($column->table)->where($column->table.'.id', $id)
-                            ->join('departments', 'departments.id', $column->table.'.department_id')
-                            ->pluck('departments.name')->first();
+                        if ($report_category_id == 12){ // For extension programs where the depts are stored in separate table
+                            $data = DB::table("extensionists")->where('extensionists.user_id', auth()->id())->where('extensionists.extension_program_id', $id)
+                                ->join('departments', 'departments.id', 'extensionists.department_id')
+                                ->pluck('departments.name')->first();
+                        } else{
+                            $data = DB::table($column->table)->where($column->table.'.id', $id)
+                                ->join('departments', 'departments.id', $column->table.'.department_id')
+                                ->pluck('departments.name')->first();
+                        }
                     }
                     array_push($report_data_array, $data);
                 }
@@ -310,32 +300,32 @@ class ReportDataController extends Controller
         $report_docs;
 
         if($report_category_id == 1){
-            $research_code = Research::where('id', $id)->pluck('research_code')->first();
-            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_form_id', 1)->pluck('filename')->all();
+            // $research_code = Research::where('id', $id)->pluck('research_code')->first();
+            $report_docs = ResearchDocument::where('research_id', $id)->where('research_form_id', 1)->pluck('filename')->all();
         }
         elseif($report_category_id == 2){
-            $research_code = ResearchComplete::where('id', $id)->pluck('research_code')->first();
-            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_form_id', 2)->pluck('filename')->all();
+            // $research_code = ResearchComplete::where('id', $id)->pluck('research_code')->first();
+            $report_docs = ResearchDocument::where('research_id', $id)->where('research_form_id', 2)->pluck('filename')->all();
         }
         elseif($report_category_id == 3){
-            $research_code = ResearchPublication::where('id', $id)->pluck('research_code')->first();
-            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_form_id', 3)->pluck('filename')->all();
+            // $research_code = ResearchPublication::where('id', $id)->pluck('research_code')->first();
+            $report_docs = ResearchDocument::where('research_id', $id)->where('research_form_id', 3)->pluck('filename')->all();
         }
         elseif($report_category_id == 4){
-            $research_code = ResearchPresentation::where('id', $id)->pluck('research_code')->first();
-            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_form_id', 4)->pluck('filename')->all();
+            // $research_code = ResearchPresentation::where('id', $id)->pluck('research_code')->first();
+            $report_docs = ResearchDocument::where('research_id', $id)->where('research_form_id', 4)->pluck('filename')->all();
         }
         elseif($report_category_id == 5){
-            $research_code = ResearchCitation::where('id', $id)->pluck('research_code')->first();
-            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_form_id', 5)->where('research_citation_id', $id)->pluck('filename')->all();
+            $citation_id = ResearchCitation::where('research_id', $id)->pluck('id')->first();
+            $report_docs = ResearchDocument::where('research_id', $id)->where('research_citation_id', $citation_id)->where('research_form_id', 5)->pluck('filename')->all();
         }
         elseif($report_category_id == 6){
-            $research_code = ResearchUtilization::where('id', $id)->pluck('research_code')->first();
-            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_form_id', 6)->where('research_utilization_id', $id)->pluck('filename')->all();
+            $utilization_id = ResearchUtilization::where('research_id', $id)->pluck('id')->first();
+            $report_docs = ResearchDocument::where('research_id', $id)->where('research_utilization_id', $utilization_id)->where('research_form_id', 6)->pluck('filename')->all();
         }
         elseif($report_category_id == 7){
-            $research_code = ResearchCopyright::where('id', $id)->pluck('research_code')->first();
-            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_form_id', 7)->pluck('filename')->all();
+            // $research_code = ResearchCopyright::where('id', $id)->pluck('research_code')->first();
+            $report_docs = ResearchDocument::where('research_id', $id)->where('research_form_id', 7)->pluck('filename')->all();
         }
         elseif($report_category_id == 8){
             $report_docs = InventionDocument::where('invention_id', $id)->pluck('filename')->all();
@@ -350,8 +340,7 @@ class ReportDataController extends Controller
             $report_docs = ExpertServiceAcademicDocument::where('expert_service_academic_id', $id)->pluck('filename')->all();
         }
         elseif($report_category_id == 12){
-            $ext_code = ExtensionService::where('id', $id)->pluck('ext_code')->first();
-            $report_docs = ExtensionServiceDocument::where('ext_code', $ext_code)->pluck('filename')->all();
+            $report_docs = ExtensionProgramDocument::where('extension_program_id', $id)->pluck('filename')->all();
         }
         elseif($report_category_id == 13){
             $report_docs = PartnershipDocument::where('partnership_id', $id)->pluck('filename')->all();
@@ -524,32 +513,32 @@ class ReportDataController extends Controller
                 break;
             case 2:
                 $report = Report::where('id', $report_id)->first();
-                $research_id = Research::where('research_code', $report->report_code)->where('user_id', $report->user_id)->pluck('id')->first();
+                $research_id = Research::where('id', $report->report_reference_id)->where('user_id', $report->user_id)->pluck('id')->first();
                 return redirect()->route('research.completed.edit', [$research_id, $report->report_reference_id])->with('denied', DenyReason::where('report_id', $report_id)->first());
                 break;
             case 3:
                 $report = Report::where('id', $report_id)->first();
-                $research_id = Research::where('research_code', $report->report_code)->where('user_id', $report->user_id)->pluck('id')->first();
+                $research_id = Research::where('id', $report->report_reference_id)->where('user_id', $report->user_id)->pluck('id')->first();
                 return redirect()->route('research.publication.edit', [$research_id, $report->report_reference_id])->with('denied', DenyReason::where('report_id', $report_id)->first());
                 break;
             case 4:
                 $report = Report::where('id', $report_id)->first();
-                $research_id = Research::where('research_code', $report->report_code)->where('user_id', $report->user_id)->pluck('id')->first();
+                $research_id = Research::where('id', $report->report_reference_id)->where('user_id', $report->user_id)->pluck('id')->first();
                 return redirect()->route('research.presentation.edit', [$research_id, $report->report_reference_id])->with('denied', DenyReason::where('report_id', $report_id)->first());
                 break;
             case 5:
                 $report = Report::where('id', $report_id)->first();
-                $research_id = Research::where('research_code', $report->report_code)->where('user_id', $report->user_id)->pluck('id')->first();
+                $research_id = Research::where('id', $report->report_reference_id)->where('user_id', $report->user_id)->pluck('id')->first();
                 return redirect()->route('research.citation.edit', [$research_id, $report->report_reference_id])->with('denied', DenyReason::where('report_id', $report_id)->first());
                 break;
             case 6:
                 $report = Report::where('id', $report_id)->first();
-                $research_id = Research::where('research_code', $report->report_code)->where('user_id', $report->user_id)->pluck('id')->first();
+                $research_id = Research::where('id', $report->report_reference_id)->where('user_id', $report->user_id)->pluck('id')->first();
                 return redirect()->route('research.utilization.edit', [$research_id, $report->report_reference_id])->with('denied', DenyReason::where('report_id', $report_id)->first());
                 break;
             case 7:
                 $report = Report::where('id', $report_id)->first();
-                $research_id = Research::where('research_code', $report->report_code)->where('user_id', $report->user_id)->pluck('id')->first();
+                $research_id = Research::where('id', $report->report_reference_id)->where('user_id', $report->user_id)->pluck('id')->first();
                 return redirect()->route('research.copyrighted.edit', [$research_id, $report->report_reference_id])->with('denied', DenyReason::where('report_id', $report_id)->first());
                 break;
             case 8:

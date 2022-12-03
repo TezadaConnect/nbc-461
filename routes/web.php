@@ -69,6 +69,7 @@ Route::group(['middleware' => 'auth'], function () {
     // 1. Colleges
     Route::get('/maintenances/colleges/name/{id}', [\App\Http\Controllers\Maintenances\CollegeController::class, 'getCollegeName'])->name('college.name');
     Route::get('/maintenances/colleges/name/department/{id}', [\App\Http\Controllers\Maintenances\CollegeController::class, 'getCollegeNameUsingDept']);
+    Route::get('/maintenances/colleges/name/{userTypeInitial}/{userID}', [\App\Http\Controllers\Maintenances\CollegeController::class, 'getCollegeByUserTypeAndID']);
     Route::resource('/maintenances/colleges', \App\Http\Controllers\Maintenances\CollegeController::class);
     // 2. Departments
     Route::get('/departments/options/{id}', [\App\Http\Controllers\Maintenances\DepartmentController::class, 'options']);
@@ -211,7 +212,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/profile/voluntary-work/{id}', [\App\Http\Controllers\User\ProfileController::class, 'voluntaryWorkView'])->name('profile.voluntaryWork.view');
 
     //User Account
+    Route::get('/offices/add-department', [\App\Http\Controllers\User\EmployeeController::class, 'addDepartment'])->name('offices.addDepartment');
     Route::resource('/offices', \App\Http\Controllers\User\EmployeeController::class);
+    Route::post('/offices/store-department', [\App\Http\Controllers\User\EmployeeController::class, 'storeDepartment'])->name('offices.storeDepartment');
     Route::get('/account', [\App\Http\Controllers\User\AccountController::class, 'index'])->name('account');
     Route::post('/account/store-signature', [\App\Http\Controllers\UserController::class, 'storeSignature'])->name('account.signature.save');
 
@@ -276,11 +279,11 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::get('/research/manage-researchers/remove-self/{research_code}', [\App\Http\Controllers\Research\ResearchController::class, 'removeSelf'])->name('research.remove-self');
     Route::post('/research/manage-researchers/return-researcher/{research_code}', [\App\Http\Controllers\Research\ResearchController::class, 'returnResearcher'])->name('research.return-researcher');
     // Invite Co-Researcher/s in a Research
-    Route::get('/research/{research_id}/invite', [\App\Http\Controllers\Research\InviteController::class, 'index'])->name('research.invite.index');
-    Route::post('/research/{research_id}/invite/add', [\App\Http\Controllers\Research\InviteController::class, 'add'])->name('research.invite.add');
-    Route::post('/research/{research_id}/invite/remove', [\App\Http\Controllers\Research\InviteController::class, 'remove'])->name('research.invite.remove');
-    Route::get('/research/{research_id}/invite/cancel', [\App\Http\Controllers\Research\InviteController::class, 'cancel'])->name('research.invite.cancel');
-    Route::get('/research/{research_id}/invite/confirm', [\App\Http\Controllers\Research\InviteController::class, 'confirm'])->name('research.invite.confirm');
+    Route::get('/research/{research_id}/invite', [\App\Http\Controllers\Research\TagController::class, 'index'])->name('research.invite.index');
+    Route::post('/research/{research_id}/invite/add', [\App\Http\Controllers\Research\TagController::class, 'add'])->name('research.invite.add');
+    Route::post('/research/{research_id}/invite/remove', [\App\Http\Controllers\Research\TagController::class, 'remove'])->name('research.invite.remove');
+    Route::get('/research/{research_id}/invite/cancel', [\App\Http\Controllers\Research\TagController::class, 'cancel'])->name('research.invite.cancel');
+    Route::get('/research/{research_id}/invite/confirm', [\App\Http\Controllers\Research\TagController::class, 'confirm'])->name('research.invite.confirm');
     // Filter
     Route::get('/research/filterByYear/{year_or_quarter}/{status}', [\App\Http\Controllers\Research\ResearchController::class, 'researchYearFilter'])->name('research.filterByYear');
 
@@ -293,7 +296,7 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::resource('/extension-programs/expert-service-as-consultant', \App\Http\Controllers\ExtensionPrograms\ExpertServices\ConsultantController::class);
     Route::resource('/extension-programs/expert-service-in-conference', \App\Http\Controllers\ExtensionPrograms\ExpertServices\ConferenceController::class);
     Route::resource('/extension-programs/expert-service-in-academic', \App\Http\Controllers\ExtensionPrograms\ExpertServices\AcademicController::class);
-    Route::resource('/extension-programs/extension-service', \App\Http\Controllers\ExtensionPrograms\ExtensionServiceController::class);
+    Route::resource('/extension-programs', \App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class);
     Route::resource('outreach-program', \App\Http\Controllers\ExtensionPrograms\OutreachProgramController::class);
     Route::resource('stdnt-award', \App\Http\Controllers\AcademicDevelopment\StudentAwardController::class)->names([
         'create' => 'student-award.create',
@@ -323,13 +326,13 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::get('/extension/{id}/invite/cancel', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'cancel'])->name('extension.invite.cancel');
     Route::get('/extension/{id}/invite/confirm', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'confirm'])->name('extension.invite.confirm');
     // Use Extension By Co-Extensionists
-    Route::get('/extension-service/with-code/create/{extension_service_id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionServiceController::class, 'addExtension'])->name('extension.code.create');
-    Route::post('/extension-service/with-code/save/{id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionServiceController::class, 'saveExtension'])->name('extension.code.save');
+    Route::get('/extension-service/with-code/create/{extension_program_id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'addExtension'])->name('extension.code.create');
+    Route::post('/extension-service/with-code/save/{id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'saveExtension'])->name('extension.code.save');
     // Remove Documents
     Route::get('/extension-programs/expert-service-as-consultant/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExpertServices\ConsultantController::class, 'removeDoc'])->name('esconsultant.removedoc');
     Route::get('/extension-programs/expert-service-in-conference/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExpertServices\ConferenceController::class, 'removeDoc'])->name('esconference.removedoc');
     Route::get('/extension-programs/expert-service-in-academic/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExpertServices\AcademicController::class, 'removeDoc'])->name('esacademic.removedoc');
-    Route::get('/extension-programs/extension-service/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExtensionServiceController::class, 'removeDoc'])->name('extension-service.removedoc');
+    Route::get('/extension-programs/extension-service/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'removeDoc'])->name('extension-programs.removedoc');
     Route::get('/outreach-program/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\OutreachProgramController::class, 'removeDoc'])->name('outreach-program.removedoc');
     Route::get('/stdnt-award/remove-document/{filename}', [\App\Http\Controllers\AcademicDevelopment\StudentAwardController::class, 'removeDoc'])->name('student-award.removedoc');
     Route::get('/stdnt-training/remove-document/{filename}', [\App\Http\Controllers\AcademicDevelopment\StudentTrainingController::class, 'removeDoc'])->name('student-training.removedoc');
@@ -392,6 +395,7 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::get('/reports/manage/{report_id}/{report_category_id}', [\App\Http\Controllers\Reports\ReportDataController::class, 'viewReportOrigin'])->name('report.manage');
     Route::post('/reports/generate/{id}', [\App\Http\Controllers\Reports\GenerateController::class, 'index'])->name('report.generate.index');
     Route::get('/reports/{id}/documents', [\App\Http\Controllers\Reports\GenerateController::class, 'documentView'])->name('report.generate.document-view');
+    Route::post('/reports/generate/optional', [\App\Http\Controllers\Reports\GenerateController::class, 'optionalGeneration'])->name('report.generate.optional');
 
     /* REPORTS TO RECEIVE */
     Route::get('/reports/to-receive/researcher', [\App\Http\Controllers\Reports\ToReceive\ResearcherController::class, 'index'])->name('researcher.index');
@@ -458,17 +462,17 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::get('/reports/consolidate/college/{id}', [\App\Http\Controllers\Reports\Consolidate\CollegeConsolidatedController::class, 'index'])->name('reports.consolidate.college');
     Route::get('/reports/consolidate/sector/{id}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'index'])->name('reports.consolidate.sector');
     Route::get('/reports/consolidate/all', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'index'])->name('reports.consolidate.ipqmso');
-    Route::get('/reports/consolidate/my-accomplishments/reportYearFilter/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\MyAccomplishmentController::class, 'individualReportYearFilter'])->name('reports.consolidate.myaccomplishments.reportYearFilter');
-    Route::get('/reports/consolidate/extension/reportYearFilter/{clusterID}/{year}', [\App\Http\Controllers\Reports\Consolidate\ExtensionConsolidatedController::class, 'departmentExtReportYearFilter'])->name('reports.consolidate.extension.reportYearFilter');
-    Route::get('/reports/consolidate/research/reportYearFilter/{clusterID}/{year}', [\App\Http\Controllers\Reports\Consolidate\ResearchConsolidatedController::class, 'departmentResReportYearFilter'])->name('reports.consolidate.research.reportYearFilter');
+    Route::get('/reports/consolidate/my-accomplishments/report-filter/{year}/{quarter}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\MyAccomplishmentController::class, 'individualReportYearFilter'])->name('reports.consolidate.myaccomplishments.reportYearFilter');
+    Route::get('/reports/consolidate/extension/report-filter/{clusterID}/{year}', [\App\Http\Controllers\Reports\Consolidate\ExtensionConsolidatedController::class, 'departmentExtReportYearFilter'])->name('reports.consolidate.extension.reportYearFilter');
+    Route::get('/reports/consolidate/research/report-filter/{clusterID}/{year}', [\App\Http\Controllers\Reports\Consolidate\ResearchConsolidatedController::class, 'departmentResReportYearFilter'])->name('reports.consolidate.research.reportYearFilter');
 
-    Route::get('/reports/consolidate/department/reportYearFilter/{dept}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\DepartmentConsolidatedController::class, 'departmentReportYearFilter'])->name('reports.consolidate.department.reportYearFilter');
-    Route::get('/reports/consolidate/college/reportYearFilter/{college}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\CollegeConsolidatedController::class, 'collegeReportYearFilter'])->name('reports.consolidate.college.reportYearFilter');
-    Route::get('/reports/consolidate/sector/reportYearFilter/{sector}/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'sectorReportYearFilter'])->name('reports.consolidate.sector.reportYearFilter');
+    Route::get('/reports/consolidate/department/report-filter/{dept}/{year}/{quarter}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\DepartmentConsolidatedController::class, 'departmentReportYearFilter'])->name('reports.consolidate.department.reportYearFilter');
+    Route::get('/reports/consolidate/college/report-filter/{college}/{year}/{quarter}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\CollegeConsolidatedController::class, 'collegeReportYearFilter'])->name('reports.consolidate.college.reportYearFilter');
+    Route::get('/reports/consolidate/sector/report-filter/{sector}/{year}/{quarter}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'sectorReportYearFilter'])->name('reports.consolidate.sector.reportYearFilter');
     // Route::get('/reports/consolidate/all/{year}/{quarter}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
-    // Route::get('/reports/consolidate/sector/reportYearFilter/{sector}/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'sectorReportYearFilter'])->name('reports.consolidate.sector.reportYearFilter');
+    // Route::get('/reports/consolidate/sector/report-filter/{sector}/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\SectorConsolidatedController::class, 'sectorReportYearFilter'])->name('reports.consolidate.sector.reportYearFilter');
     Route::get('/reports/consolidate/all/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
-    Route::get('/reports/consolidate/all/{pending?}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'generatePendingList'])->name('reports.consolidate.ipo.reportYearFilter');
+    Route::get('/reports/consolidate/all/{pending?}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'generatePendingList'])->name('reports.consolidate.ipo.reportPending');
     Route::get('/reports/consolidate/all/{year}/{quarter1}/{quarter2}', [\App\Http\Controllers\Reports\Consolidate\IpqmsoConsolidatedController::class, 'reportYearFilter'])->name('reports.consolidate.ipo.reportYearFilter');
 
     /* GENERATE/EXPORT REPORT */
@@ -514,6 +518,9 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::post('/submissions/development/training/{id}/update/', [\App\Http\Controllers\HRISSubmissions\SeminarAndTrainingController::class, 'updateTraining'])->name('submissions.development.training.update');
     Route::get('/submissions/development/create', [\App\Http\Controllers\HRISSubmissions\SeminarAndTrainingController::class, 'create'])->name('submissions.development.create');
     Route::post('/submissions/development/save', [\App\Http\Controllers\HRISSubmissions\SeminarAndTrainingController::class, 'savetohris'])->name('submissions.development.save');
+    Route::post('/submissions/development/returnreq', [\App\Http\Controllers\HRISSubmissions\SeminarAndTrainingController::class, 'requesttoreturn'])->name('submissions.development.returnrequest');
+    Route::post('/submissions/development/denyreturnreq', [\App\Http\Controllers\HRISSubmissions\SeminarAndTrainingController::class, 'denyrequesttoreturn'])->name('submissions.development.denyreturnrequest');
+
     //Officership/Memberhips
     Route::get('/submissions/officership', [\App\Http\Controllers\HRISSubmissions\OfficershipController::class, 'index'])->name('submissions.officership.index');
     Route::get('/submissions/officership/{id}/add', [\App\Http\Controllers\HRISSubmissions\OfficershipController::class, 'add'])->name('submissions.officership.add');

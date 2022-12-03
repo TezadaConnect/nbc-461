@@ -4,7 +4,7 @@
             <div class="col-md-8">
                 <h3>Set Up Your Account</h3>
                 <p>
-                    <a class="back_link" href="{{ session('url') ? url(session('url')) : route('account') }}"><i class="bi bi-chevron-double-left"></i>Back to my account.</a>
+                    <a class="back_link" href="{{ route('account') }}"><i class="bi bi-chevron-double-left"></i>Back to my account.</a>
                 </p>
                 <div class="card">
                     <div class="card-body">

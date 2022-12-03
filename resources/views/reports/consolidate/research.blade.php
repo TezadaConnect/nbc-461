@@ -1,38 +1,32 @@
 <x-app-layout>
     <x-slot name="header">
-        @include('reports.navigation', compact('roles', 'departments', 'colleges', 'sectors', 'id'))
+        @include('reports.navigation', compact('roles', 'id', 'assignments'))
     </x-slot>
 
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h2 class="font-weight-bold mb-2">Consolidated Research - {{ $department->name }}</h2>
+                <h2 class="font-weight-bold mb-2">Consolidated Research - {{ $cluster->name }}</h2>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="card mb-3">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="yearFilter" class="mr-2">Year Reported: </label>
-                                    <select id="yearFilter" class="custom-select">
-                                    </select>
-                                </div>
-                            </div>
-                            <form action="{{ route('report.generate.index', $department->id ?? '') }}" method="post">
-                                <div class="col-md-8" style="padding-top: 25px;">
-                                    <div class="form-group">
-                                        @csrf
-                                        <input type="hidden" name="level" value="research">
-                                        <input type="hidden" name="year_generate" id="year_generate" class="form-control" >
-                                        <button id="quarterYearFilter" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
-                                        <button id="export" type="submit" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
-                                    </div>
-                                </div>
-                            </form>
+                        <div class="form-group">
+                            <label for="yearFilter" class="mr-2">Year Reported: </label>
+                            <select id="yearFilter" class="custom-select">
+                            </select>
                         </div>
+                        <form action="{{ route('report.generate.index', $cluster['id'] ?? '') }}" method="post">
+                            <div class="form-group">
+                                @csrf
+                                <input type="hidden" name="level" value="research">
+                                <input type="hidden" name="year_generate" id="year_generate" class="form-control" >
+                                <button id="quarterYearFilter" type="button" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
+                                <button id="export" type="submit" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
+                            </div>
+                        </form>
                         <hr>
                         <div class="row">
                             <div class="col-md-12">
@@ -589,18 +583,18 @@
             $('#quarterYearFilter').on('click', function () {
                 var year_reported = $('#yearFilter').val();
                 var quarter = $('#quarterFilter').val();
-                var link = "{{ url('reports/consolidate/research/reportYearFilter/:department/:year/:quarter') }}";
-                var newLink = link.replace(':department', "{{$department['id']}}").replace(':year', year_reported).replace(':quarter', quarter);
+                var link = "{{ url('reports/consolidate/research/reportYearFilter/:department/:year') }}";
+                var newLink = link.replace(':department', "{{$cluster['id']}}").replace(':year', year_reported);
                 window.location.replace(newLink);
             });
         </script>
-        <!-- <script>
+        <script>
             $('#export').on('click', function() {
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedYear = $('#yearFilter').val();
                 $('#quarter_generate').val(selectedQuarter);
                 $('#year_generate').val(selectedYear);
             })
-        </script> -->
+        </script>
     @endpush
 </x-app-layout>

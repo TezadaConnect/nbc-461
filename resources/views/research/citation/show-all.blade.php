@@ -37,8 +37,7 @@
                                                 <th>#</th>
                                                 <th>Article Title</th>
                                                 <th>Article Author</th>
-                                                <th>Quarter</th>
-                                                <th>Year</th>
+                                                <th>Date Added</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -49,10 +48,7 @@
                                                     <td><a href="{{ route('research.citation.show', [$research->id, $citation->id]) }}" class="link text-dark">{{ $citation->article_title }}</a></td>
                                                     <td>{{ $citation->article_author }}</td>
                                                     <td class="{{ ($citation->report_quarter == $currentQuarterYear->current_quarter && $citation->report_year == $currentQuarterYear->current_year) ? 'to-submit' : '' }}">
-                                                        {{ $citation->report_quarter }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $citation->report_year }}
+                                                        {{ date( 'M d, Y h:i A', strtotime($citation->created_at) ) }}
                                                     </td>
                                                     <td>
                                                         @if ($actionKeyword == 'for-submission')
@@ -94,7 +90,7 @@
                 </div>
                 <div class="modal-body">
                     <h5 class="text-center">Are you sure you want to delete this research?</h5>
-                    <form action="{{ route('research.destroy', $research->research_code) }}" method="POST">
+                    <form action="{{ route('research.citation.destroy', [$research->id, $citation->id]) }}" method="POST">
                         @csrf
                         @method('delete')
                 </div>

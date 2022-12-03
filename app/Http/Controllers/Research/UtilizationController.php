@@ -11,13 +11,12 @@ use App\Http\Controllers\{
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
     DB,
-    Storage,
 };
 use App\Models\{
     Research,
+    Researcher,
     ResearchDocument,
     ResearchUtilization,
-    TemporaryFile,
     FormBuilder\DropdownOption,
     FormBuilder\ResearchForm,
     Maintenance\Quarter,
@@ -25,7 +24,6 @@ use App\Models\{
     Maintenance\College,
 };
 use App\Services\CommonService;
-use Exception;
 
 class UtilizationController extends Controller
 {
@@ -47,12 +45,7 @@ class UtilizationController extends Controller
 
         $currentQuarterYear = Quarter::find(1);
 
-        $utilizationRecords = ResearchUtilization::where('research_code', $research->research_code)->orderBy('updated_at', 'desc')->get();
-
-        $research= Research::where('research_code', $research->research_code)->where('user_id', auth()->id())
-                ->join('dropdown_options', 'dropdown_options.id', 'research.status')
-                ->select('research.*', 'dropdown_options.name as status_name')->first();
-
+        $utilizationRecords = ResearchUtilization::where('research_id', $research->id)->orderBy('updated_at', 'desc')->get();
         $submissionStatus = array();
         $submitRole = array();
         foreach ($utilizationRecords as $utilization) {
@@ -101,14 +94,8 @@ class UtilizationController extends Controller
 
         $currentQuarterYear = Quarter::find(1);
 
-        $request->merge([
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-            'research_id' => $research->id,
-        ]);
-
+        $request->merge(['research_id' => $research->id,]);
         $input = $request->except(['_token', '_method', 'document']);
-
         $utilization = ResearchUtilization::create($input);
 
         $string = str_replace(' ', '-', $request->input('description')); // Replaces all spaces with hyphens.
@@ -121,7 +108,6 @@ class UtilizationController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCR-", 'research.utilization.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 6,
                         'research_utilization_id' => $utilization->id,
@@ -147,10 +133,6 @@ class UtilizationController extends Controller
     public function show(Research $research, ResearchUtilization $utilization)
     {
         $this->authorize('view', ResearchUtilization::class);
-
-        if (auth()->id() !== $research->user_id)
-            abort(403);
-
         if(ResearchForm::where('id', 1)->pluck('is_active')->first() == 0)
             return view('inactive');
         if(ResearchForm::where('id', 6)->pluck('is_active')->first() == 0)
@@ -160,9 +142,8 @@ class UtilizationController extends Controller
 
         $researchDocuments = ResearchDocument::where('research_utilization_id', $utilization->id)->get()->toArray();
 
-        $research= Research::where('research_code', $research->research_code)->where('user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'research.status')
+        $research= $research->join('dropdown_options', 'dropdown_options.id', 'research.status')
                 ->select('research.*', 'dropdown_options.name as status_name')->first();
-
 
         $values = ResearchUtilization::find($utilization->id);
 
@@ -194,9 +175,8 @@ class UtilizationController extends Controller
                 }
             }
         }
-        $firstResearch = Research::where('research_code', $research->research_code)->first();
 
-        return view('research.utilization.show', compact('research', 'researchFields', 'values', 'researchDocuments', 'firstResearch'));
+        return view('research.utilization.show', compact('research', 'researchFields', 'values', 'researchDocuments'));
     }
 
     /**
@@ -209,10 +189,8 @@ class UtilizationController extends Controller
     {
         $currentQuarter = Quarter::find(1)->current_quarter;
         $this->authorize('update', ResearchUtilization::class);
-
-        if (auth()->id() !== $research->user_id)
+        if (Researcher::where('research_id', $research->id)->first()->is_registrant == 0)
             abort(403);
-
         if(LockController::isLocked($utilization->id, 6)){
             return redirect()->back()->with('cannot_access', 'Cannot be edited because you already submitted this accomplishment. You can edit it again in the next quarter.');
         }
@@ -225,12 +203,10 @@ class UtilizationController extends Controller
 
         $researchDocuments = ResearchDocument::where('research_utilization_id', $utilization->id)->get()->toArray();
 
-        $research= Research::where('research_code', $research->research_code)->join('dropdown_options', 'dropdown_options.id', 'research.status')
+        $research= $research->join('dropdown_options', 'dropdown_options.id', 'research.status')
                 ->select('research.*', 'dropdown_options.name as status_name')->first();
 
-
         $values = ResearchUtilization::find($utilization->id);
-
         $values = array_merge($research->toArray(), $values->toArray());
 
         return view('research.utilization.edit', compact('research', 'researchFields', 'values', 'researchDocuments', 'currentQuarter'));
@@ -252,17 +228,9 @@ class UtilizationController extends Controller
         if(ResearchForm::where('id', 6)->pluck('is_active')->first() == 0)
             return view('inactive');
 
-        $request->merge([
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-        ]);
-
         $input = $request->except(['_token', '_method', 'document']);
-
         $utilization->update(['description' => '-clear']);
-
         $utilization->update($input);
-
         $string = str_replace(' ', '-', $utilization->description); // Replaces all spaces with hyphens.
         $description =  preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
 
@@ -273,7 +241,6 @@ class UtilizationController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RU-", 'research.utilization.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 6,
                         'research_utilization_id' => $utilization->id,
@@ -330,12 +297,7 @@ class UtilizationController extends Controller
         $currentQuarterYear = Quarter::find(1);
         $research = Research::find($researchId);
 
-        $utilizationRecords = ResearchUtilization::where('research_code', $research->research_code)->orderBy('updated_at', 'desc')->get();
-
-        $research= Research::where('research_code', $research->research_code)->where('user_id', auth()->id())
-                ->join('dropdown_options', 'dropdown_options.id', 'research.status')
-                ->select('research.*', 'dropdown_options.name as status_name')->first();
-
+        $utilizationRecords = ResearchUtilization::where('research_id', $research->id)->orderBy('updated_at', 'desc')->get();
         $submissionStatus = array();
         $submitRole = array();
         foreach ($utilizationRecords as $utilization) {

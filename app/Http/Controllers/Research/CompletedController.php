@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\{
     Research,
+    Researcher,
     ResearchCitation,
     ResearchComplete,
     ResearchCopyright,
@@ -53,12 +54,11 @@ class CompletedController extends Controller
         $this->authorize('viewAny', ResearchComplete::class);
 
         $completionFields = DB::select("CALL get_research_fields_by_form_id('2')");
-
-        $research= Research::where('research_code', $research->research_code)->where('user_id', auth()->id())
+        $research= Research::where('research.id', $research->id)->join('researchers', 'researchers.research_id', 'research.id')
                 ->join('dropdown_options', 'dropdown_options.id', 'research.status')
-                ->select('research.*', 'dropdown_options.name as status_name')->first();
-        $completionDocuments = ResearchDocument::where('research_code', $research->research_code)->where('research_form_id', 2)->get()->toArray();
-        $completionRecord = ResearchComplete::where('research_code', $research->research_code)->first();
+                ->select('research.*', 'dropdown_options.name as status_name', 'researchers.*')->first();
+        $completionDocuments = ResearchDocument::where('research_id', $research->id)->where('research_form_id', 2)->get()->toArray();
+        $completionRecord = ResearchComplete::where('research_id', $research->id)->first();
         
         if($completionRecord == null){
             if($research->status == 27)
@@ -69,7 +69,7 @@ class CompletedController extends Controller
             }
         }
         
-        $completionValues = array_merge(collect($completionRecord)->except(['research_code'])->toArray(), collect($research)->except(['description'])->toArray());
+        $completionValues = array_merge(collect($completionRecord)->toArray(), collect($research)->except(['description'])->toArray());
         
         $submissionStatus[2][$completionValues['id']] = $this->commonService->getSubmissionStatus($completionValues['id'], 2)['submissionStatus'];
         $submitRole[$completionValues['id']] = $this->commonService->getSubmissionStatus($completionValues['id'], 2)['submitRole'];
@@ -146,15 +146,12 @@ class CompletedController extends Controller
             'completion_date' => 'after_or_equal:start_date|required_if:status, 28',
         ]);
 
-        $input = $request->except(['_token', '_method', 'research_code', 'description', 'document']);
+        $input = $request->except(['_token', '_method', 'description', 'document']);
         $input = Arr::add($input, 'status', 28);
-        Research::where('research_code', $research->research_code)->update($input);
+        $research->update($input);
 
         $completed = ResearchComplete::create([
-            'research_code' => $research->research_code,
             'research_id' => $research->id,
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
         ]);
 
         $completed->update([
@@ -166,7 +163,6 @@ class CompletedController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCP-", 'research.completed.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 2,
                         'filename' => $fileName,
@@ -206,7 +202,7 @@ class CompletedController extends Controller
         $currentQuarter = Quarter::find(1)->current_quarter;
         $this->authorize('update', ResearchComplete::class);
 
-        if (auth()->id() !== $research->user_id)
+        if (Researcher::where('research_id', $research->id)->first()->is_registrant == 0)
             abort(403);
 
         if(LockController::isLocked($completed->id, 2)){
@@ -229,7 +225,7 @@ class CompletedController extends Controller
             }
         }
 
-        $researchDocuments = ResearchDocument::where('research_code', $research['research_code'])->where('research_form_id', 2)->get()->toArray();
+        $researchDocuments = ResearchDocument::where('research_id', $research['id'])->where('research_form_id', 2)->get()->toArray();
 
         $value = $research->toArray();
         $value = collect($research);
@@ -263,27 +259,12 @@ class CompletedController extends Controller
             return view('inactive');
 
         $completion_date = date("Y-m-d", strtotime($request->input('completion_date')));
-
-        $request->merge([
-            'completion_date' => $completion_date,
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-        ]);
-
-        $request->validate([
-            'completion_date' => 'after_or_equal:start_date|required_if:status, 28',
-        ]);
-
-        $input = $request->except(['_token', '_method', 'research_code', 'description', 'document']);
-
-        Research::where('research_code', $research->research_code)->update($input);
-
+        $request->merge(['completion_date' => $completion_date,]);
+        $request->validate(['completion_date' => 'after_or_equal:start_date|required_if:status, 28',]);
+        $input = $request->except(['_token', '_method', 'description', 'document']);
+        $research->update($input);
         $completed->update(['description' => '-clear']);
-
-        $completed->update([
-            'research_code' => $research->research_code,
-            'description' => $request->input('description')
-        ]);
+        $completed->update(['description' => $request->input('description')]);
 
         LogActivity::addToLog('Had updated the completion details of research "'.$research->title.'".');
         if(!empty($request->file(['document']))){      
@@ -291,7 +272,6 @@ class CompletedController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCP-", 'research.completed.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 2,
                         'filename' => $fileName,

@@ -5,8 +5,6 @@ namespace App\Exports;
 use App\Models\{
     User,
     Report,
-    FacultyResearcher,
-    FacultyExtensionist,
 };
 use Illuminate\Support\Facades\DB;
 use App\Models\Maintenance\College;
@@ -25,11 +23,12 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 class DepartmentConsolidatedAccomplishmentReportExport implements FromView, WithEvents
 {
     function __construct($level, $type, $yearGenerate, $quarterGenerate,
-         $departmentID, $getDepartment, $facultyResearcher, $facultyExtensionist) {
+        $quarterGenerate2, $departmentID, $getDepartment) {
         $this->level = $level;
         $this->type = $type;
         $this->yearGenerate = $yearGenerate;
         $this->quarterGenerate = $quarterGenerate;
+        $this->quarterGenerate2 = $quarterGenerate2;
         $this->departmentID = $departmentID;
 
         $user = User::where('id', auth()->id())->first();
@@ -69,7 +68,7 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
                             ->where('reports.department_id', $this->departmentID)
                             ->where('reports.chairperson_approval', 1)
                             ->where('reports.report_year', $this->yearGenerate)
-                            ->where('reports.report_quarter', $this->quarterGenerate)
+                            ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
                             ->join('users', 'users.id', 'reports.user_id')
                             ->select('reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
                             ->orderBy('users.last_name')
@@ -94,7 +93,7 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
                 foreach ($tableFormat as $format){
                     if($format->is_table == "0" || $format->report_category_id == null)
                         $tableContents[$format->id] = [];
-                    else
+                    else{
                         $tableContents[$format->id] = Report::
                         // ->where('user_roles.role_id', 1)
                         whereIn('reports.format', ['a', 'x'])
@@ -102,7 +101,7 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
                         ->where('reports.department_id', $this->departmentID)
                         ->where('reports.chairperson_approval', 1)
                         ->where('reports.report_year', $this->yearGenerate)
-                        ->where('reports.report_quarter', $this->quarterGenerate)
+                        ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
                         ->join('users', 'users.id', 'reports.user_id')
                         ->select('reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
                         ->orderBy('users.last_name')
@@ -194,7 +193,10 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
                     ]
                 ]);
                 $event->sheet->getStyle('B4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $event->sheet->setCellValue('C4', $this->quarterGenerate);
+                if ($this->quarterGenerate == $this->quarterGenerate2)
+                    $event->sheet->setCellValue('C4', $this->quarterGenerate);
+                else
+                    $event->sheet->setCellValue('C4', $this->quarterGenerate.' - '.$this->quarterGenerate2);
                 $event->sheet->getStyle('C4')->applyFromArray([
                     'font' => [
                         'size' => 16,

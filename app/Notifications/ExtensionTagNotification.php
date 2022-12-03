@@ -6,12 +6,10 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Mail;
 
-class ResearchInviteNotification extends Notification
+class ExtensionTagNotification extends Notification
 {
     use Queueable;
-    private $notificationData;
 
     /**
      * Create a new notification instance.
@@ -31,8 +29,8 @@ class ResearchInviteNotification extends Notification
      */
     public function via($notifiable)
     {
-        // return ['database'];
-        return ['mail', 'database'];
+        // return ['mail', 'database'];
+        return [ 'database'];
     }
 
     /**
@@ -43,23 +41,23 @@ class ResearchInviteNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        if($this->notificationData['type'] == 'res-invite')
+        if($this->notificationData['type'] == 'ext-invite')
             return (new MailMessage)
-                ->subject('PUP eQAR | Research/Book Chapter Tagging Notification')
+                ->subject('PUP eQAR | Extension Program/Project/Activity Tagging Notification')
                 ->greeting('Hello '.$this->notificationData['receiver'].'!')
-                ->line('You are tagged as a co-researcher by '.$this->notificationData['sender'].' in a research with the title: "'.$this->notificationData['title'].'."')
+                ->line('You are tagged as a partner by '.$this->notificationData['sender'].' in an Extension Program/Project/Activity.')
                 ->line('For confirmation:')
-                ->line('1. Click the button "Go to Research/Book Chapter" in this message.')
-                ->line('2. Click the button "Research to Add (Tagged by your Lead)".')
+                ->line('1. Click the button "Go to Extension Program/Project Activity" in this message.')
+                ->line('2. Click the button "Extensions to Add (Tagged by your Partner)".')
                 ->line('3. From the list, add the extension where you are tagged and save.')
-                ->action('Go to Research/Book Chapter', route('research.index'))
+                ->action('Go to Extension Program/Project Activity', route('extension-service.index'))
                 ->line('Thank you for using our application!');
-        elseif($this->notificationData['type'] == 'res-confirm')
+        elseif($this->notificationData['type'] == 'ext-confirm')
             return (new MailMessage)
-                ->subject('PUP eQAR | Research/Book Chapter Tagging Confirmation Notification')
+                ->subject('PUP eQAR | Extension Program/Project/Activity Tagging Confirmation Notification')
                 ->greeting('Hello '.$this->notificationData['receiver'].'!')
-                ->line($this->notificationData['sender'].' confirmed your tagged Research/Book Chapter with the title: "'.$this->notificationData['title'].'."')
-                ->action('Go to Research/Book Chapter', $this->notificationData['url'])
+                ->line($this->notificationData['sender'].' confirmed your tagged Extension Program/Project/Activity.')
+                ->action('Go to Extension Program/Project Activity', $this->notificationData['url'])
                 ->line('Thank you for using our application!');
     }
 
@@ -70,8 +68,8 @@ class ResearchInviteNotification extends Notification
      * @return array
      */
     public function toArray($notifiable)
-    {   
-        if($this->notificationData['type'] == 'res-invite')
+    {
+        if($this->notificationData['type'] == 'ext-invite')
             return [
                 'receiver' => $this->notificationData['receiver'],
                 'title' => $this->notificationData['title'],
@@ -81,7 +79,7 @@ class ResearchInviteNotification extends Notification
                 'date' => $this->notificationData['date'],
                 'type' => $this->notificationData['type']
             ];
-        elseif($this->notificationData['type'] == 'res-confirm')
+        elseif($this->notificationData['type'] == 'ext-confirm')
             return [
                 'receiver' => $this->notificationData['receiver'],
                 'title' => $this->notificationData['title'],

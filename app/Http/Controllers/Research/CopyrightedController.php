@@ -12,17 +12,15 @@ use App\Http\Controllers\{
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
     DB,
-    Storage,
 };
 use App\Models\{
     Research,
+    Researcher,
     ResearchCopyright,
     ResearchDocument,
     FormBuilder\DropdownOption,
     FormBuilder\ResearchForm,
     Maintenance\Quarter,
-    Maintenance\College,
-    Maintenance\Department,
 };
 use App\Services\CommonService;
 use Exception;
@@ -50,13 +48,8 @@ class CopyrightedController extends Controller
 
         $copyrightFields = DB::select("CALL get_research_fields_by_form_id('7')");
 
-        $copyrightDocuments = ResearchDocument::where('research_code', $research->research_code)->where('research_form_id', 7)->get()->toArray();
-        
-        $research= Research::where('research_code', $research->research_code)->where('user_id', auth()->id())
-                ->join('dropdown_options', 'dropdown_options.id', 'research.status')
-                ->select('research.*', 'dropdown_options.name as status_name')->first();
-
-        $copyrightRecord = ResearchCopyright::where('research_code', $research->research_code)->first();
+        $copyrightDocuments = ResearchDocument::where('research_id', $research->id)->where('research_form_id', 7)->get()->toArray();
+        $copyrightRecord = ResearchCopyright::where('research_id', $research->id)->first();
 
         if($copyrightRecord == null){
             if($research->status >= 28)
@@ -133,19 +126,9 @@ class CopyrightedController extends Controller
 
         $date_parts = explode('-', $research->completion_date);
         $currentQuarterYear = Quarter::find(1);
-
-        $request->merge([
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-            'research_id' => $research->id,
-        ]);
-
-        $request->validate([
-            'copyright_year' => 'after_or_equal:'.$date_parts[0],
-        ]);
-
+        $request->merge(['research_id' => $research->id,]);
+        $request->validate(['copyright_year' => 'after_or_equal:'.$date_parts[0],]);
         $input = $request->except(['_token', '_method', 'document']);
-
         $copyright = ResearchCopyright::create($input);
 
         if(!empty($request->file(['document']))){      
@@ -153,7 +136,6 @@ class CopyrightedController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCR-", 'research.copyrighted.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 7,
                         'filename' => $fileName,
@@ -193,7 +175,7 @@ class CopyrightedController extends Controller
         $currentQuarter = Quarter::find(1)->current_quarter;
         $this->authorize('update', ResearchCopyright::class);
 
-        if (auth()->id() !== $research->user_id)
+        if (Researcher::where('research_id', $research->id)->first()->is_registrant == 0)
             abort(403);
 
         if(LockController::isLocked($copyrighted->id, 7)){
@@ -216,7 +198,7 @@ class CopyrightedController extends Controller
             }
         }
 
-        $researchDocuments = ResearchDocument::where('research_code', $research['research_code'])->where('research_form_id', 7)->get()->toArray();
+        $researchDocuments = ResearchDocument::where('research_id', $research['id'])->where('research_form_id', 7)->get()->toArray();
 
         $value = array_merge($research->toArray(), $copyrighted->toArray());
 
@@ -244,20 +226,9 @@ class CopyrightedController extends Controller
             return view('inactive');
 
         $date_parts = explode('-', $research->completion_date);
-
-        $request->merge([
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-        ]);
-        
-        $request->validate([
-            'copyright_year' => 'after_or_equal:'.$date_parts[0],
-        ]);
-
+        $request->validate(['copyright_year' => 'after_or_equal:'.$date_parts[0],]);
         $input = $request->except(['_token', '_method', 'document']);
-
         $copyrighted->update(['description' => '-clear']);
-
         $copyrighted->update($input);
 
         LogActivity::addToLog('Had updated a copyright of research "'.$research->title.'".');
@@ -266,7 +237,6 @@ class CopyrightedController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCR-", 'research.copyrighted.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 7,
                         'filename' => $fileName,

@@ -5,7 +5,7 @@
             <div class="col-md-12">
                 <h3 class="font-weight-bold mr-2">Citation {{ $values['title'] == null ? '' : 'of '.$values['title'] }}</h3>
                 <div class="mb-3">
-                    <a class="back_link" href="{{ route('research.utilization.index', $research['id']) }}"><i class="bi bi-chevron-double-left"></i>Return to Citations Main Page</a>
+                    <a class="back_link" href="{{ route('research.citation.index', $research['id']) }}"><i class="bi bi-chevron-double-left"></i>Return to Citations Main Page</a>
                 </div>
             </div>
         </div>

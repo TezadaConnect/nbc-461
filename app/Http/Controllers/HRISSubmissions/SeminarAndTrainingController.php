@@ -55,6 +55,7 @@ class SeminarAndTrainingController extends Controller
 
         $submissionStatus = array();
         $submitRole = array();
+        $isReturnRequested = array();
         foreach ($developmentFinal as $development) {
             $id = HRIS::where('hris_id', $development->EmployeeTrainingProgramID)->where('hris_type', 4)->where('user_id', $user->id)->pluck('hris_id')->first();
             if ($id != '') {
@@ -77,9 +78,14 @@ class SeminarAndTrainingController extends Controller
                 if ($development->AttachmentCert == null)
                     $submissionStatus[26][$development->EmployeeTrainingProgramID] = 2;
             }
+
+            $rep = Report::where('report_reference_id',$development->EmployeeTrainingProgramID)->where('deleted_at', NULL)->pluck('return_request')->first();
+            if($rep != '') {
+                $isReturnRequested[$development->EmployeeTrainingProgramID] = $rep;
+            }
         }
         // dd($submissionStatus);
-        return view('submissions.hris.development.index', compact('developmentFinal', 'savedSeminars', 'savedTrainings', 'currentQuarterYear', 'submissionStatus', 'submitRole'));
+        return view('submissions.hris.development.index', compact('developmentFinal', 'savedSeminars', 'savedTrainings', 'currentQuarterYear', 'submissionStatus', 'submitRole','isReturnRequested'));
     }
 
     public function create()
@@ -1624,6 +1630,26 @@ class SeminarAndTrainingController extends Controller
         }
 
         return true;
+    }
+
+    public function requesttoreturn(Request $request) {
+        $reportrefid = $request->reprefid;
+        $returnreason = $request->reason;
+        $rep = Report::where('report_reference_id',$reportrefid)->where('deleted_at', NULL)->first();
+        $rep->return_request = $returnreason;
+        $rep->save();
+
+        return response()->json(['success'=>'Data is successfully added.', 'message'=>'']);
+    }
+
+    public function denyrequesttoreturn(Request $request) {
+        $reportid = $request->repid;
+        $returnreason = $request->reason;
+        $rep = Report::where('id',$reportid)->where('deleted_at', NULL)->first();
+        $rep->return_request = $returnreason;
+        $rep->save();
+
+        return response()->json(['success'=>'Data is successfully added.', 'message'=>'']);
     }
 
     // public function saveSeminar(Request $request, $id){

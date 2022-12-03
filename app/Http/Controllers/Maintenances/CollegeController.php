@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use App\Models\{
+    Employee,
     Maintenance\College,
     Maintenance\Department,
 };
@@ -139,5 +140,11 @@ class CollegeController extends Controller
     public function getCollegeNameUsingDept($deptID){
         $college_id  = Department::where('id', $deptID)->pluck('college_id')->first();
         return College::where('id', $college_id)->pluck('name')->first();
+    }
+
+    public function getCollegeByUserTypeAndID($userType, $userID){
+        if ($userType == "academic")
+            return Employee::where('user_id', $userID)->where('type', 'F')->join('colleges', 'colleges.id', 'employees.college_id')->select('colleges.*')->get() ?? "No college has been tagged by the employee.";
+        return Employee::where('user_id', $userID)->where('type', 'A')->join('colleges', 'colleges.id', 'employees.college_id')->select('colleges.*')->get() ?? "No office has been tagged by the employee.";
     }
 }

@@ -51,6 +51,7 @@ class OfficershipController extends Controller
 
         $submissionStatus = array();
         $submitRole = array();
+        $isReturnRequested = array();
         foreach ($officershipFinal as $officership) {
             $id = HRIS::where('hris_id', $officership->EmployeeOfficershipMembershipID)->where('hris_type', 3)->where('user_id', $user->id)->pluck('hris_id')->first();
             if ($id != '') {
@@ -62,9 +63,14 @@ class OfficershipController extends Controller
                 if ($officership->Attachment == null)
                     $submissionStatus[28][$officership->EmployeeOfficershipMembershipID] = 2;
             }
+
+            $rep = Report::where('report_reference_id',$officership->EmployeeOfficershipMembershipID)->where('deleted_at', NULL)->pluck('return_request')->first();
+            if($rep != '') {
+                $isReturnRequested[$officership->EmployeeOfficershipMembershipID] = $rep;
+            }
         }
         // dd($officershipFinal);
-        return view('submissions.hris.officership.index', compact('officershipFinal', 'savedReports', 'currentQuarterYear', 'submissionStatus', 'submitRole'));
+        return view('submissions.hris.officership.index', compact('officershipFinal', 'savedReports', 'currentQuarterYear', 'submissionStatus', 'submitRole','isReturnRequested'));
     }
 
     public function create()
@@ -706,7 +712,7 @@ class OfficershipController extends Controller
                 return false;
             }
         } catch (Exception $th) {
-            return redirect()->back()->with('error', 'Request timeout, Unable to transfer files, Please try again!');
+            return redirect()->back()->with('error', 'Request timeout, Unable to transfer files, Please try again!'.$th->getMessage());
         }
 
 
