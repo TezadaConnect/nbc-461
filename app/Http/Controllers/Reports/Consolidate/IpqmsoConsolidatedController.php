@@ -139,6 +139,7 @@ class IpqmsoConsolidatedController extends Controller
         return view(
             'reports.consolidate.ipqmso',
             compact('roles', 'departments', 'colleges', 'ipqmso_accomps', 'department_names', 'college_names', 'sectors', 'departmentsResearch', 'departmentsExtension', 'year', 'quarter', 'sector_names')
+
         );
     }
 
@@ -153,6 +154,8 @@ class IpqmsoConsolidatedController extends Controller
         $departmentsExtension = $authenticateUser['departmentsExtension'];
         $quarter = $authenticateUser['quarter'];
         $year = $authenticateUser['year'];
+        $college_names = [];
+        $department_names = [];
 
         $ipqmso_accomps =
             Report::select(
@@ -169,13 +172,29 @@ class IpqmsoConsolidatedController extends Controller
             ->where('reports.report_quarter', $quarter)
             ->get();
 
+        foreach ($ipqmso_accomps as $row) {
+            $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
+            $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
+            $row->report_details = json_decode($row->report_details, false);
+
+            if ($temp_college_name == null)
+                $college_names[$row->id] = '-';
+            else
+                $college_names[$row->id] = $temp_college_name->name;
+            if ($temp_department_name == null)
+                $department_names[$row->id] = '-';
+            else
+                $department_names[$row->id] = $temp_department_name->name;
+        }
+
         $sector_names = Sector::all();
 
         $ipqmso_accomps = $this->commonService->getStatusOfIPO($ipqmso_accomps, $this->approvalHolderArr[$pending] ?? 'researcher_approval');
 
         return view(
             'reports.consolidate.ipqmso',
-            compact('ipqmso_accomps', 'sector_names', 'roles', 'departments', 'colleges', 'sectors', 'departmentsResearch',  'departmentsExtension', 'quarter',  'year', 'pending')
+            compact('ipqmso_accomps', 'sector_names', 'roles', 'departments', 'colleges', 'sectors', 'departmentsResearch',  'departmentsExtension', 'quarter',  'year', 'pending', 'department_names', 'college_names',)
+
         );
     }
 
@@ -194,6 +213,7 @@ class IpqmsoConsolidatedController extends Controller
         $departmentsExtension = [];
         $collegesForAssociate = [];
         $sectorsForAssistant = [];
+
 
         $currentQuarterYear = Quarter::find(1);
         $quarter = $currentQuarterYear->current_quarter;
@@ -229,6 +249,10 @@ class IpqmsoConsolidatedController extends Controller
             $sectors = Associate::where('associates.user_id', auth()->id())->select('associates.sector_id', 'sectors.code')
                 ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
         }
+
+
+
+        // 'department_names', 'college_names',
 
         return [
             'roles' => $roles,

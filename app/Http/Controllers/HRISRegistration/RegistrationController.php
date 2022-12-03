@@ -37,9 +37,9 @@ class RegistrationController extends Controller
 
         $userLocal =  User::where('email', $request->email)->first();
 
-        // if(!in_array($userLocal->email,['j1delacruz@pup.edu.ph','j2delacruz@pup.edu.ph','j3delacruz@pup.edu.ph'])){
-        //     return redirect()->route('researchredirect');
-        // }
+        if (!in_array($request->email, ['j1delacruz@pup.edu.ph', 'j2delacruz@pup.edu.ph', 'j3delacruz@pup.edu.ph'])) {
+            return redirect()->route('researchredirect');
+        }
 
         if ($user == '-1') {
 
@@ -50,8 +50,8 @@ class RegistrationController extends Controller
                 }
                 Auth::login($userLocal);
 
-                // $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1, 3])->first();
-                // session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
+                $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1, 3])->first();
+                session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
                 if (Employee::where('user_id', $userLocal->id)->exists()) {
                     return redirect()->route('home');
                 }
@@ -63,8 +63,8 @@ class RegistrationController extends Controller
             if ($this->save($user)) {
                 $userLocal = User::where('email', $request->email)->first();
                 Auth::login($userLocal);
-                // $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1, 3])->first();
-                // session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
+                $user_role = UserRole::where('user_id', $userLocal->id)->whereIn('role_id', [1, 3])->first();
+                session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
                 if (Employee::where('user_id', $userLocal->id)->exists()) {
                     return redirect()->route('home');
                 }
@@ -218,8 +218,6 @@ class RegistrationController extends Controller
 
     public function save($user)
     {
-
-
         $user = User::create([
             'email' => $user[0]->UserName,
             'first_name' => $user[0]->FName,
