@@ -135,17 +135,43 @@ class ExtensionistController extends Controller
         ->select('colleges.name as college_name', 'users.first_name', 'users.middle_name', 'users.last_name', 'users.suffix')
         ->first();
         $report_category_name = ReportCategory::where('id', $report->report_category_id)->pluck('name')->first();
-        $indivReport = Report::where('report_category_id', $report->report_category_id)->where('report_reference_id', $report->report_reference_id)->get();
         $url = route('reports.consolidate.myaccomplishments');
-        foreach($indivReport as $row){
-            $returnData = User::find($row->user_id);
+        
+        if ($report->report_category_id == 12){
+            $indivReport = Report::where('report_category_id', $report->report_category_id)->where('report_reference_id', $report->report_reference_id)->get();
+            foreach($indivReport as $row){
+                $returnData = User::find($row->user_id);
+                DenyReason::create([
+                    'report_id' => $row->id,
+                    'user_id' => auth()->id(),
+                    'position_name' => 'extensionist',
+                    'reason' => $request->input('reason'),
+                ]);
+                Report::where('id', $row->id)->update([
+                    'extensionist_approval' => 0
+                ]);
+                $notificationData = [
+                    'sender' => $senderName->first_name.' '.$senderName->middle_name.' '.$senderName->last_name.' '.$senderName->suffix.' ('.$senderName->college_name.' Extensionist)',
+                    'receiver' => $returnData->first_name,
+                    'url' => $url,
+                    'category_name' => $report_category_name,
+                    'user_id' => $returnData->id,
+                    'reason' => $request->input('reason'),
+                    'accomplishment_type' => 'individual',
+                    'date' => date('F j, Y, g:i a'),
+                    'databaseOnly' => 0
+                ];
+                Notification::send($returnData, new ReturnNotification($notificationData));
+            }
+        } else{
+            $returnData = User::find($report->user_id);
             DenyReason::create([
-                'report_id' => $row->id,
+                'report_id' => $report_id,
                 'user_id' => auth()->id(),
                 'position_name' => 'extensionist',
                 'reason' => $request->input('reason'),
             ]);
-            Report::where('id', $row->id)->update([
+            Report::where('id', $report_id)->update([
                 'extensionist_approval' => 0
             ]);
             $notificationData = [
@@ -273,10 +299,7 @@ class ExtensionistController extends Controller
 
             $count++;
         }
-
         \LogActivity::addToLog('Extensionist returned '.$count.' accomplishments.');
-
         return redirect()->route('extensionist.index')->with('success', 'Report/s returned to the owner/s.');
-
     }
 }

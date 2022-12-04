@@ -297,6 +297,7 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::resource('/extension-programs/expert-service-in-conference', \App\Http\Controllers\ExtensionPrograms\ExpertServices\ConferenceController::class);
     Route::resource('/extension-programs/expert-service-in-academic', \App\Http\Controllers\ExtensionPrograms\ExpertServices\AcademicController::class);
     Route::resource('/extension-programs', \App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class);
+    Route::get('/extension-programs/mark-as-completed/{extension_program_id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'markAsCompleted'])->name('extension-programs.markAsCompleted');
     Route::resource('outreach-program', \App\Http\Controllers\ExtensionPrograms\OutreachProgramController::class);
     Route::resource('stdnt-award', \App\Http\Controllers\AcademicDevelopment\StudentAwardController::class)->names([
         'create' => 'student-award.create',

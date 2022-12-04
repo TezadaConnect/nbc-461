@@ -115,15 +115,15 @@ class SubmissionController extends Controller
                     $is_registrant = Researcher::where('research_id', $accomplishment_id)->where('user_id', auth()->id())->first()->is_registrant;
                     break;
                 case 2:
-                    $research_id = ResearchComplete::find($accomplishment_id)->research_id;
+                    $research_id = ResearchComplete::where('research_id', $accomplishment_id)->first()->research_id;
                     $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
                     break;
                 case 3:
-                    $research_id = ResearchPublication::find($accomplishment_id)->research_id;
+                    $research_id = ResearchPublication::where('research_id', $accomplishment_id)->first()->research_id;
                     $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
                     break;
                 case 4:
-                    $research_id = ResearchPresentation::find($accomplishment_id)->research_id;
+                    $research_id = ResearchPresentation::where('research_id', $accomplishment_id)->first()->research_id;
                     $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
                     break;
                 case 5:
@@ -135,7 +135,7 @@ class SubmissionController extends Controller
                     $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
                     break;
                 case 7:
-                    $research_id = ResearchCopyright::find($accomplishment_id)->research_id;
+                    $research_id = ResearchCopyright::where('research_id', $accomplishment_id)->first()->research_id;
                     $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
                     break;
                 default: 
@@ -147,7 +147,17 @@ class SubmissionController extends Controller
                 ->where('report_category_id', $report_category_id)
                 ->where('report_quarter', $currentQuarterYear->current_quarter)
                 ->where('report_year', $currentQuarterYear->current_year)->doesntExist())
-                return redirect()->back()->with('cannot_access', 'Wait for the research registrant to submit the research.');
+                return redirect()->back()->with('cannot_access', 'Wait for the research registrant who tagged you, to submit the research.');
+            }
+        } elseif($report_category_id == 12){
+            $extension_program_id = $accomplishment_id;
+            $is_registrant = Extensionist::where('extension_program_id', $extension_program_id)->where('user_id', auth()->id())->first()->is_registrant;
+            if ($is_registrant == 0){
+                if(Report::where('report_reference_id', $accomplishment_id)
+                ->where('report_category_id', $report_category_id)
+                ->where('report_quarter', $currentQuarterYear->current_quarter)
+                ->where('report_year', $currentQuarterYear->current_year)->doesntExist())
+                return redirect()->back()->with('cannot_access', 'Wait for the registrant who tagged you, to submit the extension.');
             }
         }
 

@@ -54,7 +54,7 @@ class ResearcherController extends Controller
                 ->whereIn('reports.report_category_id', [1, 2, 3, 4, 5, 6, 7])
                 ->where('reports.research_cluster_id', $row->cluster_id)->where('researcher_approval', null)
                 // ->where('reports.college_id', $row->college_id)->where('researcher_approval', null)
-                // ->select('reports.*', 'colleges.name as college_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
+                ->select('reports.*', 'colleges.name as college_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
                 ->join('dropdown_options', 'reports.research_cluster_id', 'dropdown_options.id')
                 ->join('colleges', 'colleges.id', 'reports.college_id')
                 ->join('report_categories', 'reports.report_category_id', 'report_categories.id')

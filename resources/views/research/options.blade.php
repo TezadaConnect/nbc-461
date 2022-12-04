@@ -135,7 +135,7 @@
         Submit
     </button>
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="submitDropdownMenuButton">
-        @if ($research->status == 27)
+        @if ($research->status >= 27)
             <!-- Submit buttons -->
             @if ($submissionStatus[1][$research->id] == 0)
                 <a href="{{ url('submissions/check/1/'.$research->id) }}" class="dropdown-item"><i class="bi bi-check-square"></i> Submit Ongoing Record</a>

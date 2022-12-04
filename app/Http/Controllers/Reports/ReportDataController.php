@@ -149,7 +149,6 @@ class ReportDataController extends Controller
                         ->join('colleges', 'colleges.id', 'researchers.college_id')
                         ->where('researchers.user_id', auth()->id())
                         ->pluck('colleges.name')->first();
-
                 }
                 if($column->column == 'department_id'){
                     $data = DB::table('researchers')->where('researchers.research_id', $id)
@@ -172,7 +171,7 @@ class ReportDataController extends Controller
                     $data = DB::table($column->table)->where('id', $id)->pluck($column->column)->first();
                 }
                 if($column->column == 'nature_of_involvement'){
-                    $data = DB::table('researchers')->where('research_id', $id)->join('dropdown_options', 'dropdown_options.id', 'researchers.'.$column->column)->pluck('dropdown_options.name as '.$column->column)->first();
+                    $data = DB::table('researchers')->where('researchers.research_id', $id)->where('researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'researchers.'.$column->column)->pluck('dropdown_options.name as '.$column->column)->first();
                 }
 
                 array_push($report_data_array, $data);
@@ -286,6 +285,10 @@ class ReportDataController extends Controller
                                 ->join('departments', 'departments.id', $column->table.'.department_id')
                                 ->pluck('departments.name')->first();
                         }
+                    }
+                    if($column->column == 'nature_of_involvement'){
+                        if ($report_category_id == 12)
+                            $data = DB::table('extensionists')->where('extensionists.extension_program_id', $id)->where('extensionists.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'extensionists.'.$column->column)->pluck('dropdown_options.name as '.$column->column)->first();
                     }
                     array_push($report_data_array, $data);
                 }
