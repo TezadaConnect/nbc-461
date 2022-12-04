@@ -18,12 +18,12 @@ use App\Models\DenyReason;
 use App\Models\Researcher;
 use App\Models\SectorHead;
 use App\Models\Chairperson;
+use App\Models\ResearchTag;
 use App\Helpers\LogActivity;
 use App\Models\Extensionist;
 use App\Models\ExtensionTag;
 use App\Models\TemporaryFile;
 use App\Models\ResearchInvite;
-use App\Models\ResearchTag;
 use App\Models\ExtensionInvite;
 use App\Models\ExtensionProgram;
 use App\Models\FacultyResearcher;
@@ -33,9 +33,10 @@ use App\Models\Maintenance\Department;
 use Illuminate\Support\Facades\Storage;
 use App\Models\FormBuilder\DropdownOption;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\ResearchTagNotification;
 use App\Http\Controllers\StorageFileController;
-use App\Notifications\ResearchInviteNotification;
 use App\Notifications\ExtensionTagNotification;
+use App\Notifications\ResearchInviteNotification;
 use App\Http\Controllers\Maintenances\LockController;
 use App\Http\Controllers\Reports\ReportDataController;
 
@@ -364,7 +365,7 @@ class CommonService
                             'type' => 'res-invite'
                         ];
 
-                        Notification::send($user, new ResearchInviteNotification($notificationData));
+                        Notification::send($user, new ResearchTagNotification($notificationData));
                         Research::where('id', $id)->update([
                             'researchers' => implode("/", $researcherExploded),
                         ]);
@@ -374,46 +375,44 @@ class CommonService
             }
         } else {
             $count = 0;
+            $loggedInUser = User::find(auth()->id());
+            ExtensionProgram::where('id', $id)->update([
+                'extensionists' => $loggedInUser->last_name . ', ' . $loggedInUser->first_name . ' ' . substr($loggedInUser->middle_name, 0, 1) . '.'
+            ]);
             if ($collaborators != null) {
                 foreach ($collaborators as $collab) {
-                    if ($collab != auth()->id()) {
-                        ExtensionTag::create([
-                            'extension_program_id' => $id,
-                            'user_id' => $collab,
-                            'sender_id' => auth()->id(),
-                        ]);
+                    $extensionist = ExtensionProgram::find($id)->extensionists;
+                    $extensionistsExploded = explode("/", $extensionist);
+                    $user = User::find($collab);
+                    if ($user->middle_name != '')
+                        array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.');
+                    else
+                        array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name);
 
-                        $extensionists = ExtensionProgram::find($id)->extensionists;
-                        $extensionistsExploded = explode("/", $extensionists);
-                        $user = User::find($collab);
-                        if ($user->middle_name != '') {
-                            array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.');
-                        } else {
-                            array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name);
-                        }
+                    ExtensionTag::create([
+                        'extension_program_id' => $id,
+                        'user_id' => $collab,
+                        'sender_id' => auth()->id(),
+                    ]);
+                    $user = User::find($collab);
+                    $extension_title = "Extension Program/Project/Activity";
+                    $sender = User::where('id', auth()->id())
+                                    ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
+                    $url_accept = route('extension.invite.confirm', $id);
+                    $url_deny = route('extension.invite.cancel', $id);
 
-                        $user = User::find($collab);
-                        $extension_title = "Extension Program/Project/Activity";
-                        $sender = User::where('id', auth()->id())
-                            ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
-                        $url_accept = route('extension.invite.confirm', $id);
-                        $url_deny = route('extension.invite.cancel', $id);
+                    $notificationData = [
+                        'receiver' => $user->first_name,
+                        'title' => $extension_title,
+                        'sender' => $sender->first_name . ' ' . $sender->middle_name . ' ' . $sender->last_name . ' ' . $sender->suffix,
+                        'url_accept' => $url_accept,
+                        'url_deny' => $url_deny,
+                        'date' => date('F j, Y, g:i a'),
+                        'type' => 'ext-invite'
+                    ];
+                    Notification::send($user, new ExtensionTagNotification($notificationData));
 
-                        $notificationData = [
-                            'receiver' => $user->first_name,
-                            'title' => $extension_title,
-                            'sender' => $sender->first_name . ' ' . $sender->middle_name . ' ' . $sender->last_name . ' ' . $sender->suffix,
-                            'url_accept' => $url_accept,
-                            'url_deny' => $url_deny,
-                            'date' => date('F j, Y, g:i a'),
-                            'type' => 'ext-invite'
-                        ];
-
-                        Notification::send($user, new ExtensionTagNotification($notificationData));
-                        ExtensionProgram::where('id', $id)->update([
-                            'extensionists' => implode("/", $extensionistsExploded),
-                        ]);
-                    }
+                    ExtensionProgram::where('id', $id)->update([ 'extensionists' => implode("/", $extensionistsExploded),]);
                     $count++;
                 }
                 LogActivity::addToLog('Had added ' . $count . ' extension partners in an extension program/project/activity.');
@@ -516,105 +515,7 @@ class CommonService
         return null;
     }
 
-    /**
-     * =============================================================================================
-     * 
-     * A function that updates the tagged collaborators in research and extension programs
-     * 
-     * @param Object $request this parameter contains request.
-     * 
-     * @param Object $objectRecord this parameter contains the record to be updated.
-     * 
-     * @param String $formName can have a possible value: 'research' or 'extension'.
-     * =============================================================================================
-     */
-    public function updateTaggedCollaborators($request, $objectRecord, $formName)
-    {
-        if ($formName == "research") {
-            // $researchersNeedUpdate = 0;
-            $taggedUsersID = ResearchTag::where('research_id', $objectRecord->id)->pluck('user_id')->all();
-            if ($request->input('tagged_collaborators') == null) {
-                Researcher::where('research_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
-                ResearchTag::where('research_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
-                $objectRecord->update([
-                    'researchers' => $request->input('researchers'),
-                    'untagged_researchers' => $request->input('researchers'),
-                ]);
-            } elseif (array_diff($taggedUsersID, $request->input('tagged_collaborators')) != null) {
-                foreach ($request->input('tagged_collaborators') as $tagID) {
-                    if (!in_array($tagID, $taggedUsersID)) {
-                        ResearchTag::create(['research_id' => $objectRecord->id, 'user_id' => $tagID, 'sender_id' => auth()->id(),]);
-                        // $researchersNeedUpdate = 1;
-                    }
-                }
-                foreach ($taggedUsersID as $notifiedUser) {
-                    if (!in_array($notifiedUser, $request->input('tagged_collaborators'))) {
-                        ResearchTag::where('research_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
-                        Researcher::where('research_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
-                        // $researchersNeedUpdate = 1;
-                    }
-                }
-            }
-
-            // if ($researchersNeedUpdate == 1){
-            $researcherExploded = explode("/", $request->input('researchers'));
-            foreach (ResearchTag::where('research_id', $objectRecord->id)->pluck('user_id')->all() as $finalResearcherID) {
-                $user = User::find($finalResearcherID);
-                if ($user->middle_name != '') {
-                    array_push($researcherExploded, $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.');
-                } else {
-                    array_push($researcherExploded, $user->last_name . ', ' . $user->first_name);
-                }
-            }
-            $objectRecord->update([
-                'researchers' => implode("/", $researcherExploded),
-                'untagged_researchers' => $request->input('researchers'),
-            ]);
-            // }
-        } else {
-            // $researchersNeedUpdate = 0;
-            $taggedUsersID = ExtensionTag::where('extension_program_id', $objectRecord->id)->pluck('user_id')->all();
-            if ($request->input('tagged_collaborators') == null) {
-                Extensionist::where('extension_program_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
-                ExtensionTag::where('extension_program_id', $objectRecord->id)->where('user_id', '!=', auth()->id())->delete();
-                $objectRecord->update([
-                    'extensionists' => $request->input('tagged_collaborators'),
-                ]);
-            } elseif (array_diff($taggedUsersID, $request->input('tagged_collaborators')) != null) {
-                foreach ($request->input('tagged_collaborators') as $tagID) {
-                    if (!in_array($tagID, $taggedUsersID)) {
-                        ExtensionTag::create(['extension_program_id' => $objectRecord->id, 'user_id' => $tagID, 'sender_id' => auth()->id(),]);
-                        // $researchersNeedUpdate = 1;
-                    }
-                }
-                foreach ($taggedUsersID as $notifiedUser) {
-                    if (!in_array($notifiedUser, $request->input('tagged_collaborators'))) {
-                        ExtensionTag::where('extension_program_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
-                        Extensionist::where('extension_program_id', $objectRecord->id)->where('user_id', $notifiedUser)->delete();
-                        // $researchersNeedUpdate = 1;
-                    }
-                }
-            }
-
-            // if ($researchersNeedUpdate == 1){
-            $extensionistsExploded = explode("/", $request->input('tagged_collaborators'));
-            foreach (ExtensionTag::where('extension_program_id', $objectRecord->id)->pluck('user_id')->all() as $finalExtensionistID) {
-                $user = User::find($finalExtensionistID);
-                if ($user->middle_name != '') {
-                    array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.');
-                } else {
-                    array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name);
-                }
-            }
-            $objectRecord->update([
-                'extensionists' => implode("/", $extensionistsExploded),
-            ]);
-            // }
-        }
-    }
-
-    public function getCollegeDepartmentNames($reports)
-    {
+    public function getCollegeDepartmentNames($reports){
         //get_department_and_college_name
         $college_names = [];
         $department_names = [];

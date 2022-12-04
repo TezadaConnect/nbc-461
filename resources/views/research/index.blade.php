@@ -30,21 +30,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="alert alert-info" role="alert">
-                                    <i class="bi bi-lightbulb-fill"></i> <strong>Instructions & Reminders: </strong> <br>
-                                    <div class="ml-3">
-                                        &#8226; <strong>If you registered the research</strong>, tag your co-researchers before submitting. <br>
-                                        <span class="ml-3"><i class="bi bi-arrow-right ml-1"></i></i> On "Other Options", click "Tag Coresearchers".</span><br>
-                                        &#8226; If you are a <strong>Co-Researcher</strong>, click the "Research to Add" button to complete the research details. <br>
-                                        &#8226; Once you <strong>submit</strong> an accomplishment, you are <strong>not allowed to edit</strong> until the quarter period ends. <br>
-                                        &#8226; Please ensure submit the accomplishments for the <strong>Quarter {{ $currentQuarterYear->current_quarter }}</strong> on or before 
-                                            <?php
-                                                $deadline = strtotime( $currentQuarterYear->deadline );
-                                                $deadline = date( 'F d, Y', $deadline);
-                                                ?>
-                                                <strong>{{ $deadline }}</strong>.
-                                    </div>
-                                </div>
+                                @include('instructions')
                                 <div class="table-responsive">
                                     <table class="table my-3 table-hover" id="researchTable" >
                                         <thead>

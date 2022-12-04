@@ -161,7 +161,7 @@ class PublicationController extends Controller
 
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        if($imageChecker) return redirect()->route('research.publication.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
         return redirect()->route('research.index')->with('success', 'Research publication has been added.');
     }
@@ -280,7 +280,7 @@ class PublicationController extends Controller
 
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
 
-        if($imageChecker) return redirect()->route('research.publication.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
         return redirect()->route('research.index')->with('success', 'Research publication has been updated.');
     }

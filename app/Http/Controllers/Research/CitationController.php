@@ -278,11 +278,10 @@ class CitationController extends Controller
 
         $research = Research::find($researchId);
         $citationRecords = ResearchCitation::where('research_id', $research->id)->orderBy('updated_at', 'desc')->get();
-
         $research = Research::where('research.id', $research->id)->join('researchers', 'researchers.research_id', 'research.id')
-            ->join('dropdown_options', 'dropdown_options.id', 'research.status')
-            ->select('research.*', 'dropdown_options.name as status_name', 'researchers.*')->first();
-
+        ->join('dropdown_options', 'dropdown_options.id', 'research.status')
+        ->select('researchers.*', 'research.*', 'dropdown_options.name as status_name')->first();
+        
         $submissionStatus = array();
         $submitRole = array();
         foreach ($citationRecords as $citation) {

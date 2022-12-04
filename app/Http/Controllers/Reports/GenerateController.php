@@ -13,6 +13,7 @@ use App\Exports\CollegeLevelConsolidatedExport;
 use App\Exports\IPOAccomplishmentReportExport;
 use App\Exports\SectorAccomplishmentReportExport;
 use App\Exports\ResearchAccomplishmentReportExport;
+use App\Exports\RecordsListExport;
 use App\Models\{
     Chairperson,
     Dean,
@@ -249,15 +250,25 @@ class GenerateController extends Controller
             $clusterName = $data->name;
             $level = $request->level;
             $year = $request->year_generate;
-            $fileSuffix = 'QAR-RESEARCH-'.strtoupper($clusterName).'-Y'.$year;
-
-            return Excel::download(new ResearchAccomplishmentReportExport(
-                $id,
-                $clusterName,
-                $level,
-                $year,
-            ),
-            $fileSuffix.'.xlsx');
+            if ($request->report_type == "qar"){
+                $fileSuffix = 'QAR-RESEARCH-'.strtoupper($clusterName).'-Y'.$year;
+                return Excel::download(new ResearchAccomplishmentReportExport(
+                    $id,
+                    $clusterName,
+                    $level,
+                    $year,
+                ),
+                $fileSuffix.'.xlsx');
+            } else{
+                $fileSuffix = 'RESEARCH LIST-'.strtoupper($clusterName).'-Y'.$year;
+                return Excel::download(new RecordsListExport(
+                    $id,
+                    $clusterName,
+                    $level,
+                    $year,
+                ),
+                $fileSuffix.'.xlsx');
+            }
         }
 
         elseif ($level == 'extension'){

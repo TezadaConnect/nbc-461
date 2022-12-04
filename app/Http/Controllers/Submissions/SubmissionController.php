@@ -47,6 +47,10 @@ use App\Models\{
     Request as RequestModel,
     RequestDocument,
     Research,
+    ResearchComplete,
+    ResearchPresentation,
+    ResearchPublication,
+    ResearchCopyright,
     Researcher,
     ResearchCitation,
     ResearchDocument,
@@ -77,6 +81,20 @@ use Exception;
 
 class SubmissionController extends Controller
 {
+
+    /**
+     * =============================================================================================
+     * 
+     * This method checks the conditions/restrictions before performing the submit.
+     * 
+     * @param Int $report_category_id this paramenter is the ID of report/form category.
+     * 
+     * @param Int $accomplishment_id this parameter is the primary ID of record.
+     * 
+     * @return message.
+     * 
+     * =============================================================================================
+     */
     public function check($report_category_id, $accomplishment_id)
     {
         $currentQuarterYear = Quarter::find(1);
@@ -90,16 +108,56 @@ class SubmissionController extends Controller
         }
 
         $research_id = '*';
-        if($report_category_id >= 1 && $report_category_id <= 7){
-            $is_registrant = Researcher::where('research_id', $accomplishment_id)->where('user_id', auth()->id())->first()->is_registrant;
-            if($report_category_id <= 7){
-                if($is_registrant == 0){
-                    if(Report::where('report_reference_id', $accomplishment_id)
-                    ->where('report_category_id', $report_category_id)
-                    ->where('report_quarter', $currentQuarterYear->current_quarter)
-                    ->where('report_year', $currentQuarterYear->current_year)->doesntExist())
-                    return redirect()->back()->with('cannot_access', 'Wait for the research registrant to submit the research.');
-                }
+        if ($report_category_id <= 7){
+            switch($report_category_id){
+                case 1:
+                    $research_id = $accomplishment_id;
+                    $is_registrant = Researcher::where('research_id', $accomplishment_id)->where('user_id', auth()->id())->first()->is_registrant;
+                    break;
+                case 2:
+                    $research_id = ResearchComplete::where('research_id', $accomplishment_id)->first()->research_id;
+                    $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
+                    break;
+                case 3:
+                    $research_id = ResearchPublication::where('research_id', $accomplishment_id)->first()->research_id;
+                    $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
+                    break;
+                case 4:
+                    $research_id = ResearchPresentation::where('research_id', $accomplishment_id)->first()->research_id;
+                    $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
+                    break;
+                case 5:
+                    $research_id = ResearchCitation::find($accomplishment_id)->research_id;
+                    $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
+                    break;
+                case 6:
+                    $research_id = ResearchUtilization::find($accomplishment_id)->research_id;
+                    $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
+                    break;
+                case 7:
+                    $research_id = ResearchCopyright::where('research_id', $accomplishment_id)->first()->research_id;
+                    $is_registrant = Researcher::where('research_id', $research_id)->where('user_id', auth()->id())->first()->is_registrant;
+                    break;
+                default: 
+            }
+        }
+        if($report_category_id <= 7){
+            if($is_registrant == 0){
+                if(Report::where('report_reference_id', $accomplishment_id)
+                ->where('report_category_id', $report_category_id)
+                ->where('report_quarter', $currentQuarterYear->current_quarter)
+                ->where('report_year', $currentQuarterYear->current_year)->doesntExist())
+                return redirect()->back()->with('cannot_access', 'Wait for the research registrant who tagged you, to submit the research.');
+            }
+        } elseif($report_category_id == 12){
+            $extension_program_id = $accomplishment_id;
+            $is_registrant = Extensionist::where('extension_program_id', $extension_program_id)->where('user_id', auth()->id())->first()->is_registrant;
+            if ($is_registrant == 0){
+                if(Report::where('report_reference_id', $accomplishment_id)
+                ->where('report_category_id', $report_category_id)
+                ->where('report_quarter', $currentQuarterYear->current_quarter)
+                ->where('report_year', $currentQuarterYear->current_year)->doesntExist())
+                return redirect()->back()->with('cannot_access', 'Wait for the registrant who tagged you, to submit the extension.');
             }
         }
 
@@ -108,8 +166,23 @@ class SubmissionController extends Controller
         else
             return redirect()->back()->with('cannot_access', 'Failed to submit the accomplishment. For chairperson/chief and dean/director, please edit the department of your accomplishment as instructed in the edit form.');
     }
+    /**
+     * =============================================================================================
+     * 
+     * This method performs the submit/storing of the submitted record to the reports table and returns the submission status.
+     * 
+     * @param Int $report_category_id this paramenter is the ID of report/form category.
+     * 
+     * @param Int $accomplishment_id this parameter is the primary ID of record.
+     * 
+     * @param Int $research_id this parameter is the primary ID of research. Research ID is needed because research module composed of several forms.
+     * 
+     * @return Int; 1 if success, 0 if failed.
+     * 
+     * =============================================================================================
+     */
 
-    public function submitAlternate($report_category_id, $accomplishment_id){
+    public function submitAlternate($report_category_id, $accomplishment_id, $research_id){
         $report_controller = new ReportDataController;
         $user_id = auth()->id();
         $currentQuarterYear = Quarter::find(1);
@@ -123,17 +196,9 @@ class SubmissionController extends Controller
 
         switch($report_values_array[0]){
             case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-                if ($report_values_array[0] == 1) {
-                    $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('researchers.college_id', 'researchers.department_id', 'researchers.is_registrant', 'research.discipline')->where('researchers.user_id', $user_id)->where('research.id', $report_values_array[1])->first();
-                    $employeeTypes = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->pluck('employees.type')->all();
-                    $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
-                }
-                else {
-                    // $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('college_id', 'department_id', 'discipline')->where('user_id', $user_id)->where('research.id', $report_values_array[1])->first();
-                    $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('researchers.college_id', 'researchers.department_id', 'researchers.is_registrant', 'research.discipline')->where('researchers.user_id', $user_id)->where('research.id', $report_values_array[1])->first();
-                    $employeeTypes = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->pluck('employees.type')->all();
-                    $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
-                }
+                $research = Research::join('researchers', 'researchers.research_id', 'research.id')->select('researchers.college_id', 'researchers.department_id', 'researchers.is_registrant', 'research.discipline')->where('researchers.user_id', $user_id)->where('research.id', $research_id)->first();
+                $employeeTypes = Employee::where('user_id', auth()->id())->where('college_id', $research['college_id'])->pluck('employees.type')->all();
+                $sector_id = College::where('id', $research->college_id)->pluck('sector_id')->first();
                 $reportColumns = collect($report_controller->getColumnDataPerReportCategory($report_values_array[0]));
                 if($report_values_array[0] == 5){
                     $reportValues = collect($report_controller->getTableDataPerColumnCategory($report_values_array[0], $report_values_array[1]));

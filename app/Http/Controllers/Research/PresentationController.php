@@ -162,7 +162,7 @@ class PresentationController extends Controller
 
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
         
-        if($imageChecker) return redirect()->route('research.presentation.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
         \LogActivity::addToLog('Had marked the research "'.$research->title.'" as presented.');
 
         return redirect()->route('research.index')->with('success', 'Research presentation has been added.');
@@ -274,7 +274,7 @@ class PresentationController extends Controller
 
         $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
 
-        if($imageChecker) return redirect()->route('research.presentation.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
         \LogActivity::addToLog('Had updated the presentation details of research "'.$research->title.'".');
 
         return redirect()->route('research.index')->with('success', 'Research presentation has been updated.');

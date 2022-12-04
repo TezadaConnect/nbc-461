@@ -104,8 +104,7 @@ class TagController extends Controller
 
         $user->notifications->where('id', $request->get('id'))->markAsRead();
         
-        return redirect()->route('research.code.create', ['research_id' => $research_id, 'id' => $request->get('id') ])->with('info', 'Please fill in the remaining blanks: Nature of Involvement and
-         Department/Section where to commit.');
+        return redirect()->route('research.code.create', ['research_id' => $research_id, 'id' => $request->get('id') ])->with('info', 'Please fill in the remaining blanks: Nature of Involvement and Department/Section where to commit.');
     }
     
     public function cancel($research_id , Request $request){

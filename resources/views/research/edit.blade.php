@@ -30,7 +30,7 @@
                             <div class="col-md-12">
                                 <div class="mb-0">
                                     <div class="d-flex justify-content-end align-items-baseline">
-                                        <a href="{{ route('research.show', $research->id) }}" class="btn btn-secondary mr-2">Cancel</a>
+                                        <a href="{{ route('research.index') }}" class="btn btn-secondary mr-2">Cancel</a>
                                         <button type="submit" id="submit" class="btn btn-success">Save</button>
                                     </div>
                                 </div>
@@ -155,6 +155,15 @@
         <script>
                 $(function() {
                     $('#status').prop('disabled', true);
+                    if ("{{Session::get('info')}}"){
+                        $('#status').val(27);
+                        $('#status').removeAttr('disabled');
+                        $('#status').attr('readonly', true);
+                        $('#start_date').removeAttr('disabled');
+                        $('#start_date').attr('required', true);
+                        $('#target_date').removeAttr('disabled');
+                        $('#target_date').attr('required', true);
+                    }
                 });
                 if ({{ $research->funding_type }} == 23) {
                     //Univ. Funded

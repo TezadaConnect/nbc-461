@@ -13,6 +13,7 @@ class UpdateResearchTable extends Migration
      */
     public function up()
     {
+        // $this->down();
         Schema::create('researchers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('research_id')->onUpdate('cascade')->onDelete('cascade');
@@ -23,6 +24,10 @@ class UpdateResearchTable extends Migration
             $table->integer('is_registrant')->default(0);
             $table->timestamps();
             $table->softDeletes();
+        });
+        
+        Schema::table('research', function (Blueprint $table) {
+            $table->integer('has_new_commitment')->default(0)->after('description');
         });
 
         Schema::create('research_tags', function (Blueprint $table) {

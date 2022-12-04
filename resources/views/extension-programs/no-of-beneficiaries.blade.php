@@ -5,7 +5,7 @@
         <div class="col-md-2">
             <div class="form-group">
                 <label for="qpoor">Poor</label>
-                <input value="{{ old('quality_poor', ((isset($value['quality_poor'])) ?  $value['quality_poor'] : '' ) ) }}" type="number" class="form-control form-validation" id="qpoor" name="quality_poor">
+                <input value="{{ old('quality_poor', ((isset($value['quality_poor'])) ?  $value['quality_poor'] : '' ) ) }}" type="number" min="0" class="form-control form-validation" id="qpoor" name="quality_poor">
                 @error('quality_poor')
                     <span class='invalid-feedback' role="alert">
                         <strong>{{ $message }}</strong>

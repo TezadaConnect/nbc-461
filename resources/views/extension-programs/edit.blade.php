@@ -7,12 +7,9 @@
                 <div class="mb-3">
                     <a class="back_link" href="{{ route('extension-programs.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Extension Services</a>
                 </div>
-                {{-- Denied Details --}}
-                @if ($deniedDetails = Session::get('denied'))
                 <div class="alert alert-info" role="alert">
-                    <i class="bi bi-exclamation-circle"></i> Remarks: {{ $deniedDetails->reason }}
+                    <i class="bi bi-exclamation-circle"></i> For extension with completed status, please fill in the dates From and To.
                 </div>
-                @endif
                 <div class="card">
                     <div class="card-body">
                         <form action="{{ route('extension-programs.update', $value['id'] ) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
@@ -159,6 +156,9 @@
         <script src="{{ asset('js/spinner.js') }}"></script>
         <script>
             $(function() {
+                if ('{{ $value['status'] }}' >= 106) {
+                    $('#status').attr('disabled', true);
+                }
                 if ('{{ $value['type_of_funding'] }}' == 123) {
                     //Univ. Funded
                     $('#funding_agency').val("Polytechnic University of the Philippines");
@@ -174,6 +174,16 @@
                 else { // External Funded
                     $('#funding_agency').removeAttr('disabled');
                     $('#funding_agency').attr('required', true);
+                }
+
+                if ("{{Session::get('info')}}"){
+                    $('#status').val(106); //completed
+                    $('#status').removeAttr('disabled');
+                    $('#status').attr('readonly', true);
+                    $('#from').removeAttr('disabled');
+                    $('#from').attr('required', true);
+                    $('#to').removeAttr('disabled');
+                    $('#to').attr('required', true);
                 }
             });
         </script>
