@@ -233,17 +233,18 @@ class DashboardController extends Controller
             $college[8] = '';
             $sector[8] = '';
             $countRegisteredUsers[8] = '';
-            $countReceived[8] = Report::where('ipqmso_approval', 1)
+            $countReceived[8] = Report::where('report_year', $currentQuarterYear->current_year)
+                ->where('ipqmso_approval', 1)
                 ->whereIn('report_quarter', [3,4])
-                ->where('report_year', $currentQuarterYear->current_year)
                 ->count();
-            $countExpectedTotal[8] = Report::where('report_quarter', $currentQuarterYear->current_quarter)
-                ->where('report_year', $currentQuarterYear->current_year)
+            $countExpectedTotal[8] = Report::
+                where('report_year', $currentQuarterYear->current_year)
+                ->whereIn('report_quarter', [3,4])
                 ->count();
             $countToReview[8] = Report::whereNull('ipqmso_approval')
+                ->where('report_year', $currentQuarterYear->current_year)
                 ->whereIn('sector_approval', [1,2])
                 ->whereIn('report_quarter', [3,4])
-                ->where('report_year', $currentQuarterYear->current_year)
                 ->count();
         } 
         if (in_array(9, $roles)) {
