@@ -556,6 +556,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth'], fu
     Route::resource('/authentication/permissions', \App\Http\Controllers\Authentication\PermissionController::class);
     Route::get('refresh/migrate', [\App\Http\Controllers\RefreshController::class, 'migrate']);
     Route::get('refresh/reports-alignment', [\App\Http\Controllers\RefreshController::class, 'reportsAlignment']);
+    Route::get('refresh/reports-to-sector', [\App\Http\Controllers\RefreshController::class, 'reportsDirectToSector']);
     // forms
     // Route::post('/forms/save-arrange', [\App\Http\Controllers\FormBuilder\FormController::class, 'arrange'])->name('forms.arrange');
     // Route::resource('forms', \App\Http\Controllers\FormBuilder\FormController::class);
