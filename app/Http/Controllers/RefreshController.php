@@ -92,6 +92,8 @@ class RefreshController extends Controller
                 }
             }
         }
+
+        return redirect()->route('home');
     }
 }
 
