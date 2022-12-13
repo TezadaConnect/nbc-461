@@ -33,10 +33,10 @@
                                         <label for="quarterFilter2" class="mr-2">-</label>
                                         <div class="d-flex">
                                             <select id="quarterFilter2" class="custom-select" name="quarter2">
-                                                <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                                <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                                <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                                <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
+                                                <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarter">1</option>
+                                                <option value="2" {{ $quarter2 == 2 ? 'selected' : ''  }} class="quarter">2</option>
+                                                <option value="3" {{ $quarter2 == 3 ? 'selected' : ''  }} class="quarter">3</option>
+                                                <option value="4" {{ $quarter2 == 4 ? 'selected' : ''  }} class="quarter">4</option>
                                             </select>
                                         </div>
                                     </div>
@@ -679,9 +679,9 @@
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedQuarter2 = $('#quarterFilter2').val();
                 var selectedYear = $('#yearFilter').val();
-                $('#from_quarter_generate').val(selectedQuarter);
-                $('#to_quarter_generate').val(selectedQuarter2);
-                $('#year_generate2').val(selectedYear);
+                $('#quarterGenerate').val(selectedQuarter);
+                $('#quarterGenerate2').val(selectedQuarter2);
+                $('#yearGenerate').val(selectedYear);
             })
 
             $('#pending').on('click', function () {

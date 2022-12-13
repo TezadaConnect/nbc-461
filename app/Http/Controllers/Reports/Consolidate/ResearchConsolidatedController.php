@@ -77,7 +77,7 @@ class ResearchConsolidatedController extends Controller
             $cluster = DropdownOption::find($clusterID);
             $id = $clusterID;
             return view('reports.consolidate.research', compact('roles','department_accomps', 'cluster' , 'department_names',
-                'college_names', 'year', 'id', 'assignments'
+                'year', 'id', 'assignments'
             ));
         }
     }

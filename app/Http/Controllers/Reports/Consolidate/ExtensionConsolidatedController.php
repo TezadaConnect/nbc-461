@@ -50,7 +50,7 @@ class ExtensionConsolidatedController extends Controller
         $department_names = $this->commonService->getCollegeDepartmentNames($department_accomps)['department_names'];
         $college = College::find($id); //Get college record
         return view('reports.consolidate.extension', compact('roles', 'department_accomps', 'college' , 'department_names',
-            'college_names', 'year', 'id', 'assignments'
+            'year', 'id', 'assignments'
         ));
     }
 
@@ -81,7 +81,7 @@ class ExtensionConsolidatedController extends Controller
             $college = College::find($clusterID);
             $id = $clusterID;
             return view('reports.consolidate.extension', compact('roles', 'department_accomps', 'college' , 'department_names',
-                'college_names', 'year', 'id', 'assignments'
+                'year', 'id', 'assignments'
             ));
         }
     }

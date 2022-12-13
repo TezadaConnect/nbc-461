@@ -44,8 +44,8 @@ class IpqmsoConsolidatedController extends Controller
         }
         $currentQuarterYear = Quarter::find(1);
         $quarter = $currentQuarterYear->current_quarter;
+        $quarter2 = $currentQuarterYear->current_quarter;
         $year = $currentQuarterYear->current_year;
-        $quarter2 = 0;
         /************/
         $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
         $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);

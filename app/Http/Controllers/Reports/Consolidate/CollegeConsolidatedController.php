@@ -63,7 +63,7 @@ class CollegeConsolidatedController extends Controller
         $employees = User::join('employees', 'employees.user_id', 'users.id')->where('employees.college_id', $id)->select('users.*')->get();
         $departments = Department::where('college_id', $id)->get(); //Get departments linked to the college as options for exporting dept-level QAR
         $college = College::find($id);
-        return view('reports.consolidate.college', compact('roles', 'college_accomps', 'college' , 'department_names', 'college_names', 
+        return view('reports.consolidate.college', compact('roles', 'college_accomps', 'college' , 'department_names', 
             'quarter', 'quarter2', 'year', 'id', 'user', 'assignments', 'employees', 'departments'
         ));
     }
@@ -96,7 +96,7 @@ class CollegeConsolidatedController extends Controller
             $department_names = $this->commonService->getCollegeDepartmentNames($college_accomps)['department_names'];
             $college = College::find($college);
             $id = $college->id; //Labeled as ID to be passed in Generate Controller.
-            return view('reports.consolidate.college', compact('roles', 'college_accomps', 'college', 'department_names', 'college_names', 
+            return view('reports.consolidate.college', compact('roles', 'college_accomps', 'college', 'department_names', 
                 'quarter', 'quarter2', 'year', 'id', 'user', 'assignments'
             ));
         }

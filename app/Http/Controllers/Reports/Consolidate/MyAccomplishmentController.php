@@ -97,7 +97,7 @@ class MyAccomplishmentController extends Controller
             $collegeList = Employee::where('user_id', auth()->id())->join('colleges', 'colleges.id', 'employees.college_id')->select('colleges.*')->distinct()->get();
             return view(
                 'reports.consolidate.myaccomplishments', compact(
-                    'roles','my_accomplishments', 'college_names', 'department_names',
+                    'roles','my_accomplishments', 'department_names',
                     'year', 'quarter', 'quarter2', 'report_categories', 'user', 'collegeList',
                     'assignments'
                 ));

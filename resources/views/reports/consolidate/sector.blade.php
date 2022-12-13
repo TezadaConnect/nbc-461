@@ -13,9 +13,9 @@
                 <div class="row">
                     <div class="col">
                         <div class="form-group">
-                            <label for="quarterFilterSector" class="mr-2">Quarter Period</label>
+                            <label for="quarterFilter" class="mr-2">Quarter Period</label>
                             <div class="d-flex">
-                                <select id="quarterFilterSector" class="custom-select" name="quarterGenerate">
+                                <select id="quarterFilter" class="custom-select" name="quarterGenerate">
                                     <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarterGenerate">1</option>
                                     <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarterGenerate">2</option>
                                     <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarterGenerate">3</option>
@@ -26,9 +26,9 @@
                     </div>
                     <div class="col">
                         <div class="form-group">
-                            <label for="quarterFilterSector2" class="mr-2">-</label>
+                            <label for="quarterFilter2" class="mr-2">-</label>
                             <div class="d-flex">
-                                <select id="quarterFilterSector2" class="custom-select" name="quarterGenerate2">
+                                <select id="quarterFilter2" class="custom-select" name="quarterGenerate2">
                                     <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarterGenerate2">1</option>
                                     <option value="2" {{ $quarter2 == 2 ? 'selected' : ''  }} class="quarterGenerate2">2</option>
                                     <option value="3" {{ $quarter2 == 3 ? 'selected' : ''  }} class="quarterGenerate2">3</option>
@@ -39,8 +39,8 @@
                     </div>
                     <div class="col">
                         <div class="form-group">
-                            <label for="yearFilterSector" class="mr-2">Year</label>
-                            <select id="yearFilterSector" class="custom-select">
+                            <label for="yearFilter" class="mr-2">Year</label>
+                            <select id="yearFilter" class="custom-select">
                             </select>
                         </div>
                     </div>

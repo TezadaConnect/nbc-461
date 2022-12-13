@@ -594,8 +594,8 @@
             $('#export').on('click', function() {
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedYear = $('#yearFilter').val();
-                $('#quarter_generate').val(selectedQuarter);
-                $('#year_generate').val(selectedYear);
+                $('#quarterGenerate').val(selectedQuarter);
+                $('#yearGenerate').val(selectedYear);
                 $('#report_type').val('qar');
             });
             $('#btn-list').on('click', function() {

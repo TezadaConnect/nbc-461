@@ -567,6 +567,7 @@
         <script>
             $("#exportLevel").click(function(){
                 $('#cw_quarter').val($('#quarterFilter').val());
+                $('#cw_quarter2').val($('#quarterFilter2').val());
                 $('#cw_year').val($('#yearFilter').val());
                 var form = document.getElementById('export_level_form2');
                 form.submit();

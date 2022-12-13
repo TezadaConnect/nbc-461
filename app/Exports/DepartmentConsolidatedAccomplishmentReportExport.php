@@ -106,11 +106,10 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
                         ->select('reports.*', DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"))
                         ->orderBy('users.last_name')
                         ->get()->toArray();
+                    }
                 }
             }
-
         }
-
         $this->tableFormat = $tableFormat;
         $this->tableColumns = $tableColumns;
         $this->tableContents = $tableContents;

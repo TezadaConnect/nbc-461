@@ -86,7 +86,7 @@ class DepartmentConsolidatedController extends Controller
             $id = $dept; //Labeled as ID to be passed in Generate Controller.
             return view(
                 'reports.consolidate.department',
-                compact('roles', 'department_accomps', 'department', 'department_names', 'college_names', 
+                compact('roles', 'department_accomps', 'department', 
                 'year', 'quarter', 'user', 'id', 'assignments')
             );
         }

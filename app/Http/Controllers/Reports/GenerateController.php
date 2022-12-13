@@ -154,25 +154,27 @@ class GenerateController extends Controller
             }
         } 
         elseif ($level == "department_wide") {
-            $fileSuffix = 'DEPT-WIDE-QAR-'.$data->code.'-Q'.$request->input('dw_quarter').'-Y'.$request->input('dw_year');
+            $fileSuffix = 'DEPT-WIDE-QAR-'.$data->code.'-Q'.$request->input('dw_quarter').'-Q'.$request->input('dw_quarter2').'-Y'.$request->input('dw_year');
             return Excel::download(new DepartmentLevelConsolidatedExport(
                 $level,
                 $type,
-                $quarterGenerateLevel = $request->input('dw_quarter'),
-                $yearGenerateLevel = $request->input('dw_year'),
-                $departmentID = $data->id,
-                $departmentName = $data->name,
+                $request->input('dw_quarter'),
+                $request->input('dw_quarter2'),
+                $request->input('dw_year'),
+                $data->id, //Department ID
+                $data->name, //Department Name
                 ),
                 $fileSuffix.'.xlsx');
         } elseif ($level == "college_wide") {
-            $fileSuffix = 'COLLEGE-WIDE-QAR-'.$data->code.'-Q'.$request->input('cw_quarter').'-'.$request->input('cw_year');
+            $fileSuffix = 'COLLEGE-WIDE-QAR-'.$data->code.'-Q'.$request->input('cw_quarter').'-Q'.$request->input('cw_quarter2').'-Y'.$request->input('cw_year');
             return Excel::download(new CollegeLevelConsolidatedExport(
                 $level,
                 $type,
-                $quarterGenerateLevel = $request->input('cw_quarter'),
-                $yearGenerateLevel = $request->input('cw_year'),
-                $collegeID = $data->id,
-                $collegeName = $data->name,
+                $request->input('cw_quarter'),
+                $request->input('cw_quarter2'),
+                $request->input('cw_year'),
+                $data->id, //College ID
+                $data->name, //College Name
                 ),
                 $fileSuffix.'.xlsx');
         }

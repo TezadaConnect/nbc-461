@@ -33,7 +33,7 @@ class SectorConsolidatedController extends Controller
         $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
         $sector_accomps =
             Report::where('reports.report_year', $year)
-                ->where('reports.report_quarter', $quarter)
+                ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
                 ->where('reports.sector_id', $id)
                 ->select(
                     'reports.*',
@@ -55,7 +55,7 @@ class SectorConsolidatedController extends Controller
         $colleges = College::all();
         $sector = Sector::find($id);
         return view('reports.consolidate.sector', compact('roles', 'sector_accomps', 'employees', 'departments', 'colleges', 
-            'sector', 'department_names', 'college_names', 'quarter', 'quarter2', 'year', 'assignments'
+            'sector', 'department_names', 'quarter', 'quarter2', 'year', 'assignments'
         ));
     }
 
@@ -87,7 +87,7 @@ class SectorConsolidatedController extends Controller
             $sector = Sector::find($sector);
         }
         return view('reports.consolidate.sector', compact('roles', 'sector_accomps', 'sector', 'department_names', 
-            'college_names', 'quarter', 'quarter2', 'year', 'assignments',
+            'quarter', 'quarter2', 'year', 'assignments',
         ));
     }
 }
