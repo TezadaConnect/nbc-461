@@ -61,6 +61,7 @@
                                                 <th>Title</th>
                                                 <th>Inclusive Date</th>
                                                 <th>Level</th>
+                                                <th>Status</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -71,34 +72,63 @@
                                                     <td>{{ $development->TrainingProgram }}</td>
                                                     <td>{{ date( 'F d, Y', strtotime($development->IncDateFrom)) }} - {{ date( 'F d, Y', strtotime($development->IncDateTo)) }}</td>
                                                     <td>{{ $development->Level }}</td>
+                                                    <td>Test Status</td>
                                                     <td>
                                                         <div class="btn-group" role="group" aria-label="button-group">
                                                             @if(in_array($development->EmployeeTrainingProgramID, $savedSeminars)||in_array($development->EmployeeTrainingProgramID, $savedTrainings))
                                                                 <a href="{{ route('submissions.development.show', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">View</a>
-                                                                <a href="{{ route('submissions.development.edit', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-warning d-inline-flex align-items-center">Edit</a>
-                                                                <button type="button" value="{{ $development->EmployeeTrainingProgramID }}" class="btn btn-sm btn-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-development="{{ $development->TrainingProgram }}">Delete</button>
                                                                 @if(isset($submissionStatus[25]))
                                                                     @if(isset($submissionStatus[25][$development->EmployeeTrainingProgramID]))
+                                                                        @if(in_array($submissionStatus[25][$development->EmployeeTrainingProgramID], array(0,2)))
+                                                                            <a href="{{ route('submissions.development.edit', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-warning d-inline-flex align-items-center">Edit</a>
+                                                                        @elseif ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 1 )
+                                                                            <button class="btn btn-sm btn-warning d-inline-flex align-items-center" onclick="cantedit()">Edit</button>
+                                                                        @endif
                                                                         @if ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 0 )
                                                                             <a href="{{ route('submissions.development.check', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">Submit</a>
                                                                         @elseif ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 1 )
-                                                                            <a href="{{ route('submissions.development.check', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Submitted {{ $submitRole[$development->EmployeeTrainingProgramID] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                                                                            <!-- Go to landing page here --><a href="{{ route('reports.consolidate.myaccomplishments') }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Submitted {{ $submitRole[$development->EmployeeTrainingProgramID] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
                                                                         @elseif ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 2 )
                                                                             <a href="{{ route('submissions.development.edit', $development->EmployeeTrainingProgramID ) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> Certificate is Required</a>
                                                                         @endif
+                                                                        @if(in_array($submissionStatus[25][$development->EmployeeTrainingProgramID], array(0,2)))
+                                                                            <button type="button" value="{{ $development->EmployeeTrainingProgramID }}" class="btn btn-sm btn-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-development="{{ $development->TrainingProgram }}">Delete</button>
+                                                                        @elseif ($submissionStatus[25][$development->EmployeeTrainingProgramID] == 1 )
+                                                                            <button type="button" class="btn btn-sm btn-danger d-inline-flex align-items-center" onclick="cantdelete()">Delete</button>
+                                                                            @if(isset($isReturnRequested[$development->EmployeeTrainingProgramID]))
+                                                                                <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center" data-reportref = "{{ $development->EmployeeTrainingProgramID }}" data-reqres="{{$isReturnRequested[$development->EmployeeTrainingProgramID]}}" onclick="retrequested(this)">Return Status</button>
+                                                                            @else
+                                                                                <button type="button" class="btn btn-sm btn-warning d-inline-flex align-items-center" onclick="returnrequest({{ $development->EmployeeTrainingProgramID }})">Request Return</button>
+                                                                            @endif
+                                                                        @endif 
                                                                     @endif
                                                                 @endif
                                                                 @if(isset($submissionStatus[26]))
                                                                     @if(isset($submissionStatus[26][$development->EmployeeTrainingProgramID]))
+                                                                        @if(in_array($submissionStatus[26][$development->EmployeeTrainingProgramID], array(0,2)))
+                                                                            <a href="{{ route('submissions.development.edit', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-warning d-inline-flex align-items-center">Edit</a>
+                                                                        @elseif ($submissionStatus[26][$development->EmployeeTrainingProgramID] == 1 )
+                                                                            <button class="btn btn-sm btn-warning d-inline-flex align-items-center" onclick="cantedit()">Edit</button>
+                                                                        @endif
                                                                         @if ( $submissionStatus[26][$development->EmployeeTrainingProgramID] == 0)
                                                                             <a href="{{ route('submissions.development.check', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">Submit</a>
                                                                         @elseif ($submissionStatus[26][$development->EmployeeTrainingProgramID] == 1)
-                                                                            <a href="{{ route('submissions.development.check', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Submitted {{ $submitRole[$development->EmployeeTrainingProgramID] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                                                                            <!-- Go to landing page here --><a href="{{ route('reports.consolidate.myaccomplishments') }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Submitted {{ $submitRole[$development->EmployeeTrainingProgramID] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
                                                                         @elseif ($submissionStatus[26][$development->EmployeeTrainingProgramID] == 2)
                                                                             <a href="{{ route('submissions.development.edit', $development->EmployeeTrainingProgramID ) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> Certificate is Required</a>
                                                                         @endif
+                                                                        @if(in_array($submissionStatus[26][$development->EmployeeTrainingProgramID], array(0,2)))
+                                                                            <button type="button" value="{{ $development->EmployeeTrainingProgramID }}" class="btn btn-sm btn-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-development="{{ $development->TrainingProgram }}">Delete</button>
+                                                                        @elseif ($submissionStatus[26][$development->EmployeeTrainingProgramID] == 1 )
+                                                                            <button type="button" class="btn btn-sm btn-danger d-inline-flex align-items-center" onclick="cantdelete()">Delete</button>
+                                                                            @if(isset($isReturnRequested[$development->EmployeeTrainingProgramID]))
+                                                                                <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center" data-reportref = "{{ $development->EmployeeTrainingProgramID }}" data-reqres="{{$isReturnRequested[$development->EmployeeTrainingProgramID]}}" onclick="retrequested(this)">Return Status</button>
+                                                                            @else
+                                                                                <button type="button" class="btn btn-sm btn-warning d-inline-flex align-items-center" onclick="returnrequest({{ $development->EmployeeTrainingProgramID }})">Request Return</button>
+                                                                            @endif
+                                                                        @endif 
                                                                     @endif
-                                                                @endif
+                                                                @endif                                                               
                                                             @else
                                                                 <a href="{{ route('submissions.development.add', $development->EmployeeTrainingProgramID) }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Add</a>
                                                                 <button type="button" value="{{ $development->EmployeeTrainingProgramID }}" class="btn btn-sm btn-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-development="{{ $development->TrainingProgram }}">Delete</button>
@@ -142,11 +172,112 @@
         <script type="text/javascript" src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
         <script type="text/javascript" src="https://cdn.datatables.net/1.11.1/js/dataTables.bootstrap4.min.js"></script>
         <script>
-
             $(document).ready( function () {
                 $('#development_table').DataTable({
                 });
-            } );
+            });
+
+            /* $(document).on('click', '.cantdelete', function(){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot be deleted once submitted.',
+                    text: 'Please request to return the accomplishment if you wish to delete it.'
+                });
+            });
+
+            $(document).on('click', '.cantedit', function(){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot be edited once submitted.',
+                    text: 'Please request to return the accomplishment to be edited.'
+                });
+            }); */
+            
+            function cantedit() {
+                // alert("Cannot be edited once submitted. Please request to return the accomplishment to be edited.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot be edited once submitted.',
+                    text: 'Please request to return the accomplishment to be edited.'
+                });
+            };
+
+            function cantdelete() {
+                // alert("Cannot be deleted once submitted. Please request to return the accomplishment if you wish to delete it.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot be deleted once submitted.',
+                    text: 'Please request to return the accomplishment if you wish to delete it.'
+                });
+            };
+
+            function returnrequest(refid){
+                Swal.fire({
+                    title: 'Request To Return',
+                    html: `<input type="textarea" id="returnrequestreason" class="swal2-input" placeholder="Reason for Request">`,
+                    confirmButtonColor: '#4CAF50',
+                    confirmButtonText: 'Submit Request',
+                    showCancelButton: true,
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        let reason = document.getElementById('returnrequestreason').value;
+                        if (reason) {
+                            // let reason = document.getElementById('returnrequestreason').value;
+                            /* $.ajaxSetup({
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content');
+                                }
+                            }); */
+                            $.ajax({
+                                type: 'POST',
+                                url: "{{route('submissions.development.returnrequest')}}",
+                                data: {"_token": "{{csrf_token()}}",
+                                    "reason": jQuery('#returnrequestreason').val(),
+                                    "reprefid": refid,
+                                },
+                                success: function (resp) {
+                                    if (resp.success) {
+                                        swal.fire("Return Requested!", "", "success");
+                                        location.reload();
+                                    } else {
+                                        swal.fire("Error!", 'Something went wrong.', "error");
+                                    }
+                                },
+                                error: function (resp) {
+                                    swal.fire("Error!", resp.message, "error");
+                                }
+                            });
+                        } else {
+                                    Swal.showValidationMessage('Please specify reason');
+                        }
+                    }
+                });
+            }; 
+
+            function retrequested(element){
+                let reasonreq = element.dataset.reqres; 
+                let reportrefid = element.dataset.reportref; 
+                if(reasonreq.includes("Request Denied:")){
+                    //call return request
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Return Request Denied',
+                        text: reasonreq,
+                        confirmButtonText: 'Request Again',
+                        showCancelButton: true,
+                        preConfirm: () => {
+                            returnrequest(reportrefid);
+                        },
+                    });
+                }else{
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Return Already Requested',
+                        text: element.dataset.reqres,
+                    });
+                }
+            };
+
             // auto hide alert
             window.setTimeout(function() {
                 $(".alert-index").fadeTo(500, 0).slideUp(500, function(){

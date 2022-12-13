@@ -28,6 +28,7 @@ class CreateReportsTable extends Migration
             $table->boolean('dean_approval')->nullable();
             $table->boolean('sector_approval')->nullable();
             $table->boolean('ipqmso_approval')->nullable();
+            $table->trait_exists('return_request')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -15,4 +15,19 @@ class DateContentService {
 
         return $field_name;
     }
+
+    
+    /**
+     * =============================================================================================
+     * 
+     * CREATED BY: KENYLEEN D. PAN
+     * Checks if the date has valid format specified in the blade forms.
+     * @param String $date.
+     * @return Bool.
+     * 
+     * =============================================================================================
+     */
+    public function isValidDate($date) {
+        return date('m/d/Y', strtotime($date)) === $date;
+    }
 }

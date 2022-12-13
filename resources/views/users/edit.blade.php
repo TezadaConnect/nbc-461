@@ -128,7 +128,7 @@
                       </div>
 
                       <div class="form-group extension-input" style="@if($extensionist == null) display: none; @endif">
-                        <x-jet-label value="{{ __('Extensionist of:') }}" />
+                        <x-jet-label value="{{ __('Extension Coord. of:') }}" />
                         <select name="extension[]" id="extension" class="form-control form-control-md">
                             <option value="" selected>Choose...</option>
                         </select>
@@ -137,7 +137,7 @@
                       </div>
 
                       <div class="form-group research-input" style="@if($researcher == null) display: none; @endif">
-                        <x-jet-label value="{{ __('Researcher of:') }}" />
+                        <x-jet-label value="{{ __('Research Coord. of:') }}" />
                         <select name="research[]" id="research" class="form-control form-control-md">
                             <option value="" selected>Choose...</option>
                         </select>
@@ -243,7 +243,7 @@
               sortField: "text",
               valueField: 'value',
               labelField: 'text',
-              options: @json($colleges),
+              options: @json($researchClusters),
               items: @json($researcher),
           });
           $("#collegeAssociate").selectize({

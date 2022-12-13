@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        @include('reports.navigation', compact('roles', 'departments', 'colleges', 'sectors'))
+        @include('reports.navigation', compact('roles', 'assignments'))
     </x-slot>
     <div class="container">
         <div class="row">
@@ -11,43 +11,45 @@
         <div class="card mb-3">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col">
                         <div class="form-group">
-                            <label for="yearFilterSector" class="mr-2">Year Reported: </label>
-                            <select id="yearFilterSector" class="custom-select">
+                            <label for="quarterFilter" class="mr-2">Quarter Period</label>
+                            <div class="d-flex">
+                                <select id="quarterFilter" class="custom-select" name="quarterGenerate">
+                                    <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarterGenerate">1</option>
+                                    <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarterGenerate">2</option>
+                                    <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarterGenerate">3</option>
+                                    <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarterGenerate">4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="quarterFilter2" class="mr-2">-</label>
+                            <div class="d-flex">
+                                <select id="quarterFilter2" class="custom-select" name="quarterGenerate2">
+                                    <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarterGenerate2">1</option>
+                                    <option value="2" {{ $quarter2 == 2 ? 'selected' : ''  }} class="quarterGenerate2">2</option>
+                                    <option value="3" {{ $quarter2 == 3 ? 'selected' : ''  }} class="quarterGenerate2">3</option>
+                                    <option value="4" {{ $quarter2 == 4 ? 'selected' : ''  }} class="quarterGenerate2">4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="yearFilter" class="mr-2">Year</label>
+                            <select id="yearFilter" class="custom-select">
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-2">
-                        <div class="form-group m-0">
-                            <label for="quarterFilterSector" class="mr-2">Quarter Start: </label>
-                            <div class="d-flex">
-                                <select id="quarterFilterSector" class="custom-select" name="quarter">
-                                    <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                    <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                    <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                    <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
-                                </select>
+                    <div class="col-12">
+                        <div class="form-group mb-0">
+                            <div class="btn-group" role="group" aria-label="button-group">
+                                <button id="filter" class="btn btn-primary"><i class="bi bi-list-ol"></i> Generate Table</button>
+                                <button id="export" type="button" class="btn btn-warning" data-target="#generateSectorLevel" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group m-0">
-                            <label for="quarterFilterSector2" class="mr-2">Quarter End: </label>
-                            <div class="d-flex">
-                                <select id="quarterFilterSector2" class="custom-select" name="quarter2">
-                                    <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                    <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                    <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                    <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6" style="padding-top: 30px;">
-                        <div class="form-group">
-                            <button id="filter" class="btn btn-primary mr-2">GENERATE</button>
-                            <button id="export" type="button" class="btn btn-primary" data-target="#generateSectorLevel" data-toggle="modal">EXPORT</button>
                         </div>
                     </div>
                 </div>
@@ -489,45 +491,40 @@
             $(function(){
                 $('#college_accomplishments_in_sector_table').DataTable();
             });
-            // auto hide alert
-            window.setTimeout(function() {
-                $(".alert").fadeTo(500, 0).slideUp(500, function(){
-                    $(this).remove();
-                });
-            }, 4000);
         </script>
         <script>
             var max = {!! json_encode($year) !!};
             var min = 0;
             var diff = max-2022;
             min = max-diff;
-            select = document.getElementById('yearFilterSector');
+            select = document.getElementById('yearFilter');
 
             var year = {!! json_encode($year) !!};
             for (var i = max; i >= min; i--) {
                 select.append(new Option(i, i));
                 if (year == i) {
-                    document.getElementById("yearFilterSector").value = i;
+                    document.getElementById("yearFilter").value = i;
                 }
             }
         </script>
         <script>
             $('#filter').on('click', function () {
-                var year_reported = $('#yearFilterSector').val();
-                var quarter = $('#quarterFilterSector').val();
-                var link = "{{ url('reports/consolidate/sector/reportYearFilter/:sector/:year/:quarter') }}";
-                var newLink = link.replace(':sector', "{{$sectors[0]->sector_id}}").replace(':year', year_reported).replace(':quarter', quarter);
+                var year_reported = $('#yearFilter').val();
+                var quarter1 = $('#quarterFilter').val();
+                var quarter2 = $('#quarterFilter2').val();
+                var link = "{{ url('reports/consolidate/sector/report-filter/:sector/:year/:quarter1/:quarter2') }}";
+                var newLink = link.replace(':sector', "{{$sector['id']}}").replace(':year', year_reported).replace(':quarter1', quarter1).replace(':quarter2', quarter2);
                 window.location.replace(newLink);
             });
         </script>
         <script>
-            $('#exportSector').on('click', function() {
+            $('#export').on('click', function() {
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedQuarter2 = $('#quarterFilter2').val();
                 var selectedYear = $('#yearFilter').val();
-                $('#from_quarter_generate').val(selectedQuarter);
-                $('#to_quarter_generate').val(selectedQuarter2);
-                $('#year_generate').val(selectedYear);
+                $('#quarterGenerate').val(selectedQuarter);
+                $('#quarterGenerate2').val(selectedQuarter2);
+                $('#yearGenerate').val(selectedYear);
             })
         </script>
     @endpush

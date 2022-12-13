@@ -139,33 +139,12 @@ class OutreachProgramController extends Controller
             }
         }
 
-        return redirect()->route('outreach-program.index')->with('success', 'Community relations and outreach program has been added.');
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'OP-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        //                 OutreachProgramDocument::create([
-        //                     'outreach_program_id' => $outreach->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        if($imageChecker) return redirect()->route('outreach-program.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('outreach-program.index')->with('save_success', 'Community relations and outreach program has been added.');
     }
 
     /**
@@ -302,7 +281,14 @@ class OutreachProgramController extends Controller
                 else return $fileName;
             }
         }
-        return redirect()->route('outreach-program.index')->with('success', 'Community relations and outreach program has been updated.');
+
+        $imageRecord = OutreachProgramDocument::where('outreach_program_id', $outreach_program->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('outreach-program.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('outreach-program.index')->with('save_success', 'Community relations and outreach program has been updated.');
 
         // if($request->has('document')){
         //     $documents = $request->input('document');

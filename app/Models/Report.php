@@ -30,5 +30,7 @@ class Report extends Model
         'ipqmso_approval',
         'report_quarter',
         'report_year',
+        'research_cluster_id',
+        'return_request'
     ];
 }

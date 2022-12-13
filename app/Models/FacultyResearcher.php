@@ -10,8 +10,5 @@ class FacultyResearcher extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'user_id',
-        'college_id'
-    ];
+    protected $guarded = [];
 }

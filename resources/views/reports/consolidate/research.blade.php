@@ -1,45 +1,33 @@
 <x-app-layout>
     <x-slot name="header">
-        @include('reports.navigation', compact('roles', 'departments', 'colleges', 'sectors', 'id'))
+        @include('reports.navigation', compact('roles', 'id', 'assignments'))
     </x-slot>
 
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h2 class="font-weight-bold mb-2">Consolidated Research & Invention - {{ $department->code }}</h2>
+                <h2 class="font-weight-bold mb-2">Consolidated Research - {{ $cluster->name }}</h2>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="card mb-3">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="yearFilter" class="mr-2">Year Reported: </label>
-                                    <select id="yearFilter" class="custom-select">
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="quarterFilter" class="mr-2">Quarter Period: </label>
-                                    <div class="d-flex">
-                                        <select id="quarterFilter" class="custom-select" name="quarter">
-                                            <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                            <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                            <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                            <option value="4" {{ $quarter == 4 ? 'selected' : ''  }} class="quarter">4</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-8" style="padding-top: 30px;">
-                                <div class="form-group">
-                                    <button id="quarterYearFilter" class="btn btn-primary mr-2">GENERATE</button>
-                                    <button id="export" type="button" class="btn btn-primary" data-target="#GenerateReport" data-toggle="modal">EXPORT</button>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label for="yearFilter" class="mr-2">Year Reported: </label>
+                            <select id="yearFilter" class="custom-select">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <form action="{{ route('report.generate.index', $cluster['id'] ?? '') }}" method="post">
+                                @csrf
+                                <input type="hidden" name="level" value="research">
+                                <input type="hidden" name="year_generate" id="year_generate" class="form-control" >
+                                <input type="hidden" name="report_type" id="report_type" class="form-control">
+                                <button id="quarterYearFilter" type="button" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
+                                <!-- <button id="export" type="submit" class="btn btn-warning mr-2" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
+                                <button id="btn-list" type="submit" onclick="" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export List of Research</button> -->
+                            </form>
                         </div>
                         <hr>
                         <div class="row">
@@ -415,8 +403,6 @@
         </div>
     </div>
 
-    @include('reports.generate.index', ['data' => $department, 'level' => 'college', 'special_type' => ''])
-
     @push('scripts')
         <script type="text/javascript" src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
         <script type="text/javascript" src="https://cdn.datatables.net/1.11.1/js/dataTables.bootstrap4.min.js"></script>
@@ -599,8 +585,8 @@
             $('#quarterYearFilter').on('click', function () {
                 var year_reported = $('#yearFilter').val();
                 var quarter = $('#quarterFilter').val();
-                var link = "{{ url('reports/consolidate/research/reportYearFilter/:department/:year/:quarter') }}";
-                var newLink = link.replace(':department', "{{$department['id']}}").replace(':year', year_reported).replace(':quarter', quarter);
+                var link = "{{ url('reports/consolidate/research/report-filter/:department/:year') }}";
+                var newLink = link.replace(':department', "{{$cluster['id']}}").replace(':year', year_reported);
                 window.location.replace(newLink);
             });
         </script>
@@ -608,9 +594,17 @@
             $('#export').on('click', function() {
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedYear = $('#yearFilter').val();
+                $('#quarterGenerate').val(selectedQuarter);
+                $('#yearGenerate').val(selectedYear);
+                $('#report_type').val('qar');
+            });
+            $('#btn-list').on('click', function() {
+                var selectedQuarter = $('#quarterFilter').val();
+                var selectedYear = $('#yearFilter').val();
                 $('#quarter_generate').val(selectedQuarter);
                 $('#year_generate').val(selectedYear);
-            })
+                $('#report_type').val('researchList');
+            });
         </script>
     @endpush
 </x-app-layout>

@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        @include('reports.navigation', compact('roles', 'departments', 'colleges', 'sectors', 'id'))
+        @include('reports.navigation', compact('roles', 'id', 'assignments'))
     </x-slot>
     <div class="container">
         <div class="row">
@@ -11,18 +11,11 @@
         <div class="card mb-3">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col">
                         <div class="form-group">
-                            <label for="yearFilter" class="mr-2">Year Reported: </label>
-                            <select id="yearFilter" class="custom-select">
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label for="quarterFilter" class="mr-2">Quarter Period: </label>
+                            <label for="quarterFilter" class="mr-2">Quarter Period</label>
                             <div class="d-flex">
-                                <select id="quarterFilter" class="custom-select" name="quarter">
+                                <select id="quarterFilter" class="custom-select" name="quarterGenerate">
                                     <option value="1" {{ $quarter == 1 ? 'selected' : ''  }} class="quarter">1</option>
                                     <option value="2" {{ $quarter == 2 ? 'selected' : ''  }} class="quarter">2</option>
                                     <option value="3" {{ $quarter == 3 ? 'selected' : ''  }} class="quarter">3</option>
@@ -31,8 +24,28 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-8" style="padding-top: 30px;">
+                    <div class="col">
                         <div class="form-group">
+                            <label for="quarterFilter2" class="mr-2">-</label>
+                            <div class="d-flex">
+                                <select id="quarterFilter2" class="custom-select" name="quarterGenerate2">
+                                    <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarter">1</option>
+                                    <option value="2" {{ $quarter2 == 2 ? 'selected' : ''  }} class="quarter">2</option>
+                                    <option value="3" {{ $quarter2 == 3 ? 'selected' : ''  }} class="quarter">3</option>
+                                    <option value="4" {{ $quarter2 == 4 ? 'selected' : ''  }} class="quarter">4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="yearFilter" class="mr-2">Year</label>
+                            <select id="yearFilter" class="custom-select">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group mb-0">
                             <form action="{{ route('report.generate.index', $user->id)}}" method="POST" id="export_level_form">
                                 @csrf
                                 <input type="hidden" name="level" value="department_wide">
@@ -40,9 +53,12 @@
                                 <input type="hidden" id="dw_quarter" name="dw_quarter" value="">
                                 <input type="hidden" id="dw_year" name="dw_year" value="">
                                 <input type="hidden" id="department_id" name="department_id" value="{{ $department['id'] }}">
-                                <button id="filter" type="button" class="btn btn-primary mr-2">GENERATE</button>
-                                <button id="export" type="button" class="btn btn-primary mr-2" data-target="#GenerateReport" data-toggle="modal">EXPORT</button>
-                                <button id="exportLevel" type="button" class="btn btn-primary">EXPORT (QAR FILLED IN BY CHAIRPERSON)</button>
+                                <div class="btn-group" role="group" aria-label="button-group">
+                                    <button id="filter" type="button" class="btn btn-primary"><i class="bi bi-list-ol"></i> Generate Table</button>
+                                    <button id="export" type="button" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export Dept./Section QAR File</button>
+                                    <button id="exportLevel" type="button" class="btn btn-warning"><i class="bi bi-filetype-xlsx"></i> Export QAR Filled-in by Chair/Chief</button>
+                                </div>
+                                <!-- <button id="individualExport" type="button" class="btn btn-warning" data-target="#GenerateIndiv" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export Individual QAR</button> -->
                             </form>
                         </div>
                     </div>
@@ -420,7 +436,7 @@
         </div>
     </div>
 
-    @include('reports.generate.index', ['data' => $department, 'level' => 'department', 'special_type' => ''])
+    @include('reports.generate.index', ['data' => $department, 'generatePerson' => 'chair/chief', 'special_type' => ''])
 
     @push('scripts')
         <script type="text/javascript" src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
@@ -483,12 +499,6 @@
                 $('#deny-details').remove();
                 $('.report-content').remove();
             });
-            // auto hide alert
-            window.setTimeout(function() {
-                $(".alert").fadeTo(500, 0).slideUp(500, function(){
-                    $(this).remove();
-                });
-            }, 4000);
         </script>
         <script>
             var max = {!! json_encode($year) !!};
@@ -510,25 +520,74 @@
             $('#filter').on('click', function () {
                 var year_reported = $('#yearFilter').val();
                 var quarter = $('#quarterFilter').val();
-                var link = "{{ url('reports/consolidate/department/reportYearFilter/:department/:year/:quarter') }}";
-                var newLink = link.replace(':department', "{{$id}}").replace(':year', year_reported).replace(':quarter', quarter);
+                var quarter2 = $('#quarterFilter2').val();
+                var link = "{{ url('reports/consolidate/department/report-filter/:department/:year/:quarter/:quarter2') }}";
+                var newLink = link.replace(':department', "{{$id}}").replace(':year', year_reported).replace(':quarter', quarter).replace(':quarter2', quarter2);
                 window.location.replace(newLink);
             });
         </script>
         <script>
             $('#export').on('click', function() {
                 var selectedQuarter = $('#quarterFilter').val();
+                var selectedQuarter2 = $('#quarterFilter2').val();
                 var selectedYear = $('#yearFilter').val();
-                $('#quarter_generate').val(selectedQuarter);
-                $('#year_generate').val(selectedYear);
+                $('#quarterGenerate').val(selectedQuarter);
+                $('#quarterGenerate2').val(selectedQuarter2);
+                $('#yearGenerate').val(selectedYear);
             })
         </script>
         <script>
             $("#exportLevel").click(function(){
                 $('#dw_quarter').val($('#quarterFilter').val());
+                $('#dw_quarter2').val($('#quarterFilter2').val());
                 $('#dw_year').val($('#yearFilter').val());
                 var form = document.getElementById('export_level_form');
                 form.submit();
+            });
+        </script>
+        <script>
+            $('#level').on('change', function(){
+                if ($('#level').val() == "individual"){
+                    $('#employee').on('change', function(){
+                        var type = $('#type').val();
+                        var employee = $('#employee').val();
+                        $('#cbco').empty().append('<option selected="selected" disabled="disabled" value="">Choose...</option>');
+                        var url = "{{ url('maintenances/colleges/name/:userType/:userID') }}";
+                        var api = url.replace(':userType', type).replace(':userID', employee);
+                        $.get(api, function (data){
+                            if (data != '') {
+                                data.forEach(function (item){
+                                    $("#cbco").append(new Option(item.name, item.id));
+                                });
+                            } else
+                                $("#cbco").append('<option disabled="disabled" value="">No college/branch/campus/office has been tagged by the employee.</option>');
+                        });
+                    });
+
+                    $('#type').on('change', function(){
+                        var type = $('#type').val();
+                        var employee = $('#employee').val();
+                        $('#cbco').empty().append('<option selected="selected" disabled="disabled" value="">Choose...</option>');
+                        var url = "{{ url('maintenances/colleges/name/:userTypeInitial/:userID') }}";
+                        var api = url.replace(':userTypeInitial', type).replace(':userID', employee);
+                        $.get(api, function (data){
+                            if (data != '') {
+                                data.forEach(function (item){
+                                    $("#cbco").append(new Option(item.name, item.id));
+                                });
+                            } else
+                                $("#cbco").append('<option disabled="disabled" value="">No college/branch/campus/office has been tagged by the employee.</option>');
+                        });
+                    });
+                } else{
+                    var data = <?php echo json_encode($colleges); ?>;
+                    if (data != '') {
+                        data.forEach(function (item){
+                            $("#cbco").append(new Option(item.name, item.id));
+                        });
+                    } else
+                        $("#cbco").append('<option disabled="disabled" value="">No college/branch/campus/office has been tagged by the employee.</option>');
+                }
             });
         </script>
     @endpush

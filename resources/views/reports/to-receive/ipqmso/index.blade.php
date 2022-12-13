@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        @include('reports.navigation', compact('roles', 'departments', 'colleges', 'sectors', 'departmentsResearch','departmentsExtension'))
+        @include('reports.navigation', compact('roles', 'assignments'))
     </x-slot>
 
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h2 class="font-weight-bold mb-2">Receive IPO-level QAR</h2>
+            <h2 class="font-weight-bold mb-2">Receive QAR in IPO-level</h2>
         </div>
     </div>
     <div class="row">
@@ -23,31 +23,6 @@
                             @endif
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-3" style="display: none; padding-top: 20px; padding-top: 20px;" id="actionButtons">
-                            <button id="acceptButton" data-toggle="modal" data-target="#selectApprove" class="btn btn-primary mr-2"><i class="bi bi-check2"></i> Receive</button>
-                            <button id="denyButton" data-toggle="modal" data-target="#selectDeny" class="btn btn-secondary"><i class="bi bi-slash-circle"></i> Return</a>
-                        </div>
-                        <div class="col-md-4 ml-auto">
-                            <div class="form-group">
-                                <label class="mr-2" for="collegeFilter">College/Branch/Campus/Office:</label>
-                                <select id="collegeFilter" class="custom-select mr-2">
-                                    <option value="">Show All</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="reportFilter" class="mr-2">Accomplishment: </label>
-                                <div class="d-flex">
-                                    <select name="report" id="reportFilter" class="custom-select">
-                                        <option value="">Show All</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="table-responsive">
@@ -68,7 +43,11 @@
                                     <tbody>
                                         @foreach ($reportsToReview as $row)
                                             <tr role="button">
-                                                <td class="text-center"><input type="checkbox" class="select-box" data-id="{{ $row->id }}"></td>
+                                                @if (isset($row->return_request) and !str_contains($row->return_request,'Request Denied:'))
+                                                    <td class="returnRequestIcon" data-reqreason="{{ $row->return_request }}" data-id="{{ $row->id }}"><i class="bi bi-exclamation-diamond-fill" style="font-size: 2em; color:red;"></i></td>
+                                                @else
+                                                    <td class="text-center"><input type="checkbox" class="select-box" data-id="{{ $row->id }}"></td>
+                                                @endif
                                                 <td class="button-view text-center" data-url="{{ route('document.download', ':filename') }}" data-accept="{{ route('ipqmso.accept', ':id') }}" data-deny="{{ route('ipqmso.reject-create', ':id') }}" data-id="{{ $row->id }}" data-toggle="modal" data-target="#viewReport" data-report-category="{{ $row->report_category }}"><i class="bi bi-three-dots-vertical"></i></td>
                                                 <td class="button-view text-center" data-url="{{ route('document.download', ':filename') }}" data-accept="{{ route('ipqmso.accept', ':id') }}" data-deny="{{ route('ipqmso.reject-create', ':id') }}" data-id="{{ $row->id }}" data-toggle="modal" data-target="#viewReport" data-report-category="{{ $row->report_category }}">{{ $loop->iteration }}</td>
                                                 <td class="button-view" data-url="{{ route('document.download', ':filename') }}" data-accept="{{ route('ipqmso.accept', ':id') }}" data-deny="{{ route('ipqmso.reject-create', ':id') }}" data-id="{{ $row->id }}" data-toggle="modal" data-target="#viewReport" data-report-category="{{ $row->report_category }}">{{ $row->report_category }}</td>
@@ -356,50 +335,7 @@
         });
 
         $(function () {
-            $('#to_review_table').DataTable({
-                order: [[1, 'asc']],
-                columnDefs: [ {
-                    targets: 0,
-                    orderable: false
-                } ],
-                initComplete: function () {
-                this.api().columns(3).every( function () {
-                    var column = this;
-                    var select = $('#reportFilter')
-                        .on( 'change', function () {
-                            var val = $.fn.dataTable.util.escapeRegex(
-                                $(this).val()
-                            );
-
-                            column
-                                .search( val ? '^'+val+'$' : '', true, false )
-                                .draw();
-                        } );
-
-                    column.data().unique().sort().each( function ( d, j ) {
-                        select.append( '<option value="'+d+'">'+d+'</option>' )
-                    } );
-                });
-
-                this.api().columns(6).every( function () {
-                    var column = this;
-                    var select = $('#collegeFilter')
-                        .on( 'change', function () {
-                            var val = $.fn.dataTable.util.escapeRegex(
-                                $(this).val()
-                            );
-
-                            column
-                                .search( val ? '^'+val+'$' : '', true, false )
-                                .draw();
-                        } );
-
-                    column.data().unique().sort().each( function ( d, j ) {
-                        select.append( '<option value="'+d+'">'+d+'</option>' )
-                    } );
-                });
-                }
-            });
+            $('#to_review_table').DataTable();
 
             var allChecked = 0;
             $(".select-box").each(function(index, element){
@@ -425,6 +361,97 @@
                 $(this).remove();
             });
         }, 4000);
+
+        $(document).on('click', '.returnRequestIcon', function(){
+            console.log('Sheesh');
+            var requestReason = $(this).data('reqreason');
+            var reportid = $(this).data('id');
+            /* Swal.fire({
+                title: 'Request To Return',
+                text: requestReason,
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonColor: '#4CAF50',
+                confirmButtonText: 'Accept Request',
+                denyButtonText: 'Deny Request',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire('Saved!', 'Nothing happened chill', 'success')
+                } else if (result.isDenied) {
+                    Swal.fire('Changes are not saved', 'Nothing happened chill', 'info')
+                }
+            }); */
+
+            Swal.fire({
+                title: 'Request To Return',
+                text: requestReason,
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonColor: '#4CAF50',
+                confirmButtonText: 'Accept Request',
+                denyButtonText: 'Deny Request',
+                focusConfirm: false,
+                preConfirm: () => {
+                    var url = '{{ route("dean.reject", ":id") }}';
+                    url = url.replace(':id', reportid);
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: {"_token": "{{csrf_token()}}",
+                            "reason": "Requested Return: " + requestReason,
+                        },
+                        success: function (resp) {
+                            if (resp.success) {
+                                swal.fire("Submission Returned!", "", "success");
+                                location.reload();
+                            } else {
+                                swal.fire("Error!", 'Something went wrong.', "error");
+                            }
+                        },
+                        error: function (resp) {
+                            swal.fire("Error!", resp.message, "error");
+                        }
+                    });
+                },
+                preDeny:() => {
+                    Swal.fire({
+                        title: 'Deny Request To Return',
+                        html: `<input type="textarea" id="denyretreqreason" class="swal2-input" placeholder="Reason for Denying">`,
+                        confirmButtonColor: '#4CAF50',
+                        confirmButtonText: 'Submit',
+                        showCancelButton: true,
+                        focusConfirm: false,
+                        preConfirm: () => {
+                            var reason = document.getElementById('denyretreqreason').value;
+                            if (reason) {
+                                reason = 'Request Denied: ' + reason;
+                                $.ajax({
+                                    type: 'POST',
+                                    url: "{{route('submissions.development.denyreturnrequest')}}",
+                                    data: {"_token": "{{csrf_token()}}",
+                                        "reason": reason,
+                                        "repid": reportid,
+                                    },
+                                    success: function (resp) {
+                                        if (resp.success) {
+                                            swal.fire("Return Request Denied!", "", "success");
+                                            location.reload();
+                                        } else {
+                                            swal.fire("Error!", 'Something went wrong.', "error");
+                                        }
+                                    },
+                                    error: function (resp) {
+                                        swal.fire("Error!", resp.message, "error");
+                                    }
+                                });
+                            } else {
+                                Swal.showValidationMessage('Please specify reason');
+                            }
+                        }
+                    });
+                }
+                });
+        });
     </script>
 @endpush
 

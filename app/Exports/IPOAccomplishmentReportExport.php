@@ -19,11 +19,11 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class IPOAccomplishmentReportExport implements FromView, WithEvents
 {
-    function __construct($type, $q1, $q2, $year){
+    function __construct($type, $quarterGenerate, $quarterGenerate2, $yearGenerate){
         $this->type = $type;
-        $this->q1 = $q1;
-        $this->q2 = $q2;
-        $this->year = $year;
+        $this->quarterGenerate = $quarterGenerate;
+        $this->quarterGenerate2 = $quarterGenerate2;
+        $this->yearGenerate = $yearGenerate;
     }
 
     public function view(): View {
@@ -60,8 +60,8 @@ class IPOAccomplishmentReportExport implements FromView, WithEvents
                         Report::
                             whereIn('reports.format', ['a', 'x'])
                             ->where('reports.ipqmso_approval', 1)
-                            ->where('reports.report_year', $this->year)
-                            ->whereBetween('reports.report_quarter', [$this->q1, $this->q2])
+                            ->where('reports.report_year', $this->yearGenerate)
+                            ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
                             ->select('reports.*',
                             DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"),
                                 'sectors.name as sector_name',
@@ -88,8 +88,8 @@ class IPOAccomplishmentReportExport implements FromView, WithEvents
                     $table_contents[$format->id] =
                         Report::whereIn('reports.format', ['f', 'x'])
                             ->where('reports.ipqmso_approval', 1)
-                            ->where('reports.report_year', $this->year)
-                            ->whereBetween('reports.report_quarter', [$this->q1, $this->q2])
+                            ->where('reports.report_year', $this->yearGenerate)
+                            ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
                             ->select('reports.*',
                             DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"),
                                 'sectors.name as sector_name',
@@ -117,8 +117,8 @@ class IPOAccomplishmentReportExport implements FromView, WithEvents
                     $table_contents[$format->id] =
                         Report::where('reports.format', 'x')
                             ->where('reports.ipqmso_approval', 1)
-                            ->where('reports.report_year', $this->year)
-                            ->whereBetween('reports.report_quarter', [$this->q1, $this->q2])
+                            ->where('reports.report_year', $this->yearGenerate)
+                            ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
                             ->select('reports.*',
                             DB::raw("CONCAT(COALESCE(users.last_name, ''), ', ', COALESCE(users.first_name, ''), ' ', COALESCE(users.middle_name, ''), ' ', COALESCE(users.suffix, '')) as faculty_name"),
                                 'sectors.name as sector_name',
@@ -154,10 +154,10 @@ class IPOAccomplishmentReportExport implements FromView, WithEvents
         $this->table_contents = $table_contents;
 
         $type = $this->type;
-        $q1 = $this->q1;
-        $q2 = $this->q2;
-        $year = $this->year;
-        return view('reports.generate.ipo-output', compact('table_format', 'table_columns', 'table_contents', 'type', 'year', 'q1', 'q2'));
+        $quarterGenerate = $this->quarterGenerate;
+        $quarterGenerate2 = $this->quarterGenerate2;
+        $yearGenerate = $this->yearGenerate;
+        return view('reports.generate.ipo-output', compact('table_format', 'table_columns', 'table_contents', 'type', 'yearGenerate', 'quarterGenerate', 'quarterGenerate2'));
 
     }
 

@@ -180,45 +180,11 @@ class SpecialTaskController extends Controller
             }
         }
 
-        return redirect()->route('special-tasks.index', 'v='.$version)->with('success', 'Your accomplishment in '.$namePage.' has been saved.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        // if($request->has('document')){
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $fileName = $this->commonService->fileUploadHandler($document, $this->storageFileController->abbrev($request->input('description')), $type , 'special-tasks.index');
-        //         if(is_string($fileName)) {
-        //             SpecialTaskDocument::create(['special_task_id' => $taskdata->id, 'filename' => $fileName]);
-        //         } else {
-        //             SpecialTaskDocument::where('where', $taskdata->id)->delete();
-        //             return $fileName;
-        //         }
-        //     }
-        // }
+        if($imageChecker) return redirect()->route('special-tasks.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = $type.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 SpecialTaskDocument::create([
-        //                     'special_task_id' => $taskdata->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        return redirect()->route('special-tasks.index', 'v='.$version)->with('save_success', 'Your accomplishment in '.$namePage.' has been saved.');
     }
 
     /**
@@ -387,7 +353,13 @@ class SpecialTaskController extends Controller
             }
         }
 
-        return redirect()->route('special-tasks.index', 'v='.$version)->with('success', 'Your accomplishment in '.$namePage.' has been updated.');
+        $imageRecord = SpecialTaskDocument::where('special_task_id', $special_task->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('special-tasks.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('special-tasks.index', 'v='.$version)->with('save_success', 'Your accomplishment in '.$namePage.' has been updated.');
 
         // if($request->has('document')){
         //     $documents = $request->input('document');
