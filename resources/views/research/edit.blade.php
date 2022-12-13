@@ -1,16 +1,18 @@
 <x-app-layout>
     @section('title', 'Research & Book Chapter |')
     <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                @include('research.navigation-bar', ['research_code' => $research->id, 'research_status' => $research->status])
+            </div>
+        </div>
         {{-- Denied Details --}}
         @if ($deniedDetails = Session::get('denied'))
-        <div class="alert alert-info alert-index">
-        <i class="bi bi-exclamation-circle"></i> Remarks: {{ $deniedDetails->reason }}
+        <div class="alert alert-danger alert-index">
+            <i class="bi bi-x-circle"></i> Remarks: {{ $deniedDetails->reason }}
         </div>
         @endif
-        <h3 class="font-weight-bold mr-2">Edit Registration Details {{ isset($research->title) ? 'of '.$research->title : '' }}</h3>
-        <div class="mb-3">
-            <a class="back_link" href="{{ route('research.index') }}"><i class="bi bi-chevron-double-left"></i>Return to Research Main Page</a>
-        </div>
+        <h3 class="font-weight-bold mr-2">Edit {{ $research->research_code }}</h3>
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -19,18 +21,12 @@
                             @csrf
                             @method('put')
                             @include('quarter-field')
-                            <div class="form-group">
-                                <label class="font-weight-bold" for="collaborators-tagging">Tagged co-researchers from PUP (eQAR system users).</label> This is to share 1 research info among other researchers.<br>
-                                <span class="form-notes">To remove a tagged researcher, remove the name from the selected items below.</span>
-                                <select name="tagged_collaborators[]" id="tagged-collaborators" class="form-control custom-select">
-                                    <option value="" selected>Choose...</option>
-                                </select>
-                            </div>
                             @include('form', ['formFields' => $researchFields, 'value' => $values, 'colleges' => $colleges, 'collegeOfDepartment' => $collegeOfDepartment])
+
                             <div class="col-md-12">
                                 <div class="mb-0">
                                     <div class="d-flex justify-content-end align-items-baseline">
-                                        <a href="{{ route('research.index') }}" class="btn btn-secondary mr-2">Cancel</a>
+                                        <a href="{{ route('research.show', $research->id) }}" class="btn btn-secondary mr-2">Cancel</a>
                                         <button type="submit" id="submit" class="btn btn-success">Save</button>
                                     </div>
                                 </div>
@@ -154,16 +150,7 @@
         <script src="{{ asset('js/spinner.js') }}"></script>
         <script>
                 $(function() {
-                    $('#status').prop('disabled', true);
-                    if ("{{Session::get('info')}}"){
-                        $('#status').val(27);
-                        $('#status').removeAttr('disabled');
-                        $('#status').attr('readonly', true);
-                        $('#start_date').removeAttr('disabled');
-                        $('#start_date').attr('required', true);
-                        $('#target_date').removeAttr('disabled');
-                        $('#target_date').attr('required', true);
-                    }
+                    $("#status").prop('disable', true);
                 });
                 if ({{ $research->funding_type }} == 23) {
                     //Univ. Funded
@@ -245,17 +232,6 @@
             $('#start_date').on('change', function () {
                 $('#target_date').datepicker('setDate', $('#start_date').val());
                 $('#target_date').datepicker('setStartDate', $('#start_date').val());
-            });
-        </script>
-        <script>
-            $("#tagged-collaborators").selectize({
-              maxItems: null,
-              valueField: 'id',
-              labelField: 'fullname',
-              sortField: "fullname",
-              searchField: "fullname",
-              options: @json($allUsers),
-              items: @json($taggedUserIDs),
             });
         </script>
         <script>

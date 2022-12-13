@@ -5,27 +5,23 @@
             <div class="col-md-12">
                 <h3 class="font-weight-bold mr-2">Edit Extension Program/Project/Activity</h3>
                 <div class="mb-3">
-                    <a class="back_link" href="{{ route('extension-programs.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Extension Services</a>
+                    <a class="back_link" href="{{ route('extension-service.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Extension Services</a>
                 </div>
+                {{-- Denied Details --}}
+                @if ($deniedDetails = Session::get('denied'))
                 <div class="alert alert-info" role="alert">
-                    <i class="bi bi-exclamation-circle"></i> For extension with completed status, please fill in the dates From and To.
+                    <i class="bi bi-exclamation-circle"></i> Remarks: {{ $deniedDetails->reason }}
                 </div>
+                @endif
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('extension-programs.update', $value['id'] ) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
+                        <form action="{{ route('extension-service.update', $value['id'] ) }}" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
                             @csrf
                             @method('put')
                             @include('quarter-field')
-                            <div class="form-group">
-                                <label class="font-weight-bold" for="collaborators-tagging">Tag your extension partners/persons from PUP that participated in the extension (eQAR system users).</label><br>
-                                <span class="form-notes">If none, leave it blank.</span>
-                                <select name="extensionists[]" id="extensionists" class="form-control custom-select">
-                                    <option value="" selected>Choose...</option>
-                                </select>
-                            </div>    
-                           @include('extension-programs.form', ['formFields' => $extensionServiceFields, 'value' => $value, 'colleges' => $colleges, 'collegeOfDepartment' => $collegeOfDepartment])
-                           @include('extension-programs.no-of-beneficiaries', ['value' => $value])
-                           @include('extension-programs.form2', ['formFields' => $extensionServiceFields, 'value' => $value])
+                            @include('extension-programs.extension-services.form', ['formFields' => $extensionServiceFields, 'value' => $value, 'colleges' => $colleges, 'collegeOfDepartment' => $collegeOfDepartment])
+                            @include('extension-programs.extension-services.no-of-beneficiaries', ['value' => $value])
+                            @include('extension-programs.extension-services.form2', ['formFields' => $extensionServiceFields, 'value' => $value])
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-0">
@@ -67,7 +63,7 @@
                                                                     </div>
                                                                     <div class="row">
                                                                         <div class="col-md-12">
-                                                                            <button class="btn btn-danger remove-doc" data-id="doc-{{ $document['id'] }}" data-link="{{ route('extension-programs.removedoc', $document['filename']) }}" data-toggle="modal" data-target="#deleteModal">Delete</button>
+                                                                            <button class="btn btn-danger remove-doc" data-id="doc-{{ $document['id'] }}" data-link="{{ route('extension-service.removedoc', $document['filename']) }}" data-toggle="modal" data-target="#deleteModal">Delete</button>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -100,7 +96,7 @@
                                                                     <table class="table table-sm my-n3 text-center">
                                                                         <tr>
                                                                             <th>
-                                                                                <button class="btn btn-danger remove-doc" data-id="doc-{{ $document['id'] }}" data-link="{{ route('extension-programs.removedoc', $document['filename']) }}" data-toggle="modal" data-target="#deleteModal">Delete</button>
+                                                                                <button class="btn btn-danger remove-doc" data-id="doc-{{ $document['id'] }}" data-link="{{ route('extension-service.removedoc', $document['filename']) }}" data-toggle="modal" data-target="#deleteModal">Delete</button>
                                                                             </th>
                                                                         </tr>
                                                                     </table>
@@ -156,9 +152,6 @@
         <script src="{{ asset('js/spinner.js') }}"></script>
         <script>
             $(function() {
-                if ('{{ $value['status'] }}' >= 106) {
-                    $('#status').attr('disabled', true);
-                }
                 if ('{{ $value['type_of_funding'] }}' == 123) {
                     //Univ. Funded
                     $('#funding_agency').val("Polytechnic University of the Philippines");
@@ -174,16 +167,6 @@
                 else { // External Funded
                     $('#funding_agency').removeAttr('disabled');
                     $('#funding_agency').attr('required', true);
-                }
-
-                if ("{{Session::get('info')}}"){
-                    $('#status').val(106); //completed
-                    $('#status').removeAttr('disabled');
-                    $('#status').attr('readonly', true);
-                    $('#from').removeAttr('disabled');
-                    $('#from').attr('required', true);
-                    $('#to').removeAttr('disabled');
-                    $('#to').attr('required', true);
                 }
             });
         </script>
@@ -206,17 +189,6 @@
                     $('#funding_agency').removeAttr('disabled');
                     $('#funding_agency').attr('required', true);
                 }
-            });
-        </script>
-        <script>
-            $("#extensionists").selectize({
-              maxItems: null,
-              valueField: 'id',
-              labelField: 'fullname',
-              sortField: "fullname",
-              searchField: "fullname",
-              options: @json($allUsers),
-              items: @json($taggedUserIDs),
             });
         </script>
         <script>

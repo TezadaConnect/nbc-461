@@ -84,10 +84,13 @@ class SectorConsolidatedController extends Controller
                 ->get();
 
             $department_names = $this->commonService->getCollegeDepartmentNames($sector_accomps)['department_names'];
+            $employees = User::all();
+            $departments = Department::all();
+            $colleges = College::all();
             $sector = Sector::find($sector);
         }
         return view('reports.consolidate.sector', compact('roles', 'sector_accomps', 'sector', 'department_names', 
-            'quarter', 'quarter2', 'year', 'assignments',
+            'quarter', 'quarter2', 'year', 'assignments', 'employees', 'departments', 'colleges'
         ));
     }
 }

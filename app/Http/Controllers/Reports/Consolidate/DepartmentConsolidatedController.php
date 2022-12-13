@@ -84,10 +84,12 @@ class DepartmentConsolidatedController extends Controller
 
             $department = Department::find($dept); //Get the dept. record
             $id = $dept; //Labeled as ID to be passed in Generate Controller.
+            $colleges = College::all(); //Get all colleges as options for exporting individual QAR
+            $employees = DepartmentEmployee::where('department_employees.department_id', $id)->join('users', 'users.id', 'department_employees.user_id')->get();
             return view(
                 'reports.consolidate.department',
                 compact('roles', 'department_accomps', 'department', 
-                'year', 'quarter', 'user', 'id', 'assignments')
+                'year', 'quarter', 'quarter2', 'user', 'id', 'assignments', 'colleges', 'employees')
             );
         }
     }

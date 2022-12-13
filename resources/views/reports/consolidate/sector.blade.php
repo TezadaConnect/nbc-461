@@ -497,28 +497,28 @@
             var min = 0;
             var diff = max-2022;
             min = max-diff;
-            select = document.getElementById('yearFilterSector');
+            select = document.getElementById('yearFilter');
 
             var year = {!! json_encode($year) !!};
             for (var i = max; i >= min; i--) {
                 select.append(new Option(i, i));
                 if (year == i) {
-                    document.getElementById("yearFilterSector").value = i;
+                    document.getElementById("yearFilter").value = i;
                 }
             }
         </script>
         <script>
             $('#filter').on('click', function () {
-                var year_reported = $('#yearFilterSector').val();
-                var quarter1 = $('#quarterFilterSector').val();
-                var quarter2 = $('#quarterFilterSector2').val();
-                var link = "{{ url('reports/consolidate/sector/reportYearFilter/:sector/:year/:quarter1/:quarter2') }}";
+                var year_reported = $('#yearFilter').val();
+                var quarter1 = $('#quarterFilter').val();
+                var quarter2 = $('#quarterFilter2').val();
+                var link = "{{ url('reports/consolidate/sector/report-filter/:sector/:year/:quarter1/:quarter2') }}";
                 var newLink = link.replace(':sector', "{{$sector['id']}}").replace(':year', year_reported).replace(':quarter1', quarter1).replace(':quarter2', quarter2);
                 window.location.replace(newLink);
             });
         </script>
         <script>
-            $('#exportSector').on('click', function() {
+            $('#export').on('click', function() {
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedQuarter2 = $('#quarterFilter2').val();
                 var selectedYear = $('#yearFilter').val();

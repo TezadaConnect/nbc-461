@@ -82,7 +82,7 @@ class CollegeLevelConsolidatedExport implements FromView, WithEvents
         $type = $this->type;
         $yearGenerate = $this->yearGenerate;
         $quarterGenerate = $this->quarterGenerate;
-        return view('reports.generate.example', compact('tableFormat', 'tableColumns', 'tableContents', 'level', 'data', 'type', 'yearGenerateLevel', 'quarterGenerateLevel'));
+        return view('reports.generate.example', compact('tableFormat', 'tableColumns', 'tableContents', 'level', 'data', 'type', 'yearGenerate', 'quarterGenerate'));
     }
     
     public function registerEvents(): array {

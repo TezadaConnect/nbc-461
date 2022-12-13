@@ -49,7 +49,7 @@
                     {{-- Researchers --}}
                     @if ($assignments[10] != null)
                         @forelse ( $assignments[10] as $row)
-                            <a href="{{ route('reports.consolidate.research', $row->cluster_id) }}" class="submission-menu {{ isset($id) ? ($row->cluster_id == $id && request()->routeIs('reports.consolidate.research') ? 'active' : '') : '' }}">
+                            <a href="{{ route('reports.consolidate.research', $row->college_id) }}" class="submission-menu {{ isset($id) ? ($row->college_id == $id && request()->routeIs('reports.consolidate.research') ? 'active' : '') : '' }}">
                             Research Coord. - {{ $row->name }}
                             </a><br>
                         @empty

@@ -12,19 +12,21 @@
                     <table class="table table-bordered text-center" id="invitations_table">
                         <thead>
                             <tr>
+                                <th>Lead Researcher</th>
+                                <th>Code</th>
                                 <th>Title</th>
-                                <th>Registrant</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($invites as $row)
                             <tr>
-                                <td>{{ $row->title }}</td>
                                 <td>{{ $row->last_name.', '.$row->first_name.' '.$row->middle_name.' '.$row->suffix }}</td>
+                                <td>{{ $row->research_code }}</td>
+                                <td>{{ $row->title }}</td>
                                 <td>
                                     <a href="{{ route('research.invite.confirm', [ "research_id" => $row->research_id]) }}" class="btn btn-sm btn-primary mr-1">Confirm</a>
-                                    <a href="{{ route('research.invite.cancel', [ "research_id" => $row->research_id]) }}" class="btn btn-sm btn-secondary ">Remove</a>
+                                    <a href="{{ route('research.invite.cancel', [ "research_id" => $row->research_id]) }}" class="btn btn-sm btn-secondary ">Cancel</a>
                                 </td>
                             </tr>
                             @endforeach

@@ -8,22 +8,46 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
+                @if ($message = Session::get('edit_eservice_success'))
+                <div class="alert alert-success alert-index">
+                    <i class="bi bi-check-circle"></i> {{ $message }}
+                </div>
+                @endif
+                @if ($message = Session::get('cannot_access'))
+                <div class="alert alert-danger alert-index">
+                    {{ $message }}
+                </div>
+                @endif
                 <div class="card">
                     <div class="card-body">
                         <div class="form-group mb-3 ml-1">
                             <div class="d-inline mr-2">
-                                <a href="{{ route('extension-programs.create') }}" class="btn btn-success"><i class="bi bi-plus"></i> Add Extension Program/Project/Activity</a>
+                                <a href="{{ route('extension-service.create') }}" class="btn btn-success"><i class="bi bi-plus"></i> Add Extension Program/Project/Activity</a>
                             </div>
-                            <button class="btn btn-primary mr-1" data-toggle="modal" data-target="#tagsModal">
-                                Extensions to Add (Tagged by your Partner) @if (count($tags) != 0)
-                                            <span class="badge badge-secondary">{{ count($tags) }}</span>
+                            <button class="btn btn-primary mr-1" data-toggle="modal" data-target="#invitesModal">
+                                Extensions to Add (Tagged by your Partner) @if (count($invites) != 0)
+                                            <span class="badge badge-secondary">{{ count($invites) }}</span>
                                         @else
                                             <span class="badge badge-secondary">0</span>
                                         @endif
                             </button>
                         </div>
                         <hr>
-                        @include('instructions')
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-lightbulb-fill"></i> <strong>Instructions & Reminders: </strong> <br>
+                            <div class="ml-3">
+                                &#8226; You can add your partners in the extension program/project/activity to share them the extension you encode. <br>
+                                &#8226; Tag your extension partners before submitting. <br>
+                                <span class="ml-3"><i class="bi bi-arrow-right ml-1"></i> Click "Tag Extension Partners" button after viewing the extension.</span><br>
+                                &#8226; Submit your accomplishments for the Quarter {{ $currentQuarterYear->current_quarter }} on or before
+                                    <?php
+                                        $deadline = strtotime( $currentQuarterYear->deadline );
+                                        $deadline = date( 'F d, Y', $deadline);
+                                        ?>
+                                        <strong>{{ $deadline }}</strong>. <br>
+                                &#8226; Once you <strong>submit</strong> an accomplishment, you are <strong>not allowed to edit</strong> until the quarter period ends.
+                            </div>
+                        </div>
                         <div class="table-responsive" style="overflow-x:auto;">
                             <table class="table" id="eservice_table">
                                 <thead>
@@ -41,17 +65,17 @@
                                 <tbody>
                                     @foreach ($extensionServices as $extensionService)
                                     <tr class="tr-hover" role="button">
-                                        <td onclick="window.location.href = '{{ route('extension-programs.show', $extensionService->id) }}' ">{{ $loop->iteration }}</td>
-                                        <td onclick="window.location.href = '{{ route('extension-programs.show', $extensionService->id) }}' ">{{ ($extensionService->title_of_extension_program != null ? $extensionService->title_of_extension_program : ($extensionService->title_of_extension_project != null ? $extensionService->title_of_extension_project : ($extensionService->title_of_extension_activity != null ? $extensionService->title_of_extension_activity : ''))) }}</td>
-                                        <td onclick="window.location.href = '{{ route('extension-programs.show', $extensionService->id) }}' ">{{ $extensionService->status_name }}</td>
-                                        <td onclick="window.location.href = '{{ route('extension-programs.show', $extensionService->id) }}' ">{{ $extensionService->college_name }}</td>
-                                        <td class="{{ ($extensionService->report_quarter == $currentQuarterYear->current_quarter && $extensionService->report_year == $currentQuarterYear->current_year) ? 'to-submit' : '' }}" onclick="window.location.href = '{{ route('extension-programs.show', $extensionService->id) }}' ">
+                                        <td onclick="window.location.href = '{{ route('extension-service.show', $extensionService->id) }}' ">{{ $loop->iteration }}</td>
+                                        <td onclick="window.location.href = '{{ route('extension-service.show', $extensionService->id) }}' ">{{ ($extensionService->title_of_extension_program != null ? $extensionService->title_of_extension_program : ($extensionService->title_of_extension_project != null ? $extensionService->title_of_extension_project : ($extensionService->title_of_extension_activity != null ? $extensionService->title_of_extension_activity : ''))) }}</td>
+                                        <td onclick="window.location.href = '{{ route('extension-service.show', $extensionService->id) }}' ">{{ $extensionService->status }}</td>
+                                        <td onclick="window.location.href = '{{ route('extension-service.show', $extensionService->id) }}' ">{{ $extensionService->college_name }}</td>
+                                        <td class="{{ ($extensionService->report_quarter == $currentQuarterYear->current_quarter && $extensionService->report_year == $currentQuarterYear->current_year) ? 'to-submit' : '' }}" onclick="window.location.href = '{{ route('extension-service.show', $extensionService->id) }}' ">
                                             {{ $extensionService->report_quarter }}
                                         </td>
-                                        <td onclick="window.location.href = '{{ route('extension-programs.show', $extensionService->id) }}' ">
+                                        <td onclick="window.location.href = '{{ route('extension-service.show', $extensionService->id) }}' ">
                                             {{ $extensionService->report_year }}
                                         </td>
-                                        <td onclick="window.location.href = '{{ route('extension-programs.show', $extensionService->id) }}' ">
+                                        <td onclick="window.location.href = '{{ route('extension-service.show', $extensionService->id) }}' ">
                                         <?php
                                             $updated_at = strtotime( $extensionService->updated_at );
                                             $updated_at = date( 'M d, Y h:i A', $updated_at );
@@ -60,34 +84,15 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group" aria-label="button-group">
-                                                <a href="{{ route('extension-programs.show', $extensionService) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">View</a>
-                                                <a href="{{ route('extension-programs.edit', $extensionService) }}" class="btn btn-sm btn-warning d-inline-flex align-items-center">Edit</a>
-                                                @if ($extensionService->status == 105)
-                                                    @if ($extensionService->is_registrant == 0)
-                                                    <span class="d-flex" tabindex="0" data-toggle="tooltip" title="The registrant can only update the status.">
-                                                        <button class="btn btn-sm btn-purple btn-disabled" type="button" disabled>Mark as Completed</button>
-                                                    </span>
-                                                    @else
-                                                    <a href="{{ route('extension-programs.markAsCompleted', $extensionService) }}" class="btn btn-sm btn-purple d-inline-flex align-items-center">Mark as Completed</a>
-                                                    @endif
-                                                @else
-                                                    @if ($extensionService->is_registrant == 0)
-                                                    <span class="d-flex" tabindex="0" data-toggle="tooltip" title="The registrant can only update the status.">
-                                                        <button class="btn btn-sm btn-purple btn-disabled" type="button" disabled>Mark as Completed</button>
-                                                    </span>
-                                                    @else
-                                                    <span class="d-flex" tabindex="0" data-toggle="tooltip" title="{{ $extensionService->status == 106 ? 'The extension is already completed.' : 'The extension is already deferred.' }}">
-                                                        <button class="btn btn-sm btn-purple btn-disabled" type="button" disabled>Mark as Completed</button>
-                                                    </span>
-                                                    @endif
-                                                @endif
+                                                <a href="{{ route('extension-service.show', $extensionService) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">View</a>
+                                                <a href="{{ route('extension-service.edit', $extensionService) }}" class="btn btn-sm btn-warning d-inline-flex align-items-center">Edit</a>
                                                 <button type="button" value="{{ $extensionService->id }}" class="btn btn-sm btn-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-eservice="{{ ($extensionService->title_of_extension_program != null ? $extensionService->title_of_extension_program : ($extensionService->title_of_extension_project != null ? $extensionService->title_of_extension_project : ($extensionService->title_of_extension_activity != null ? $extensionService->title_of_extension_activity : ''))) }}">Delete</button>
                                                 @if ($submissionStatus[12][$extensionService->id] == 0)
                                                     <a href="{{ url('submissions/check/12/'.$extensionService->id) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center">Submit</a>
                                                 @elseif ($submissionStatus[12][$extensionService->id] == 1)
-                                                    <a href="{{ url('submissions/check/12/'.$extensionService->id) }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Submitted {{ $submitRole[$extensionService->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>   
+                                                    <a href="{{ url('submissions/check/12/'.$extensionService->id) }}" class="btn btn-sm btn-success d-inline-flex align-items-center">Submitted {{ $submitRole[$extensionService->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
                                                 @elseif ($submissionStatus[12][$extensionService->id] == 2)
-                                                    <a href="{{ route('extension-programs.edit', $extensionService->id) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> No Document</a>
+                                                    <a href="{{ route('extension-service.edit', $extensionService->id) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> No Document</a>
                                                 @endif
                                             </div>
                                         </td>
@@ -101,9 +106,12 @@
             </div>
         </div>
     </div>
-    @include('extension-programs.invite.modal', compact('tags'))
+    @include('extension-programs.extension-services.invite.modal', compact('invites'))
+
     {{-- Delete Modal --}}
     @include('delete')
+
+
     @push('scripts')
     <script type="text/javascript" src="https://cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.11.1/js/dataTables.bootstrap4.min.js"></script>
@@ -125,7 +133,7 @@
           var itemToDelete = deleteModal.querySelector('#itemToDelete')
           itemToDelete.textContent = eServiceTitle
 
-          var url = '{{ route("extension-programs.destroy", ":id") }}';
+          var url = '{{ route("extension-service.destroy", ":id") }}';
           url = url.replace(':id', id);
           document.getElementById('delete_item').action = url;
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Report;
 use App\Models\Authentication\UserRole;
 use App\Models\FormBuilder\DropdownOption;
+use App\Models\Maintenance\College;
 use App\Models\Maintenance\Quarter;
 use App\Services\CommonService;
 use App\Services\ManageConsolidatedReportAuthorizationService;
@@ -30,7 +31,8 @@ class ResearchConsolidatedController extends Controller
             Report::whereIn('reports.report_category_id', [1, 2, 3, 4, 5, 6, 7])
                 ->where('reports.report_year', $year)
                 ->where('reports.format', 'f')
-                ->where('reports.research_cluster_id', $id)
+                // ->where('reports.research_cluster_id', $id)
+                ->where('reports.college_id', $id)
                 ->select(
                             'reports.*',
                             'report_categories.name as report_category',
@@ -46,7 +48,9 @@ class ResearchConsolidatedController extends Controller
                 ->get();
         //Get department tagged in each report
         $department_names = $this->commonService->getCollegeDepartmentNames($department_accomps)['department_names'];
-        $cluster = DropdownOption::find($id); //Cluster record is in the dropdown as it appears in the research form
+        //Cluster record is in the dropdown as it appears in the research form
+        // $cluster = DropdownOption::find($id); 
+        $cluster = College::find($id); 
         return view('reports.consolidate.research', compact('roles','department_accomps', 'cluster', 'year', 'id', 'assignments',
         ));
     }
@@ -59,7 +63,8 @@ class ResearchConsolidatedController extends Controller
             $department_accomps = Report::whereIn('reports.report_category_id', [1, 2, 3, 4, 5, 6, 7])
                 ->where('reports.report_year', $year)
                 ->where('reports.format', 'f')
-                ->where('reports.research_cluster_id', $clusterID)
+                ->where('reports.college_id', $clusterID)
+                // ->where('reports.research_cluster_id', $clusterID)
                 ->select(
                     'reports.*',
                     'report_categories.name as report_category',
@@ -74,9 +79,10 @@ class ResearchConsolidatedController extends Controller
                 ->get();
             //Get department tagged in each report
             $department_names = $this->commonService->getCollegeDepartmentNames($department_accomps)['department_names'];
-            $cluster = DropdownOption::find($clusterID);
+            // $cluster = DropdownOption::find($clusterID);
+            $cluster = College::find($clusterID); 
             $id = $clusterID;
-            return view('reports.consolidate.research', compact('roles','department_accomps', 'cluster' , 'department_names',
+            return view('reports.consolidate.research', compact('roles','department_accomps', 'cluster', 'department_names',
                 'year', 'id', 'assignments'
             ));
         }

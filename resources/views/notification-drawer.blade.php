@@ -128,18 +128,18 @@
                                 item.data.sender+' shared you a copy of research titled : "'+item.data.title+'"'+
                                 '</div>'+
                                 '<div><a href="'+item.data.url_accept+'?id='+item.id+'"class="btn btn-sm  btn-primary mr-2">Confirm</a>'+
-                                '<a href="'+item.data.url_deny+'?id='+item.id+'"class="btn btn-sm btn-seconday mr-2">Remove</a></div>'
+                                '<a href="'+item.data.url_deny+'?id='+item.id+'"class="btn btn-sm btn-seconday mr-2">Cancel</a></div>'
                                 +'<div class="text-muted"><small>'+item.data.date+'</small></div></td>'
                             );
                     }
                     else if(item.data.type == 'ext-invite'){
                         $('#notification-'+countColumns)
                             .append('<td class="notification-content">'+
-                                '<div id="noti-all-info-'+countColumns+'" data-url="{{ route("extension-programs.index") }}" data-id="'+item.id+'" class="notif-row   noti-message text-dark">'+
+                                '<div id="noti-all-info-'+countColumns+'" data-url="{{ route("research.index") }}" data-id="'+item.id+'" class="notif-row   noti-message text-dark">'+
                                 item.data.sender+' shared you a copy of an extension program/project/activity. '+
                                 '</div>'+
                                 '<div><a href="'+item.data.url_accept+'?id='+item.id+'"class="btn btn-sm  btn-primary mr-2">Confirm</a>'+
-                                '<a href="'+item.data.url_deny+'?id='+item.id+'"class="btn btn-sm btn-seconday mr-2">Remove</a></div>'
+                                '<a href="'+item.data.url_deny+'?id='+item.id+'"class="btn btn-sm btn-seconday mr-2">Cancel</a></div>'
                                 +'<div class="text-muted"><small>'+item.data.date+'</small></div></td>'
                             );
                     }

@@ -97,7 +97,6 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         setTimeout(function(){
             $('#modal').modal('show');
         }, delayMs);
-
         $("#error-modal-button-1").click(function() {
             $('#modal').modal('hide');
         }); 
@@ -121,7 +120,6 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         version          : 'v14.0'
         });
     };
-
     (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id)) return;
@@ -139,9 +137,7 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
 
 {{-- Sweet Alerts --}}
 <script>
-
     // STANDARD POPUP ALERTS
-
     if("{{ Session::has('success'); }}"){
         Swal.fire({
             title: "Success!",
@@ -150,7 +146,6 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             icon: "success",
         });
     }
-
     if("{{ Session::has('error'); }}"){
         Swal.fire({
             title: "Failed!",
@@ -161,7 +156,6 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             allowOutsideClick: false
         });
     }
-
     if("{{ Session::has('warning'); }}"){
         Swal.fire({
             title: "Warning!",
@@ -171,7 +165,6 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             allowOutsideClick: false
         });
     }
-
     if("{{ Session::has('info'); }}"){
         Swal.fire({
             title: "Information!",
@@ -181,9 +174,7 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             allowOutsideClick: false
         });
     }
-
     // PUT YOUR CUSTOM POPUP ALERT BELLOW
-
     if("{{ Session::has('success_switch'); }}"){
         Swal.fire({
             title: "Switched Successful",
@@ -192,7 +183,6 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             icon: "success"
         });
     }
-
     if("{{ Session::has('submit_success'); }}"){
         Swal.fire({
             title: "Submitted Successfully",
@@ -210,7 +200,6 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             icon: "success"
         });
     }
-
     if("{{ Session::has('incomplete_account'); }}"){
         Swal.fire({
             title: "Welcome to PUP eQAR!",

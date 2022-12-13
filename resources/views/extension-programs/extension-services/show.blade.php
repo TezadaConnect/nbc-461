@@ -11,19 +11,21 @@
               <div>
                 <h3 class="font-weight-bold mr-2">Extension Program/Project/Activity</h3>
                 <div class="d-flex align-items-center mb-2">
-                    <a class="mr-auto back_link ml-2" href="{{ route('extension-programs.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Extension Program/Project/Activity</a>
-<<<<<<<< HEAD:resources/views/extension-programs/extension-programs/show.blade.php
+                    <a class="mr-auto back_link ml-2" href="{{ route('extension-service.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Extension Program/Project/Activity</a>
                     @if ($extensionRole == '1')
-                      <a href="{{ route('extension.invite.index', $extension_program->id) }}" class="btn btn-primary btn-sm mr-3 ml-3">
+                      <a href="{{ route('extension.invite.index', $extension_service->id) }}" class="btn btn-primary btn-sm mr-3 ml-3">
                         Tag Extension Partner/s
                       </a>
                     @endif
-========
->>>>>>>> qars-tickets-ken:resources/views/extension-programs/show.blade.php
-                    <a href="{{ route('extension-programs.edit', $extension_program->id) }}" class="action_buttons_show mr-3 ml-3"><i class="bi bi-pencil-square"></i> Edit</a>
-                    <button type="button" value="{{ $extension_program->id }}" class="action-delete action_buttons_show" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="bi bi-trash"></i> Delete</button>
+                    <a href="{{ route('extension-service.edit', $extension_service->id) }}" class="action_buttons_show mr-3 ml-3"><i class="bi bi-pencil-square"></i> Edit</a>
+                    <button type="button" value="{{ $extension_service->id }}" class="action-delete action_buttons_show" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="bi bi-trash"></i> Delete</button>
                 </div>
               </div>
+              @if ($extensionRole == '1')
+              <div class="alert alert-info" role="alert">
+                Tag your partner in this extension to share them this info.
+              </div>
+              @endif
               <div class="row">
                 <div class="col-md-12">
                   @include('extension-service-show', ['formFields' => $extensionServiceFields, 'value' => $values])
@@ -98,8 +100,10 @@
             </div>
         </div>
     </div>
+
     {{-- Delete Modal --}}
     @include('delete')
+
     @push('scripts')
     <script>
        var deleteModal = document.getElementById('deleteModal')
@@ -110,7 +114,7 @@
           var itemToDelete = deleteModal.querySelector('#itemToDelete')
           itemToDelete.textContent = eServiceTitle
 
-          var url = '{{ route("extension-programs.destroy", ":id") }}';
+          var url = '{{ route("extension-service.destroy", ":id") }}';
           url = url.replace(':id', id);
           document.getElementById('delete_item').action = url;
           

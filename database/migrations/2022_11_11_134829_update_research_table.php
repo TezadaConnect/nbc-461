@@ -14,32 +14,32 @@ class UpdateResearchTable extends Migration
     public function up()
     {
         // $this->down();
-        Schema::create('researchers', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('research_id')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('department_id')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('college_id')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('user_id')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('nature_of_involvement')->nullable();
-            $table->integer('is_registrant')->default(0);
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        // Schema::create('researchers', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('research_id')->onUpdate('cascade')->onDelete('cascade');
+        //     $table->foreignId('department_id')->onUpdate('cascade')->onDelete('cascade');
+        //     $table->foreignId('college_id')->onUpdate('cascade')->onDelete('cascade');
+        //     $table->foreignId('user_id')->onUpdate('cascade')->onDelete('cascade');
+        //     $table->foreignId('nature_of_involvement')->nullable();
+        //     $table->integer('is_registrant')->default(0);
+        //     $table->timestamps();
+        //     $table->softDeletes();
+        // });
         
-        Schema::table('research', function (Blueprint $table) {
-            $table->integer('has_new_commitment')->default(0)->after('description');
-        });
+        // Schema::table('research', function (Blueprint $table) {
+        //     $table->integer('has_new_commitment')->default(0)->after('description');
+        // });
 
-        Schema::create('research_tags', function (Blueprint $table) {
-            //extensionists that were tagged waiting for confirmation
-            $table->id();
-            $table->foreignId('research_id')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('sender_id');
-            $table->foreignId('user_id')->onUpdate('cascade')->onDelete('cascade');
-            $table->boolean('status')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        // Schema::create('research_tags', function (Blueprint $table) {
+        //     //extensionists that were tagged waiting for confirmation
+        //     $table->id();
+        //     $table->foreignId('research_id')->onUpdate('cascade')->onDelete('cascade');
+        //     $table->foreignId('sender_id');
+        //     $table->foreignId('user_id')->onUpdate('cascade')->onDelete('cascade');
+        //     $table->boolean('status')->nullable();
+        //     $table->timestamps();
+        //     $table->softDeletes();
+        // });
     }
 
     /**

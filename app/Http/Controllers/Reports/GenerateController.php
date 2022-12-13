@@ -111,7 +111,8 @@ class GenerateController extends Controller
 
         if($request->input("level") == 'research'){
             $cluster_id = $id;
-            $data = DropdownOption::where('id', $cluster_id)->first();
+            $data = College::find($cluster_id);
+            // $data = DropdownOption::where('id', $cluster_id)->first();
         }
 
         if($request->input("level") == 'extension'){

@@ -14,19 +14,19 @@ class ResearchCompletedFormSeeder extends Seeder
      */
     public function run()
     {
-        // ResearchField::insert([
-        //     'research_form_id' => 2,
-        //     'label' => 'Research Code',
-        //     'name' => 'research_code',
-        //     'placeholder' => null,
-        //     'size' => 'col-md-3',
-        //     'field_type_id' => 1,
-        //     'dropdown_id' => null, 
-        //     'required' => 1,
-        //     'visibility' => 2,
-        //     'order' => 1,
-        //     'is_active' => 1,
-        // ]);
+        ResearchField::insert([
+            'research_form_id' => 2,
+            'label' => 'Research Code',
+            'name' => 'research_code',
+            'placeholder' => null,
+            'size' => 'col-md-3',
+            'field_type_id' => 1,
+            'dropdown_id' => null, 
+            'required' => 1,
+            'visibility' => 2,
+            'order' => 1,
+            'is_active' => 1,
+        ]);
 
         ResearchField::insert([
             'research_form_id' => 2,

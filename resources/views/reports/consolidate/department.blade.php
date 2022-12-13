@@ -520,8 +520,9 @@
             $('#filter').on('click', function () {
                 var year_reported = $('#yearFilter').val();
                 var quarter = $('#quarterFilter').val();
-                var link = "{{ url('reports/consolidate/department/reportYearFilter/:department/:year/:quarter') }}";
-                var newLink = link.replace(':department', "{{$id}}").replace(':year', year_reported).replace(':quarter', quarter);
+                var quarter2 = $('#quarterFilter2').val();
+                var link = "{{ url('reports/consolidate/department/report-filter/:department/:year/:quarter/:quarter2') }}";
+                var newLink = link.replace(':department', "{{$id}}").replace(':year', year_reported).replace(':quarter', quarter).replace(':quarter2', quarter2);
                 window.location.replace(newLink);
             });
         </script>

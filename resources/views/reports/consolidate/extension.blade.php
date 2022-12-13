@@ -582,7 +582,7 @@
             $('#quarterYearFilter').on('click', function () {
                 var year_reported = $('#yearFilter').val();
                 var quarter = $('#quarterFilter').val();
-                var link = "{{ url('reports/consolidate/extension/reportYearFilter/:department/:year') }}";
+                var link = "{{ url('reports/consolidate/extension/report-filter/:department/:year') }}";
                 var newLink = link.replace(':department', "{{$college['id']}}").replace(':year', year_reported);
                 window.location.replace(newLink);
             });

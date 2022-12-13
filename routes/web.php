@@ -279,11 +279,11 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::get('/research/manage-researchers/remove-self/{research_code}', [\App\Http\Controllers\Research\ResearchController::class, 'removeSelf'])->name('research.remove-self');
     Route::post('/research/manage-researchers/return-researcher/{research_code}', [\App\Http\Controllers\Research\ResearchController::class, 'returnResearcher'])->name('research.return-researcher');
     // Invite Co-Researcher/s in a Research
-    Route::get('/research/{research_id}/invite', [\App\Http\Controllers\Research\TagController::class, 'index'])->name('research.invite.index');
-    Route::post('/research/{research_id}/invite/add', [\App\Http\Controllers\Research\TagController::class, 'add'])->name('research.invite.add');
-    Route::post('/research/{research_id}/invite/remove', [\App\Http\Controllers\Research\TagController::class, 'remove'])->name('research.invite.remove');
-    Route::get('/research/{research_id}/invite/cancel', [\App\Http\Controllers\Research\TagController::class, 'cancel'])->name('research.invite.cancel');
-    Route::get('/research/{research_id}/invite/confirm', [\App\Http\Controllers\Research\TagController::class, 'confirm'])->name('research.invite.confirm');
+    Route::get('/research/{research_id}/invite', [\App\Http\Controllers\Research\InviteController::class, 'index'])->name('research.invite.index');
+    Route::post('/research/{research_id}/invite/add', [\App\Http\Controllers\Research\InviteController::class, 'add'])->name('research.invite.add');
+    Route::post('/research/{research_id}/invite/remove', [\App\Http\Controllers\Research\InviteController::class, 'remove'])->name('research.invite.remove');
+    Route::get('/research/{research_id}/invite/cancel', [\App\Http\Controllers\Research\InviteController::class, 'cancel'])->name('research.invite.cancel');
+    Route::get('/research/{research_id}/invite/confirm', [\App\Http\Controllers\Research\InviteController::class, 'confirm'])->name('research.invite.confirm');
     // Filter
     Route::get('/research/filterByYear/{year_or_quarter}/{status}', [\App\Http\Controllers\Research\ResearchController::class, 'researchYearFilter'])->name('research.filterByYear');
 
@@ -296,8 +296,7 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::resource('/extension-programs/expert-service-as-consultant', \App\Http\Controllers\ExtensionPrograms\ExpertServices\ConsultantController::class);
     Route::resource('/extension-programs/expert-service-in-conference', \App\Http\Controllers\ExtensionPrograms\ExpertServices\ConferenceController::class);
     Route::resource('/extension-programs/expert-service-in-academic', \App\Http\Controllers\ExtensionPrograms\ExpertServices\AcademicController::class);
-    Route::resource('/extension-programs', \App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class);
-    Route::get('/extension-programs/mark-as-completed/{extension_program_id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'markAsCompleted'])->name('extension-programs.markAsCompleted');
+    Route::resource('/extension-programs/extension-service', \App\Http\Controllers\ExtensionPrograms\ExtensionServiceController::class);
     Route::resource('outreach-program', \App\Http\Controllers\ExtensionPrograms\OutreachProgramController::class);
     Route::resource('stdnt-award', \App\Http\Controllers\AcademicDevelopment\StudentAwardController::class)->names([
         'create' => 'student-award.create',
@@ -321,19 +320,19 @@ Route::group(['middleware' => ['auth', 'account']], function () {
     Route::resource('college-department-award', \App\Http\Controllers\AcademicDevelopment\CollegeDepartmentAwardController::class);
     Route::resource('technical-extension', \App\Http\Controllers\AcademicDevelopment\TechnicalExtensionController::class);
     // Invite Co-Extensionist/s in a Extension
-    Route::get('/extension/{id}/invite', [\App\Http\Controllers\ExtensionPrograms\TagController::class, 'index'])->name('extension.invite.index');
-    Route::post('/extension/{id}/invite/add', [\App\Http\Controllers\ExtensionPrograms\TagController::class, 'add'])->name('extension.invite.add');
-    Route::post('/extension/{id}/invite/remove', [\App\Http\Controllers\ExtensionPrograms\TagController::class, 'remove'])->name('extension.invite.remove');
-    Route::get('/extension/{id}/invite/cancel', [\App\Http\Controllers\ExtensionPrograms\TagController::class, 'cancel'])->name('extension.invite.cancel');
-    Route::get('/extension/{id}/invite/confirm', [\App\Http\Controllers\ExtensionPrograms\TagController::class, 'confirm'])->name('extension.invite.confirm');
+    Route::get('/extension/{id}/invite', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'index'])->name('extension.invite.index');
+    Route::post('/extension/{id}/invite/add', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'add'])->name('extension.invite.add');
+    Route::post('/extension/{id}/invite/remove', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'remove'])->name('extension.invite.remove');
+    Route::get('/extension/{id}/invite/cancel', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'cancel'])->name('extension.invite.cancel');
+    Route::get('/extension/{id}/invite/confirm', [\App\Http\Controllers\ExtensionPrograms\InviteController::class, 'confirm'])->name('extension.invite.confirm');
     // Use Extension By Co-Extensionists
-    Route::get('/extension-service/with-code/create/{extension_program_id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'addExtension'])->name('extension.code.create');
-    Route::post('/extension-service/with-code/save/{id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'saveExtension'])->name('extension.code.save');
+    Route::get('/extension-service/with-code/create/{extension_service_id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionServiceController::class, 'addExtension'])->name('extension.code.create');
+    Route::post('/extension-service/with-code/save/{id}', [\App\Http\Controllers\ExtensionPrograms\ExtensionServiceController::class, 'saveExtension'])->name('extension.code.save');
     // Remove Documents
     Route::get('/extension-programs/expert-service-as-consultant/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExpertServices\ConsultantController::class, 'removeDoc'])->name('esconsultant.removedoc');
     Route::get('/extension-programs/expert-service-in-conference/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExpertServices\ConferenceController::class, 'removeDoc'])->name('esconference.removedoc');
     Route::get('/extension-programs/expert-service-in-academic/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExpertServices\AcademicController::class, 'removeDoc'])->name('esacademic.removedoc');
-    Route::get('/extension-programs/extension-service/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExtensionProgramController::class, 'removeDoc'])->name('extension-programs.removedoc');
+    Route::get('/extension-programs/extension-service/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\ExtensionServiceController::class, 'removeDoc'])->name('extension-service.removedoc');
     Route::get('/outreach-program/remove-document/{filename}', [\App\Http\Controllers\ExtensionPrograms\OutreachProgramController::class, 'removeDoc'])->name('outreach-program.removedoc');
     Route::get('/stdnt-award/remove-document/{filename}', [\App\Http\Controllers\AcademicDevelopment\StudentAwardController::class, 'removeDoc'])->name('student-award.removedoc');
     Route::get('/stdnt-training/remove-document/{filename}', [\App\Http\Controllers\AcademicDevelopment\StudentTrainingController::class, 'removeDoc'])->name('student-training.removedoc');

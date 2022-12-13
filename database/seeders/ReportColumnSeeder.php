@@ -15,14 +15,14 @@ class ReportColumnSeeder extends Seeder
     public function run()
     {
         ReportColumn::truncate();
-        // ReportColumn::insert([
-        //     'report_category_id' => 1,
-        //     'name' => 'Code',
-        //     'table' => 'research',
-        //     'column' => 'research_code',
-        //     'is_active' => 1,
-        //     'order' => 1,
-        // ]);
+        ReportColumn::insert([
+            'report_category_id' => 1,
+            'name' => 'Code',
+            'table' => 'research',
+            'column' => 'research_code',
+            'is_active' => 1,
+            'order' => 1,
+        ]);
         ReportColumn::insert([
             'report_category_id' => 1,
             'name' => 'Research Classification',
@@ -177,14 +177,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         // Research Completed
-        // ReportColumn::insert([
-        //     'report_category_id' => 2,
-        //     'name' => 'Code',
-        //     'table' => 'research',
-        //     'column' => 'research_code',
-        //     'is_active' => 1,
-        //     'order' => 1,
-        // ]);
+        ReportColumn::insert([
+            'report_category_id' => 2,
+            'name' => 'Code',
+            'table' => 'research',
+            'column' => 'research_code',
+            'is_active' => 1,
+            'order' => 1,
+        ]);
         ReportColumn::insert([
             'report_category_id' => 2,
             'name' => 'Research Classification',
@@ -331,14 +331,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         //Research Publication
-        // ReportColumn::insert([
-        //     'report_category_id' => 3,
-        //     'name' => 'Code',
-        //     'table' => 'research',
-        //     'column' => 'research_code',
-        //     'is_active' => 1,
-        //     'order' => 1,
-        // ]);
+        ReportColumn::insert([
+            'report_category_id' => 3,
+            'name' => 'Code',
+            'table' => 'research',
+            'column' => 'research_code',
+            'is_active' => 1,
+            'order' => 1,
+        ]);
         ReportColumn::insert([
             'report_category_id' => 3,
             'name' => 'Research Classification',
@@ -557,14 +557,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         // Research Presentations
-        // ReportColumn::insert([
-        //     'report_category_id' => 4,
-        //     'name' => 'Code',
-        //     'table' => 'research',
-        //     'column' => 'research_code',
-        //     'is_active' => 1,
-        //     'order' => 1,
-        // ]);
+        ReportColumn::insert([
+            'report_category_id' => 4,
+            'name' => 'Code',
+            'table' => 'research',
+            'column' => 'research_code',
+            'is_active' => 1,
+            'order' => 1,
+        ]);
         ReportColumn::insert([
             'report_category_id' => 4,
             'name' => 'Research Classification',
@@ -743,14 +743,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         // Research Citation
-        // ReportColumn::insert([
-        //     'report_category_id' => 5,
-        //     'name' => 'Code',
-        //     'table' => 'research',
-        //     'column' => 'research_code',
-        //     'is_active' => 1,
-        //     'order' => 1,
-        // ]);
+        ReportColumn::insert([
+            'report_category_id' => 5,
+            'name' => 'Code',
+            'table' => 'research',
+            'column' => 'research_code',
+            'is_active' => 1,
+            'order' => 1,
+        ]);
         ReportColumn::insert([
             'report_category_id' => 5,
             'name' => 'Research Classification',
@@ -961,14 +961,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         // Research Utilization
-        // ReportColumn::insert([
-        //     'report_category_id' => 6,
-        //     'name' => 'Code',
-        //     'table' => 'research',
-        //     'column' => 'research_code',
-        //     'is_active' => 1,
-        //     'order' => 1,
-        // ]);
+        ReportColumn::insert([
+            'report_category_id' => 6,
+            'name' => 'Code',
+            'table' => 'research',
+            'column' => 'research_code',
+            'is_active' => 1,
+            'order' => 1,
+        ]);
         ReportColumn::insert([
             'report_category_id' => 6,
             'name' => 'Research Classification',
@@ -1131,14 +1131,14 @@ class ReportColumnSeeder extends Seeder
         ]);
 
         // Copyrighted Research Output
-        // ReportColumn::insert([
-        //     'report_category_id' => 7,
-        //     'name' => 'Code',
-        //     'table' => 'research',
-        //     'column' => 'research_code',
-        //     'is_active' => 1,
-        //     'order' => 1,
-        // ]);
+        ReportColumn::insert([
+            'report_category_id' => 7,
+            'name' => 'Code',
+            'table' => 'research',
+            'column' => 'research_code',
+            'is_active' => 1,
+            'order' => 1,
+        ]);
         ReportColumn::insert([
             'report_category_id' => 7,
             'name' => 'Research Classification',
@@ -1665,7 +1665,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Title of Extension Program',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'title_of_extension_program',
             'is_active' => 1,
             'order' => 1,
@@ -1673,7 +1673,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Title of Extension Project',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'title_of_extension_project',
             'is_active' => 1,
             'order' => 1,
@@ -1681,7 +1681,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Title of Extension Activity',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'title_of_extension_activity',
             'is_active' => 1,
             'order' => 1,
@@ -1689,7 +1689,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Nature of Involvement',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'nature_of_involvement',
             'is_active' => 1,
             'order' => 1,
@@ -1697,7 +1697,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Source of Fund',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'type_of_funding',
             'is_active' => 1,
             'order' => 1,
@@ -1705,7 +1705,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Amount of Fund',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'amount_of_funding',
             'is_active' => 1,
             'order' => 1,
@@ -1713,7 +1713,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Funding Agency',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'funding_agency',
             'is_active' => 1,
             'order' => 1,
@@ -1721,7 +1721,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Classification of Extension Activity',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'classification',
             'is_active' => 1,
             'order' => 1,
@@ -1729,7 +1729,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Partnership Levels',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'level',
             'is_active' => 1,
             'order' => 1,
@@ -1737,7 +1737,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'From',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'from',
             'is_active' => 1,
             'order' => 1,
@@ -1745,7 +1745,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'To',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'to',
             'is_active' => 1,
             'order' => 1,
@@ -1753,7 +1753,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Status',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'status',
             'is_active' => 1,
             'order' => 1,
@@ -1761,7 +1761,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Place/Venue',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'place_or_venue',
             'is_active' => 1,
             'order' => 1,
@@ -1769,7 +1769,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'No. of Trainees',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'no_of_trainees_or_beneficiaries',
             'is_active' => 1,
             'order' => 1,
@@ -1777,7 +1777,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Classification of Trainees',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'classification_of_trainees_or_beneficiaries',
             'is_active' => 1,
             'order' => 1,
@@ -1785,7 +1785,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Quality - Poor',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'quality_poor',
             'is_active' => 1,
             'order' => 1,
@@ -1793,7 +1793,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Quality - Fair',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'quality_fair',
             'is_active' => 1,
             'order' => 1,
@@ -1801,7 +1801,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Quality - Satisfactory',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'quality_satisfactory',
             'is_active' => 1,
             'order' => 1,
@@ -1809,7 +1809,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Quality - Very Satisfactory',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'quality_very_satisfactory',
             'is_active' => 1,
             'order' => 1,
@@ -1817,7 +1817,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Quality - Outstanding',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'quality_outstanding',
             'is_active' => 1,
             'order' => 1,
@@ -1825,7 +1825,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Timeliness - Poor',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'timeliness_poor',
             'is_active' => 1,
             'order' => 1,
@@ -1833,7 +1833,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Timeliness - Fair',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'timeliness_fair',
             'is_active' => 1,
             'order' => 1,
@@ -1841,7 +1841,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Timeliness - Satisfactory',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'timeliness_satisfactory',
             'is_active' => 1,
             'order' => 1,
@@ -1849,7 +1849,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Timeliness - Very Satisfactory',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'timeliness_very_satisfactory',
             'is_active' => 1,
             'order' => 1,
@@ -1857,7 +1857,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Timeliness - Outstanding',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'timeliness_outstanding',
             'is_active' => 1,
             'order' => 1,
@@ -1865,7 +1865,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Number of Hours',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'total_no_of_hours',
             'is_active' => 1,
             'order' => 1,
@@ -1873,7 +1873,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'College/Branch/Campus/Office',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'college_id',
             'is_active' => 1,
             'order' => 1,
@@ -1881,7 +1881,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Department',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'department_id',
             'is_active' => 1,
             'order' => 1,
@@ -1889,7 +1889,7 @@ class ReportColumnSeeder extends Seeder
         ReportColumn::insert([
             'report_category_id' => 12,
             'name' => 'Description of Supporting Documents',
-            'table' => 'extension_programs',
+            'table' => 'extension_services',
             'column' => 'description',
             'is_active' => 1,
             'order' => 1,

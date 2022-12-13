@@ -264,8 +264,8 @@ class CommonService
                 ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
         }
         if (in_array(10, $roles)) {
-            // $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
-            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
+            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
+            // $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
         }
         if (in_array(11, $roles)) {
             $assignment[11] = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
@@ -327,98 +327,98 @@ class CommonService
      * @param String $formName can have a possible value: 'research' or 'extension'.
      * =============================================================================================
      */
-    public function addTaggedUsers($collaborators, $id, $formName)
-    {
-        $count = 0;
-        if ($formName == "research") {
-            if ($collaborators != null) {
-                foreach ($collaborators as $collab) {
-                    if ($collab != auth()->id() && ResearchTag::where('research_id', $id)->where('user_id', $collab)->doesntExist()) {
-                        ResearchTag::create([
-                            'user_id' => $collab,
-                            'sender_id' => auth()->id(),
-                            'research_id' => $id
-                        ]);
+    // public function addTaggedUsers($collaborators, $id, $formName)
+    // {
+    //     $count = 0;
+    //     if ($formName == "research") {
+    //         if ($collaborators != null) {
+    //             foreach ($collaborators as $collab) {
+    //                 if ($collab != auth()->id() && ResearchTag::where('research_id', $id)->where('user_id', $collab)->doesntExist()) {
+    //                     ResearchTag::create([
+    //                         'user_id' => $collab,
+    //                         'sender_id' => auth()->id(),
+    //                         'research_id' => $id
+    //                     ]);
 
-                        $researcher = Research::find($id)->researchers;
-                        $researcherExploded = explode("/", $researcher);
-                        $user = User::find($collab);
-                        if ($user->middle_name != '') {
-                            array_push($researcherExploded, $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.');
-                        } else {
-                            array_push($researcherExploded, $user->last_name . ', ' . $user->first_name);
-                        }
+    //                     $researcher = Research::find($id)->researchers;
+    //                     $researcherExploded = explode("/", $researcher);
+    //                     $user = User::find($collab);
+    //                     if ($user->middle_name != '') {
+    //                         array_push($researcherExploded, $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.');
+    //                     } else {
+    //                         array_push($researcherExploded, $user->last_name . ', ' . $user->first_name);
+    //                     }
 
-                        $research_title = Research::where('id', $id)->pluck('title')->first();
-                        $sender = User::where('id', auth()->id())
-                            ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
-                        $url_accept = route('research.invite.confirm', $id);
-                        $url_deny = route('research.invite.cancel', $id);
+    //                     $research_title = Research::where('id', $id)->pluck('title')->first();
+    //                     $sender = User::where('id', auth()->id())
+    //                         ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
+    //                     $url_accept = route('research.invite.confirm', $id);
+    //                     $url_deny = route('research.invite.cancel', $id);
 
-                        $notificationData = [
-                            'receiver' => $user->first_name,
-                            'title' => $research_title,
-                            'sender' => $sender->first_name . ' ' . $sender->middle_name . ' ' . $sender->last_name . ' ' . $sender->suffix,
-                            'url_accept' => $url_accept,
-                            'url_deny' => $url_deny,
-                            'date' => date('F j, Y, g:i a'),
-                            'type' => 'res-invite'
-                        ];
+    //                     $notificationData = [
+    //                         'receiver' => $user->first_name,
+    //                         'title' => $research_title,
+    //                         'sender' => $sender->first_name . ' ' . $sender->middle_name . ' ' . $sender->last_name . ' ' . $sender->suffix,
+    //                         'url_accept' => $url_accept,
+    //                         'url_deny' => $url_deny,
+    //                         'date' => date('F j, Y, g:i a'),
+    //                         'type' => 'res-invite'
+    //                     ];
 
-                        Notification::send($user, new ResearchTagNotification($notificationData));
-                        Research::where('id', $id)->update([
-                            'researchers' => implode("/", $researcherExploded),
-                        ]);
-                    }
-                }
-                // LogActivity::addToLog('Had added a co-researcher in the research "'.$research_title.'".'); 
-            }
-        } else {
-            $count = 0;
-            $loggedInUser = User::find(auth()->id());
-            ExtensionProgram::where('id', $id)->update([
-                'extensionists' => $loggedInUser->last_name . ', ' . $loggedInUser->first_name . ' ' . substr($loggedInUser->middle_name, 0, 1) . '.'
-            ]);
-            if ($collaborators != null) {
-                foreach ($collaborators as $collab) {
-                    $extensionist = ExtensionProgram::find($id)->extensionists;
-                    $extensionistsExploded = explode("/", $extensionist);
-                    $user = User::find($collab);
-                    if ($user->middle_name != '')
-                        array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.');
-                    else
-                        array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name);
+    //                     Notification::send($user, new ResearchTagNotification($notificationData));
+    //                     Research::where('id', $id)->update([
+    //                         'researchers' => implode("/", $researcherExploded),
+    //                     ]);
+    //                 }
+    //             }
+    //             // LogActivity::addToLog('Had added a co-researcher in the research "'.$research_title.'".'); 
+    //         }
+    //     } else {
+    //         $count = 0;
+    //         $loggedInUser = User::find(auth()->id());
+    //         ExtensionProgram::where('id', $id)->update([
+    //             'extensionists' => $loggedInUser->last_name . ', ' . $loggedInUser->first_name . ' ' . substr($loggedInUser->middle_name, 0, 1) . '.'
+    //         ]);
+    //         if ($collaborators != null) {
+    //             foreach ($collaborators as $collab) {
+    //                 $extensionist = ExtensionProgram::find($id)->extensionists;
+    //                 $extensionistsExploded = explode("/", $extensionist);
+    //                 $user = User::find($collab);
+    //                 if ($user->middle_name != '')
+    //                     array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name . ' ' . substr($user->middle_name, 0, 1) . '.');
+    //                 else
+    //                     array_push($extensionistsExploded, $user->last_name . ', ' . $user->first_name);
 
-                    ExtensionTag::create([
-                        'extension_program_id' => $id,
-                        'user_id' => $collab,
-                        'sender_id' => auth()->id(),
-                    ]);
-                    $user = User::find($collab);
-                    $extension_title = "Extension Program/Project/Activity";
-                    $sender = User::where('id', auth()->id())
-                                    ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
-                    $url_accept = route('extension.invite.confirm', $id);
-                    $url_deny = route('extension.invite.cancel', $id);
+    //                 ExtensionTag::create([
+    //                     'extension_program_id' => $id,
+    //                     'user_id' => $collab,
+    //                     'sender_id' => auth()->id(),
+    //                 ]);
+    //                 $user = User::find($collab);
+    //                 $extension_title = "Extension Program/Project/Activity";
+    //                 $sender = User::where('id', auth()->id())
+    //                                 ->select('users.first_name', 'users.last_name', 'users.middle_name', 'users.suffix')->first();
+    //                 $url_accept = route('extension.invite.confirm', $id);
+    //                 $url_deny = route('extension.invite.cancel', $id);
 
-                    $notificationData = [
-                        'receiver' => $user->first_name,
-                        'title' => $extension_title,
-                        'sender' => $sender->first_name . ' ' . $sender->middle_name . ' ' . $sender->last_name . ' ' . $sender->suffix,
-                        'url_accept' => $url_accept,
-                        'url_deny' => $url_deny,
-                        'date' => date('F j, Y, g:i a'),
-                        'type' => 'ext-invite'
-                    ];
-                    Notification::send($user, new ExtensionTagNotification($notificationData));
+    //                 $notificationData = [
+    //                     'receiver' => $user->first_name,
+    //                     'title' => $extension_title,
+    //                     'sender' => $sender->first_name . ' ' . $sender->middle_name . ' ' . $sender->last_name . ' ' . $sender->suffix,
+    //                     'url_accept' => $url_accept,
+    //                     'url_deny' => $url_deny,
+    //                     'date' => date('F j, Y, g:i a'),
+    //                     'type' => 'ext-invite'
+    //                 ];
+    //                 Notification::send($user, new ExtensionTagNotification($notificationData));
 
-                    ExtensionProgram::where('id', $id)->update([ 'extensionists' => implode("/", $extensionistsExploded),]);
-                    $count++;
-                }
-                LogActivity::addToLog('Had added ' . $count . ' extension partners in an extension program/project/activity.');
-            }
-        }
-    }
+    //                 ExtensionProgram::where('id', $id)->update([ 'extensionists' => implode("/", $extensionistsExploded),]);
+    //                 $count++;
+    //             }
+    //             LogActivity::addToLog('Had added ' . $count . ' extension partners in an extension program/project/activity.');
+    //         }
+    //     }
+    // }
 
 
     /**

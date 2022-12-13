@@ -60,7 +60,7 @@ class CollegeConsolidatedController extends Controller
 
         //Get department tagged in each report
         $department_names = $this->commonService->getCollegeDepartmentNames($college_accomps)['department_names'];
-        $employees = User::join('employees', 'employees.user_id', 'users.id')->where('employees.college_id', $id)->select('users.*')->get();
+        $employees = User::join('employees', 'employees.user_id', 'users.id')->where('employees.college_id', $id)->select('users.*')->distinct()->get();
         $departments = Department::where('college_id', $id)->get(); //Get departments linked to the college as options for exporting dept-level QAR
         $college = College::find($id);
         return view('reports.consolidate.college', compact('roles', 'college_accomps', 'college' , 'department_names', 
@@ -94,10 +94,12 @@ class CollegeConsolidatedController extends Controller
 
             //Get department tagged in each report
             $department_names = $this->commonService->getCollegeDepartmentNames($college_accomps)['department_names'];
+            $employees = User::join('employees', 'employees.user_id', 'users.id')->where('employees.college_id', $college)->select('users.*')->distinct()->get();
+            $departments = Department::where('college_id', $college)->get(); //Get departments linked to the college as options for exporting dept-level QAR
             $college = College::find($college);
             $id = $college->id; //Labeled as ID to be passed in Generate Controller.
             return view('reports.consolidate.college', compact('roles', 'college_accomps', 'college', 'department_names', 
-                'quarter', 'quarter2', 'year', 'id', 'user', 'assignments'
+                'quarter', 'quarter2', 'year', 'id', 'user', 'assignments', 'employees', 'departments'
             ));
         }
     }

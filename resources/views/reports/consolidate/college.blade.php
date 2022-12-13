@@ -54,6 +54,7 @@
                                         <input type="hidden" name="level" value="college_wide">
                                         <input type="hidden" name="type" value="dean_director">
                                         <input type="hidden" id="cw_quarter" name="cw_quarter" value="">
+                                        <input type="hidden" id="cw_quarter2" name="cw_quarter2" value="">
                                         <input type="hidden" id="cw_year" name="cw_year" value="">
                                         <input type="hidden" id="college_id" name="college_id" value="{{ $college['id'] }}">
                                         <div class="btn-group" role="group" aria-label="button-group">
@@ -65,30 +66,6 @@
                                 </form>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="quarterFilter2" class="mr-2">Quarter: </label>
-                            <div class="d-flex">
-                                <select id="quarterFilter2" class="custom-select" name="quarterGenerate2">
-                                    <option value="1" {{ $quarter2 == 1 ? 'selected' : ''  }} class="quarter">1</option>
-                                    <option value="2" {{ $quarter2 == 2 ? 'selected' : ''  }} class="quarter">2</option>
-                                    <option value="3" {{ $quarter2 == 3 ? 'selected' : ''  }} class="quarter">3</option>
-                                    <option value="4" {{ $quarter2 == 4 ? 'selected' : ''  }} class="quarter">4</option>
-                                </select>
-                            </div>
-                        </div>
-                        <form action="{{ route('report.generate.index', $user->id)}}" method="POST" id="export_level_form2">
-                            @csrf
-                            <div class="form-group">
-                                <input type="hidden" name="level" value="college_wide">
-                                <input type="hidden" name="type" value="dean_director">
-                                <input type="hidden" id="cw_quarter" name="cw_quarter" value="">
-                                <input type="hidden" id="cw_year" name="cw_year" value="">
-                                <input type="hidden" id="college_id" name="college_id" value="{{ $college['id'] }}">
-                                <button id="filter" type="button" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
-                                <button id="export" type="button" class="btn btn-warning mr-2" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export College/Office QAR File</button>
-                                <button id="exportLevel" type="button" class="btn btn-warning"><i class="bi bi-filetype-xlsx"></i> Export QAR Filled-in by Dean/Director</button>
-                            </div>
-                        </form>
                         <hr>
                         <div class="row">
                             <div class="col-md-12">
@@ -549,8 +526,9 @@
             $('#filter').on('click', function () {
                 var year_reported = $('#yearFilter').val();
                 var quarter = $('#quarterFilter').val();
-				var link = "{{ url('reports/consolidate/college/reportYearFilter/:college/:year/:quarter') }}";
-                var newLink = link.replace(':college', "{{$id}}").replace(':year', year_reported).replace(':quarter', quarter);
+                var quarter2 = $('#quarterFilter2').val();
+				var link = "{{ url('reports/consolidate/college/report-filter/:college/:year/:quarter/:quarter2') }}";
+                var newLink = link.replace(':college', "{{$id}}").replace(':year', year_reported).replace(':quarter', quarter).replace(':quarter2', quarter2);
                 window.location.replace(newLink);
             });
         </script>
