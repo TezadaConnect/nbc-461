@@ -78,17 +78,15 @@ class EmployeeController extends Controller
     {
         Employee::where('user_id', auth()->id())->delete();
         foreach($request->input('cbco') as $cbco) {
-            if (Employee::where('user_id', auth()->id())->where('type', $request->input('role_type'))->where('college_id', $cbco)->doesntExist()) {
-                Employee::create([
-                    'user_id' => auth()->id(),
-                    'type' => $request->input('role_type'),
-                    'college_id' => $cbco,
-                ]);
-                $officeName = College::where('id', $cbco)->first();
-                \LogActivity::addToLog('Had added '.$officeName['name'].' as office to report with.');
-            }
+            Employee::create([
+                'user_id' => auth()->id(),
+                'type' => $request->input('role_type'),
+                'college_id' => $cbco,
+            ]);
+            $officeName = College::where('id', $cbco)->first();
+            \LogActivity::addToLog('Had added '.$officeName['name'].' as office to report with.');
         }
-        session(['user_type' => Role::where('id', $request->input('role'))->first()->name]);
+
         if ($request->has('yes')) {
             UserRole::where('user_id', auth()->id())->whereIn('role_id', [1,3])->delete();
             UserRole::create([
@@ -107,18 +105,15 @@ class EmployeeController extends Controller
                 ]);
             }
         }
-        
         if ($request->has('designee_cbco')){
             foreach($request->input('designee_cbco') as $cbco) {
-                if (Employee::where('user_id', auth()->id())->where('type', $request->input('designee_type'))->where('college_id', $cbco)->doesntExist()) {
-                    Employee::create([
-                        'user_id' => auth()->id(),
-                        'type' => $request->input('designee_type'),
-                        'college_id' => $cbco,
-                    ]);
-                    $officeName = College::where('id', $cbco)->first();
-                    \LogActivity::addToLog('Had added '.$officeName['name'].' as office to report with as a designee.');
-                }
+                Employee::create([
+                    'user_id' => auth()->id(),
+                    'type' => $request->input('designee_type'),
+                    'college_id' => $cbco,
+                ]);
+                $officeName = College::where('id', $cbco)->first();
+                \LogActivity::addToLog('Had added '.$officeName['name'].' as office to report with as a designee.');
             }
         }
         if (DepartmentEmployee::where('user_id', auth()->id())->doesntExist())
