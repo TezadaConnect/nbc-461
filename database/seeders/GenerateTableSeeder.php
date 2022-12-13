@@ -943,5 +943,31 @@ class GenerateTableSeeder extends Seeder
             'is_individual' => 0,
             'report_category_id' => 39,
         ]);
+
+        //id = 92;
+        GenerateTable::insert([
+            'name' => 'Research with New Commitment Tag',
+            'is_table' => 1,
+            'type_id' => 5, //type 5 for research
+            'is_individual' => 0,
+            'report_category_id' => 1,
+            'footers' => json_encode([
+                '* Program, Project, Study',
+                '**Research, Book Chapter',
+                '***  Poverty Reduction, Peace and Security, Accelerating Infrastructure Development through Science and Technology,  Competitive Industry and Entrepreneurship, Environmental Conservation, Protection and Rehabilitation towards Sustainable Development',
+                '**** Independent Researcher, Lead Researcher, Co-Lead Researcher, Associate Lead Researcher',
+                '*****Basic Research (GAD Related),Basic Research (Diversity and Inclusivity Related),Basic Research (GAD Related & Diversity and Inclusivity Related),Applied Research (GAD Related),Applied Research (Diversity and Inclusivity Related),Applied Research (GAD Related & Diversity and Inclusivity Related),Basic Research,Applied Research,Creative Work',
+                '****** Externally Funded, University Funded, Self Funded',
+            ], JSON_FORCE_OBJECT)
+        ]);
+
+        //id = 93;
+        GenerateTable::insert([
+            'name' => 'Research with Deferred Status',
+            'is_table' => 1,
+            'type_id' => 5, //type 5 for research
+            'is_individual' => 0,
+            'report_category_id' => 1,
+        ]);
     }
 }

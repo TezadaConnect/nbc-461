@@ -26,11 +26,12 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 class IndividualAccomplishmentReportExport implements FromView, WithEvents
 {
     function __construct($level, $type, $yearGenerate, $quarterGenerate,
-    $cbco, $userID, $getCollege, $getSector, $director, $sectorHead) {
+    $quarterGenerate2, $cbco, $userID, $getCollege, $getSector, $director, $sectorHead) {
         $this->level = $level;
         $this->type = $type;
         $this->yearGenerate = $yearGenerate;
         $this->quarterGenerate = $quarterGenerate;
+        $this->quarterGenerate2 = $quarterGenerate2;
         $this->cbco = $cbco;
         $this->userID = $userID;
         $this->getCollege = $getCollege;
@@ -84,7 +85,7 @@ class IndividualAccomplishmentReportExport implements FromView, WithEvents
                             whereIn('reports.format', ['f', 'x'])
                             ->where('reports.report_category_id', $format->report_category_id)
                             ->where('reports.report_year', $this->yearGenerate)
-                            ->where('reports.report_quarter', $this->quarterGenerate)
+                            ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
                             ->where('reports.user_id', $this->userID)
                             ->join('users', 'users.id', 'reports.user_id')
                             ->where('reports.college_id', $this->cbco)
@@ -116,7 +117,7 @@ class IndividualAccomplishmentReportExport implements FromView, WithEvents
                             whereIn('reports.format', ['a', 'x'])
                             ->where('reports.report_category_id', $format->report_category_id)
                             ->where('reports.report_year', $this->yearGenerate)
-                            ->where('reports.report_quarter', $this->quarterGenerate)
+                            ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
                             ->where('reports.user_id', $this->userID)
                             ->where('reports.college_id', $this->cbco)
                             ->join('users', 'users.id', 'reports.user_id')
@@ -237,7 +238,10 @@ class IndividualAccomplishmentReportExport implements FromView, WithEvents
                     ]
                 ]);
                 $event->sheet->getStyle('B4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $event->sheet->setCellValue('D4', $this->quarterGenerate);
+                if ($this->quarterGenerate == $this->quarterGenerate2)
+                    $event->sheet->setCellValue('D4', $this->quarterGenerate);
+                else
+                    $event->sheet->setCellValue('D4', $this->quarterGenerate.' - '.$this->quarterGenerate2);
                 $event->sheet->getStyle('D4')->applyFromArray([
                     'font' => [
                         'size' => 16,

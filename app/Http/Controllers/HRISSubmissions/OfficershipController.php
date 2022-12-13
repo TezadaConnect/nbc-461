@@ -31,12 +31,14 @@ class OfficershipController extends Controller
     protected $storageFileController;
     private $commonService;
 
-    public function __construct(StorageFileController $storageFileController, CommonService $commonService){
+    public function __construct(StorageFileController $storageFileController, CommonService $commonService)
+    {
         $this->storageFileController = $storageFileController;
         $this->commonService = $commonService;
     }
-    
-    public function index(){
+
+    public function index()
+    {
 
         $currentQuarterYear = Quarter::find(1);
 
@@ -49,37 +51,43 @@ class OfficershipController extends Controller
 
         $submissionStatus = array();
         $submitRole = array();
+        $isReturnRequested = array();
         foreach ($officershipFinal as $officership) {
             $id = HRIS::where('hris_id', $officership->EmployeeOfficershipMembershipID)->where('hris_type', 3)->where('user_id', $user->id)->pluck('hris_id')->first();
-            if($id != ''){
+            if ($id != '') {
                 if (LockController::isLocked($id, 28)) {
                     $submissionStatus[28][$officership->EmployeeOfficershipMembershipID] = 1;
                     $submitRole[$id] = ReportDataController::getSubmitRole($id, 28);
-                }
-                else
+                } else
                     $submissionStatus[28][$officership->EmployeeOfficershipMembershipID] = 0;
                 if ($officership->Attachment == null)
                     $submissionStatus[28][$officership->EmployeeOfficershipMembershipID] = 2;
             }
+
+            $rep = Report::where('report_reference_id',$officership->EmployeeOfficershipMembershipID)->where('deleted_at', NULL)->pluck('return_request')->first();
+            if($rep != '') {
+                $isReturnRequested[$officership->EmployeeOfficershipMembershipID] = $rep;
+            }
         }
         // dd($officershipFinal);
-        return view('submissions.hris.officership.index', compact('officershipFinal', 'savedReports', 'currentQuarterYear', 'submissionStatus', 'submitRole'));
+        return view('submissions.hris.officership.index', compact('officershipFinal', 'savedReports', 'currentQuarterYear', 'submissionStatus', 'submitRole','isReturnRequested'));
     }
 
-    public function create(){
+    public function create()
+    {
         $user = User::find(auth()->id());
         $db_ext = DB::connection('mysql_external');
         $currentQuarter = Quarter::find(1)->current_quarter;
 
         $fields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 3)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 3)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
-            if(session()->get('user_type') == 'Faculty Employee')
-                $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
-            else
-                $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
+        if (session()->get('user_type') == 'Faculty Employee')
+            $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
+        else
+            $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
 
         $departments = Department::whereIn('college_id', $colleges)->get();
 
@@ -89,7 +97,7 @@ class OfficershipController extends Controller
         //level
         $hrislevels = $db_ext->select("SET NOCOUNT ON; EXEC GetLevel");
         $levels = [];
-        foreach($hrislevels as $row){
+        foreach ($hrislevels as $row) {
             $levels[] = (object)[
                 'id' => $row->LevelID,
                 'name' => $row->Level,
@@ -100,7 +108,7 @@ class OfficershipController extends Controller
         //classification
         $hrisclassifications = $db_ext->select("SET NOCOUNT ON; EXEC GetOfficershipMembershipClassification");
         $classifications = [];
-        foreach($hrisclassifications as $row){
+        foreach ($hrisclassifications as $row) {
             $classifications[] = (object)[
                 'id' => $row->OfficershipMembershipClassificationID,
                 'name' => $row->Classification,
@@ -112,7 +120,8 @@ class OfficershipController extends Controller
         return view('submissions.hris.officership.create', compact('values', 'fields', 'dropdown_options', 'departments', 'currentQuarter'));
     }
 
-    public function savetohris(Request $request){
+    public function savetohris(Request $request)
+    {
         $user = User::find(auth()->id());
         $emp_code = $user->emp_code;
 
@@ -173,9 +182,11 @@ class OfficershipController extends Controller
 
                 SELECT @NewEmployeeOfficershipMembershipID as NewEmployeeOfficershipMembershipID;
 
-            ", $value);
+            ",
+            $value
+        );
 
-            // dd($id);
+        // dd($id);
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
 
         HRIS::create([
@@ -190,19 +201,21 @@ class OfficershipController extends Controller
 
         LogActivity::addToLog('Had saved a Officership/Membership.');
 
-        if($document['isError'] == false){
-            return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been saved.');
+        if ($document['isError'] == false) {
+            return redirect()->route('submissions.officership.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.officership.index')->with('error', 
-            $document['message']
-            // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
-        );
+            return redirect()->route('submissions.officership.index')->with(
+                'error',
+                $document['message']
+                // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
+            );
         }
 
         // return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been saved.');
     }
 
-    public function add(Request $request, $id){
+    public function add(Request $request, $id)
+    {
         $user = User::find(auth()->id());
 
         $currentQuarterYear = Quarter::find(1);
@@ -212,15 +225,14 @@ class OfficershipController extends Controller
         $officeData = $db_ext->select("SET NOCOUNT ON; EXEC GetEmployeeOfficershipMembershipByEmpCodeAndID N'$user->emp_code',$id");
 
         $officeFields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 3)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 3)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
         if ($officeData[0]->IncDateTo == "present") {
             $to = $officeData[0]->IncDateTo;
             $current = 1;
-        }
-        else {
+        } else {
             $to = date('m/d/Y', strtotime($officeData[0]->IncDateTo));
             $current = 0;
         }
@@ -244,7 +256,7 @@ class OfficershipController extends Controller
         //level
         $hrislevels = $db_ext->select("SET NOCOUNT ON; EXEC GetLevel");
         $levels = [];
-        foreach($hrislevels as $row){
+        foreach ($hrislevels as $row) {
             $levels[] = (object)[
                 'id' => $row->LevelID,
                 'name' => $row->Level,
@@ -255,7 +267,7 @@ class OfficershipController extends Controller
         //classification
         $hrisclassifications = $db_ext->select("SET NOCOUNT ON; EXEC GetOfficershipMembershipClassification");
         $classifications = [];
-        foreach($hrisclassifications as $row){
+        foreach ($hrisclassifications as $row) {
             $classifications[] = (object)[
                 'id' => $row->OfficershipMembershipClassificationID,
                 'name' => $row->Classification,
@@ -264,7 +276,7 @@ class OfficershipController extends Controller
         $classifications = collect($classifications);
         $dropdown_options['classification'] = $classifications;
 
-        if(session()->get('user_type') == 'Faculty Employee')
+        if (session()->get('user_type') == 'Faculty Employee')
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
         else
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
@@ -274,25 +286,25 @@ class OfficershipController extends Controller
         //HRIS Document
         $hrisDocuments = [];
         $collegeOfDepartment = '';
-        if(LockController::isNotLocked($id, 28) && Report::where('report_reference_id', $id)
-                    ->where('report_quarter', $currentQuarterYear->current_quarter)
-                    ->where('report_year', $currentQuarterYear->current_year)
-                    ->where('report_category_id', 28)->exists()){
+        if (LockController::isNotLocked($id, 28) && Report::where('report_reference_id', $id)
+            ->where('report_quarter', $currentQuarterYear->current_quarter)
+            ->where('report_year', $currentQuarterYear->current_year)
+            ->where('report_category_id', 28)->exists()
+        ) {
 
             $hrisDocuments = HRISDocument::where('hris_form_id', 3)->where('reference_id', $id)->get()->toArray();
-            $report = Report::where('report_reference_id',$id)->where('report_category_id', 28)->first();
+            $report = Report::where('report_reference_id', $id)->where('report_category_id', 28)->first();
             $report_details = json_decode($report->report_details, true);
             $description = "";
 
-            foreach($officeFields as $row){
-                if($row->name == 'description')
+            foreach ($officeFields as $row) {
+                if ($row->name == 'description')
                     $description = $report_details[$row->name];
             }
 
             if ($report->department_id != null) {
-                $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(".$report->department_id.")");
-            }
-            else {
+                $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(" . $report->department_id . ")");
+            } else {
                 $collegeOfDepartment = DB::select("CALL get_college_and_department_by_department_id(0)");
             }
 
@@ -314,7 +326,8 @@ class OfficershipController extends Controller
         return view('submissions.hris.officership.add', compact('id', 'officeData', 'officeFields', 'values', 'colleges', 'collegeOfDepartment', 'hrisDocuments', 'departments', 'dropdown_options'));
     }
 
-    public function store(Request $request, $id){
+    public function store(Request $request, $id)
+    {
         $user = User::find(auth()->id());
         $emp_code = $user->emp_code;
 
@@ -364,7 +377,9 @@ class OfficershipController extends Controller
 
                 SELECT @NewEmployeeOfficershipMembershipID as NewEmployeeOfficershipMembershipID;
 
-            ", $value);
+            ",
+            $value
+        );
 
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
 
@@ -380,17 +395,19 @@ class OfficershipController extends Controller
 
         LogActivity::addToLog('Had saved a Officership/Membership.');
 
-        if($document['isError'] == false){
-            return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been saved.');
+        if ($document['isError'] == false) {
+            return redirect()->route('submissions.officership.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.officership.index')->with('error', 
+            return redirect()->route('submissions.officership.index')->with(
+                'error',
                 $document['message']
                 // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
             );
         }
     }
 
-    public function show($id){
+    public function show($id)
+    {
         $user = User::find(auth()->id());
 
         $currentQuarterYear = Quarter::find(1);
@@ -402,14 +419,13 @@ class OfficershipController extends Controller
         $department_id = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '3')->pluck('department_id')->first();
 
         $officeFields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 3)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 3)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
         if ($officeData[0]->IncDateTo == "present") {
             $to = $officeData[0]->IncDateTo;
-        }
-        else {
+        } else {
             $to = date('m/d/Y', strtotime($officeData[0]->IncDateTo));
         }
 
@@ -437,16 +453,17 @@ class OfficershipController extends Controller
         $forview = '';
         $this->storageFileController->fetch_image($id, '3');
 
-        return view('submissions.hris.officership.add', compact('id', 'officeData', 'officeFields', 'values', 'colleges','departments', 'forview'));
+        return view('submissions.hris.officership.add', compact('id', 'officeData', 'officeFields', 'values', 'colleges', 'departments', 'forview'));
     }
 
-    public function edit($id){
+    public function edit($id)
+    {
         $currentQuarterYear = Quarter::find(1);
         $currentQuarter = Quarter::find(1)->current_quarter;
 
         $officershipID = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '3')->pluck('hris_id')->first();
 
-        if(LockController::isLocked($officershipID, 28)){
+        if (LockController::isLocked($officershipID, 28)) {
             return redirect()->back()->with('error', 'The accomplishment report has already been submitted.');
         }
 
@@ -459,15 +476,14 @@ class OfficershipController extends Controller
         $department_id = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '3')->pluck('department_id')->first();
 
         $officeFields = HRISField::select('h_r_i_s_fields.*', 'field_types.name as field_type_name')
-                ->where('h_r_i_s_fields.h_r_i_s_form_id', 3)->where('h_r_i_s_fields.is_active', 1)
-                ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
-                ->orderBy('h_r_i_s_fields.order')->get();
+            ->where('h_r_i_s_fields.h_r_i_s_form_id', 3)->where('h_r_i_s_fields.is_active', 1)
+            ->join('field_types', 'field_types.id', 'h_r_i_s_fields.field_type_id')
+            ->orderBy('h_r_i_s_fields.order')->get();
 
         if ($officeData[0]->IncDateTo == "present") {
             $to = $officeData[0]->IncDateTo;
             $current = 1;
-        }
-        else {
+        } else {
             $to = date('m/d/Y', strtotime($officeData[0]->IncDateTo));
             $current = 0;
         }
@@ -492,7 +508,7 @@ class OfficershipController extends Controller
         //level
         $hrislevels = $db_ext->select("SET NOCOUNT ON; EXEC GetLevel");
         $levels = [];
-        foreach($hrislevels as $row){
+        foreach ($hrislevels as $row) {
             $levels[] = (object)[
                 'id' => $row->LevelID,
                 'name' => $row->Level,
@@ -503,7 +519,7 @@ class OfficershipController extends Controller
         //classification
         $hrisclassifications = $db_ext->select("SET NOCOUNT ON; EXEC GetOfficershipMembershipClassification");
         $classifications = [];
-        foreach($hrisclassifications as $row){
+        foreach ($hrisclassifications as $row) {
             $classifications[] = (object)[
                 'id' => $row->OfficershipMembershipClassificationID,
                 'name' => $row->Classification,
@@ -512,17 +528,18 @@ class OfficershipController extends Controller
         $classifications = collect($classifications);
         $dropdown_options['classification'] = $classifications;
 
-        if(session()->get('user_type') == 'Faculty Employee')
+        if (session()->get('user_type') == 'Faculty Employee')
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'F')->pluck('college_id')->all();
         else
             $colleges = Employee::where('user_id', auth()->id())->where('type', 'A')->pluck('college_id')->all();
 
         $departments = Department::whereIn('college_id', $colleges)->get();
 
-        return view('submissions.hris.officership.edit', compact('id', 'officeData', 'officeFields', 'values', 'colleges','departments', 'dropdown_options', 'currentQuarter'));
+        return view('submissions.hris.officership.edit', compact('id', 'officeData', 'officeFields', 'values', 'colleges', 'departments', 'dropdown_options', 'currentQuarter'));
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $user = User::find(auth()->id());
         $emp_code = $user->emp_code;
 
@@ -532,7 +549,7 @@ class OfficershipController extends Controller
         if ($request->current_member == 1) $to = "present";
         else $to = Carbon::parse($request->to)->format('Y-m-d');
 
-        $document = $this->commonService->fileUploadHandlerForExternal($request, 'document');    
+        $document = $this->commonService->fileUploadHandlerForExternal($request, 'document');
         $value = [
             $id, //EmployeeOfficershipMembershipID
             $emp_code, //EmpCode
@@ -572,7 +589,9 @@ class OfficershipController extends Controller
 
                 SELECT @NewEmployeeOfficershipMembershipID as NewEmployeeOfficershipMembershipID;
 
-            ", $value);
+            ",
+            $value
+        );
 
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
 
@@ -585,21 +604,23 @@ class OfficershipController extends Controller
 
         LogActivity::addToLog('Had updated a Officership/Membership.');
 
-        return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been updated.');
-        if($document['isError'] == false){
-            return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been saved.');
+        return redirect()->route('submissions.officership.index')->with('success', 'The accomplishment has been updated.');
+        if ($document['isError'] == false) {
+            return redirect()->route('submissions.officership.index')->with('success', 'The accomplishment has been saved.');
         } else {
-            return redirect()->route('submissions.officership.index')->with('error', 
+            return redirect()->route('submissions.officership.index')->with(
+                'error',
                 $document['message']
                 // "Entry was saved but unable to upload some document/s, Please try reuploading the document/s!"
             );
         }
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         $officershipID = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '3')->pluck('hris_id')->first();
 
-        if(LockController::isLocked($officershipID, 28)){
+        if (LockController::isLocked($officershipID, 28)) {
             return redirect()->back()->with('error', 'The accomplishment report has already been submitted.');
         }
 
@@ -611,31 +632,34 @@ class OfficershipController extends Controller
                 EXEC DeleteEmployeeOfficershipMembership
                     @EmployeeOfficershipmembershipID = ?,
                     @EmpCode = ?;
-            ", array($id, $user->emp_code)
+            ",
+            array($id, $user->emp_code)
         );
 
-        if(!is_null($officershipID)){
+        if (!is_null($officershipID)) {
             HRIS::where('id', $officershipID)->delete();
         }
 
         LogActivity::addToLog('Had deleted a Officership/Membership.');
 
-        return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been deleted.');
+        return redirect()->route('submissions.officership.index')->with('success', 'The accomplishment has been deleted.');
     }
 
-    public function check($id){
+    public function check($id)
+    {
         $officership = HRIS::where('hris_id', $id)->where('user_id', auth()->id())->where('hris_type', '3')->first();
 
-        if(LockController::isLocked($officership->hris_id, 28))
+        if (LockController::isLocked($officership->hris_id, 28))
             return redirect()->back()->with('cannot_access', 'Accomplishment already submitted.');
 
-        if($this->submit($officership->id))
+        if ($this->submit($officership->id))
             return redirect()->back()->with('success', 'Accomplishment submitted succesfully.');
 
         return redirect()->back()->with('cannot_access', 'Failed to submit the accomplishment.');
     }
 
-    public function submit($officership_id){
+    public function submit($officership_id)
+    {
         $user = User::find(auth()->id());
         $officership = HRIS::where('id', $officership_id)->first();
         $employee = Employee::where('user_id', auth()->id())->where('college_id', $officership->college_id)->get();
@@ -656,45 +680,41 @@ class OfficershipController extends Controller
         $imagejpeg = ['image/jpeg', 'image/pjpeg', 'image/jpg', 'image/jfif', 'image/pjp'];
 
         try {
-            if(in_array($officeData[0]->MimeType, $imagejpeg)){
+            if (in_array($officeData[0]->MimeType, $imagejpeg)) {
                 $file = Image::make($officeData[0]->Attachment);
-                $fileName = 'HRIS-OM-'.now()->timestamp.uniqid().'.jpeg';
-                $newPath = storage_path().'/app/documents/'.$fileName;
+                $fileName = 'HRIS-OM-' . now()->timestamp . uniqid() . '.jpeg';
+                $newPath = storage_path() . '/app/documents/' . $fileName;
                 $file->save($newPath);
-            }
-            elseif($officeData[0]->MimeType == 'image/png' || $officeData['0']->MimeType == 'image/x-png'){
+            } elseif ($officeData[0]->MimeType == 'image/png' || $officeData['0']->MimeType == 'image/x-png') {
                 $file = Image::make($officeData[0]->Attachment);
-                $fileName = 'HRIS-OM-'.now()->timestamp.uniqid().'.png';
-                $newPath = storage_path().'/app/documents/'.$fileName;
+                $fileName = 'HRIS-OM-' . now()->timestamp . uniqid() . '.png';
+                $newPath = storage_path() . '/app/documents/' . $fileName;
                 $file->save($newPath);
-            }
-            elseif($officeData[0]->MimeType == 'application/pdf'){
-                $fileName = 'HRIS-OM-'.now()->timestamp.uniqid().'.pdf';
-                file_put_contents(storage_path().'/app/documents/'.$fileName, $officeData[0]->Attachment);
+            } elseif ($officeData[0]->MimeType == 'application/pdf') {
+                $fileName = 'HRIS-OM-' . now()->timestamp . uniqid() . '.pdf';
+                file_put_contents(storage_path() . '/app/documents/' . $fileName, $officeData[0]->Attachment);
                 $file = true;
             } else {
                 $file = Image::make($officeData[0]->Attachment);
-                $fileName = 'HRIS-OM-'.now()->timestamp.uniqid().'.png';
-                $newPath = storage_path().'/app/documents/'.$fileName;
+                $fileName = 'HRIS-OM-' . now()->timestamp . uniqid() . '.png';
+                $newPath = storage_path() . '/app/documents/' . $fileName;
                 $file->save($newPath);
             }
-    
-            if(isset($file)){
+
+            if (isset($file)) {
                 HRISDocument::create([
                     'hris_form_id' => 3,
                     'reference_id' => $officership_id,
                     'filename' => $fileName,
                 ]);
                 array_push($filenames, $fileName);
-            }
-            else{
+            } else {
                 return false;
             }
-
         } catch (Exception $th) {
-            return redirect()->back()->with('error', 'Request timeout, Unable to transfer files, Please try again!' );
+            return redirect()->back()->with('error', 'Request timeout, Unable to transfer files, Please try again!'.$th->getMessage());
         }
-       
+
 
         if ($officeData[0]->IncDateTo == "present") $to = $officeData[0]->IncDateTo;
         else $to = date('m/d/Y', strtotime($officeData[0]->IncDateTo));
@@ -715,11 +735,11 @@ class OfficershipController extends Controller
 
         $currentQuarterYear = Quarter::find(1);
         $type = '';
-        if (count($employee) == 2){
+        if (count($employee) == 2) {
             $getUserTypeFromSession = session()->get('user_type');
-            if($getUserTypeFromSession == 'Faculty Employee')
+            if ($getUserTypeFromSession == 'Faculty Employee')
                 $type = 'f';
-            elseif($getUserTypeFromSession == 'Admin Employee')
+            elseif ($getUserTypeFromSession == 'Admin Employee')
                 $type = 'a';
         } elseif (count($employee) == 1) {
             if ($employee[0]['type'] == 'F')
@@ -828,8 +848,9 @@ class OfficershipController extends Controller
         return true;
     }
 
-    public function save(Request $request, $id){
-        if($request->document[0] == null){
+    public function save(Request $request, $id)
+    {
+        if ($request->document[0] == null) {
             return redirect()->back()->with('error', 'Document upload are required');
         }
 
@@ -840,24 +861,19 @@ class OfficershipController extends Controller
 
         $data = [];
 
-        foreach($officeFields as $field){
-            if($field->field_type_id == '5'){
+        foreach ($officeFields as $field) {
+            if ($field->field_type_id == '5') {
                 $data[$field->name] = DropdownOption::where('id', $request->input($field->name))->pluck('name')->first();
-            }
-            elseif($field->field_type_id == '3'){
-                $currency_name = Currency::where('id', $request->input('currency_'.$field->name))->pluck('code')->first();
-                $data[$field->name] = $currency_name.' '.$request->input($field->name);
-            }
-            elseif($field->field_type_id == '10'){
+            } elseif ($field->field_type_id == '3') {
+                $currency_name = Currency::where('id', $request->input('currency_' . $field->name))->pluck('code')->first();
+                $data[$field->name] = $currency_name . ' ' . $request->input($field->name);
+            } elseif ($field->field_type_id == '10') {
                 continue;
-            }
-            elseif($field->field_type_id == '12'){
+            } elseif ($field->field_type_id == '12') {
                 $data[$field->name] = College::where('id', $request->input($field->name))->pluck('name')->first();
-            }
-            elseif($field->field_type_id == '13'){
+            } elseif ($field->field_type_id == '13') {
                 $data[$field->name] = Department::where('id', $request->input($field->name))->pluck('name')->first();
-            }
-            else{
+            } else {
                 $data[$field->name] = $request->input($field->name);
             }
         }
@@ -895,11 +911,11 @@ class OfficershipController extends Controller
 
         $filenames = [];
 
-        if($request->has('document')){
+        if ($request->has('document')) {
             $documents = $request->input('document');
-            foreach($documents as $document){
+            foreach ($documents as $document) {
                 $fileName = $this->commonService->fileUploadHandler($document, "", 'HRIS-OM', 'submissions.officership.index');
-                if(is_string($fileName)) {
+                if (is_string($fileName)) {
                     HRISDocument::create(['hris_form_id' => 3, 'reference_id' => $id, 'filename' => $fileName]);
                     array_push($filenames, $fileName);
                 } else {
@@ -909,10 +925,10 @@ class OfficershipController extends Controller
             }
         }
 
-        if(!empty($request->file(['document']))){      
-            foreach($request->file(['document']) as $document){
+        if (!empty($request->file(['document']))) {
+            foreach ($request->file(['document']) as $document) {
                 $fileName = $this->commonService->fileUploadHandler($document, "", 'HRIS-OM', 'submissions.officership.index');
-                if(is_string($fileName)){
+                if (is_string($fileName)) {
                     HRISDocument::create(['hris_form_id' => 3, 'reference_id' => $id, 'filename' => $fileName]);
                     array_push($filenames, $fileName);
                 } else return $fileName;
@@ -921,7 +937,7 @@ class OfficershipController extends Controller
 
         $FORFILESTORE->report_documents = json_encode(collect($filenames));
         $FORFILESTORE->save();
-        
-        return redirect()->route('submissions.officership.index')->with('success','The accomplishment has been submitted.');
+
+        return redirect()->route('submissions.officership.index')->with('success', 'The accomplishment has been submitted.');
     }
 }

@@ -144,44 +144,12 @@ class RequestController extends Controller
             }
         }
 
-        return redirect()->route('request.index')->with('success', 'Your Accomplishment in Request & Queries Acted Upon has been saved.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        // if($request->has('document')){
-        //     $documents = $request->input('document');
-        //     foreach($documents as $document){
-        //         $fileName = $this->commonService->fileUploadHandler($document, $this->storageFileController->abbrev($request->input('description')), 'R-', 'request.index');
-        //         if(is_string($fileName)) {
-        //             RequestDocument::create(['request_id' => $requestdata->id, 'filename' => $fileName]);
-        //         } else {
-        //             RequestDocument::where('request_id', $requestdata->id)->delete();
-        //             return $fileName;
-        //         }
-        //     }
-        // }
-        // if($request->has('document')){
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'R-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-        //                 RequestDocument::create([
-        //                     'request_id' => $requestdata->id,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-        // }
+        if($imageChecker) return redirect()->route('request.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('request.index')->with('save_success', 'Your Accomplishment in Request & Queries Acted Upon has been saved.');
+
     }
 
     /**
@@ -322,7 +290,13 @@ class RequestController extends Controller
             }
         }
 
-        return redirect()->route('request.index')->with('success', 'Your accomplishment in Request & Queries Acted Upon has been updated.');
+        $imageRecord = RequestDocument::where('request_id', $requestdata->id)->get();
+
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
+
+        if($imageChecker) return redirect()->route('request.index')->with('warning', 'Need to attach supporting documents to enable submission');
+
+        return redirect()->route('request.index')->with('save_success', 'Your accomplishment in Request & Queries Acted Upon has been updated.');
 
         // if($request->has('document')){
         //     $documents = $request->input('document');

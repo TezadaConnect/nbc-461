@@ -22,12 +22,13 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class CollegeLevelConsolidatedExport implements FromView, WithEvents
 {
-    function __construct($level, $type, $quarterGenerateLevel, $yearGenerateLevel, 
+    function __construct($level, $type, $quarterGenerate, $quarterGenerate2, $yearGenerate, 
         $collegeID, $collegeName) {
         $this->level = $level;
         $this->type = $type;
-        $this->quarterGenerateLevel = $quarterGenerateLevel;
-        $this->yearGenerateLevel = $yearGenerateLevel;
+        $this->quarterGenerate = $quarterGenerate;
+        $this->quarterGenerate2 = $quarterGenerate2;
+        $this->yearGenerate = $yearGenerate;
         $this->collegeID = $collegeID;
 
         $user = User::where('id', auth()->id())->first();
@@ -61,8 +62,8 @@ class CollegeLevelConsolidatedExport implements FromView, WithEvents
                     else
                         $tableContents[$format->id] = Report::where('reports.report_category_id', $format->report_category_id)
                             ->where('reports.college_id', $this->collegeID)
-                            ->where('reports.report_year', $this->yearGenerateLevel)
-                            ->where('reports.report_quarter', $this->quarterGenerateLevel)
+                            ->where('reports.report_year', $this->yearGenerate)
+                            ->whereBetween('reports.report_quarter', [$this->quarterGenerate, $this->quarterGenerate2])
                             ->where(function($query) {
                                 $query->where('reports.researcher_approval', 1)
                                     ->orWhere('reports.extensionist_approval', 1)
@@ -79,8 +80,8 @@ class CollegeLevelConsolidatedExport implements FromView, WithEvents
         $this->tableContents = $tableContents;
         $level = $this->level;
         $type = $this->type;
-        $yearGenerateLevel = $this->yearGenerateLevel;
-        $quarterGenerateLevel = $this->quarterGenerateLevel;
+        $yearGenerate = $this->yearGenerate;
+        $quarterGenerate = $this->quarterGenerate;
         return view('reports.generate.example', compact('tableFormat', 'tableColumns', 'tableContents', 'level', 'data', 'type', 'yearGenerateLevel', 'quarterGenerateLevel'));
     }
     
@@ -151,7 +152,10 @@ class CollegeLevelConsolidatedExport implements FromView, WithEvents
                     ]
                 ]);
                 $event->sheet->getStyle('B4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $event->sheet->setCellValue('C4', $this->quarterGenerateLevel);
+                if ($this->quarterGenerate == $this->quarterGenerate2)
+                    $event->sheet->setCellValue('C4', $this->quarterGenerate);
+                else
+                    $event->sheet->setCellValue('C4', $this->quarterGenerate.' - '.$this->quarterGenerate2);
                 $event->sheet->getStyle('C4')->applyFromArray([
                     'font' => [
                         'size' => 16,
@@ -167,7 +171,7 @@ class CollegeLevelConsolidatedExport implements FromView, WithEvents
                     ]
                 ]);
                 $event->sheet->getStyle('D4')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $event->sheet->setCellValue('E4', $this->yearGenerateLevel);
+                $event->sheet->setCellValue('E4', $this->yearGenerate);
                 $event->sheet->getStyle('E4')->applyFromArray([
                     'font' => [
                         'size' => 16,

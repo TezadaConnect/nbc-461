@@ -5,7 +5,7 @@
             <div class="col-md-12">
                 <h3 class="font-weight-bold mr-2">Register Research/Book Chapter</h3>
                 <div class="mb-3">
-                    <a class="back_link" href="{{ route('research.index') }}"><i class="bi bi-chevron-double-left"></i>Back to all Research</a>
+                    <a class="back_link" href="{{ route('research.index') }}"><i class="bi bi-chevron-double-left"></i>Return to Research Main Page</a>
                 </div>
                 <div class="card">
                     <div class="card-body">
@@ -17,7 +17,7 @@
                             @csrf
                             @include('quarter-field')
                             <div class="form-group">
-                                <label class="font-weight-bold" for="collaborators-tagging">Tag your co-researchers (Tagging PUP employees who use the eQAR system only).</label><br>
+                                <label class="font-weight-bold" for="collaborators-tagging">Tag co-researchers from PUP (eQAR system users). This is to share 1 research info among other researchers.</label><br>
                                 <span class="form-notes">If you are independent researcher, leave it blank.</span>
                                 <select name="tagged_collaborators[]" id="tagged-collaborators" class="form-control custom-select">
                                     <option value="" selected>Choose...</option>
@@ -62,7 +62,7 @@
                 $('#target_date').datepicker('setStartDate', $('#start_date').val());
             });
         </script>
-         <script>
+        <script>
             $("#tagged-collaborators").selectize({
               maxItems: null,
               valueField: 'id',
@@ -70,9 +70,7 @@
               sortField: "fullname",
               searchField: "fullname",
               options: @json($allUsers),
-          });
-
-        
+            });
         </script>
         <script>
             // $('#nature_of_involvement option[value=12]').attr('disabled','disabled');

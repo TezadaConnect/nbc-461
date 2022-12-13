@@ -36,11 +36,11 @@ return [
     'mailers' => [
         'smtp' => [
             'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp-mail.outlook.com'),
+            'host' => env('MAIL_HOST', "192.168.4.7"),
             'port' => env('MAIL_PORT', 587),
-            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_USERNAME'),
-            'password' => env('MAIL_PASSWORD'),
+            // 'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            // 'username' => env('MAIL_USERNAME'),
+            // 'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'auth_mode' => null,
         ],
@@ -84,7 +84,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'qarsystem@outlook.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'noreply@pup.edu.ph'),
         'name' => env('MAIL_FROM_NAME', 'PUP eQAR'),
     ],
 

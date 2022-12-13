@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-md navbar-dark sticky-top" style="background-color: #212529; border-bottom: 1px solid gray;">
-    <div class="container ml-5 mr-5">
+    <div class="container">
         <!-- Logo -->
         <a class="navbar-brand mr-4" href="{{ route('dashboard') }}" style="color:white">
             <img src="{{ URL('storage/PUP.png') }}" width="36" class="mr-1">
@@ -19,6 +19,7 @@
                 </li>
                 @IsReporting
                 <li class="nav-item main-nav-item" id="accomplishmentlink">
+            
                     <a id="accomplishment" class="nav-link @if (request()->routeIs('research.*') || request()->routeIs('invention-innovation-creative.*') ||
                         request()->routeIs('technical-extension.*') || request()->routeIs('college-department-award.*') ||
                         request()->routeIs('viable-project.*') || request()->routeIs('student-training.*') ||
@@ -32,8 +33,6 @@
                         request()->routeIs('special-tasks.*') || request()->routeIs('admin-special-tasks.*') || request()->routeIs('attendance-function.*') ||
                         request()->routeIs('other-accomplishment.*') || request()->routeIs('other-dept-accomplishment.*') ||
                         request()->routeIs('intra-mobility.*') || request()->routeIs('community-engagement.*')
-
-
                         )
                         active @endif
                         " role="button">
@@ -66,6 +65,13 @@
                     </x-jet-nav-link>
                 </li>
                 @endIsReporting
+
+                
+                {{-- <li class="navbar-nav mr-auto main-nav-item">
+                    <x-jet-nav-link href="{{ route('spatie') }}" :active="request()->routeIs('spatie') ">
+                         {{ __('Spatie') }}
+                    </x-jet-nav-link>
+                </li> --}}
 
                 @can('viewAny', App\Models\User::class)
                 <li class="navbar-nav mr-auto main-nav-item">

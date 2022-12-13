@@ -12,7 +12,7 @@ $table_format_json = json_encode($table_format, JSON_FORCE_OBJECT);
     @if ($format->is_table == "1")
         @if ($format->name != '')
             <h2>{{ $format->name }}</h2>
-            <h2>Year Covered: <u>{{ $year }}</u></h2>
+            <h2>Year Covered: <u>{{ $yearGenerate }}</u></h2>
         @endif
         <div class="table-responsive">
             <table class="table table-bordered table-hover table-sm">

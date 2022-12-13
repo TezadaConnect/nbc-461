@@ -21,6 +21,7 @@
         "psr/cache": "1.0.1",
         "psr/log": "1.1.4",
         "rahulhaque/laravel-filepond": "^1.2",
+        "spatie/laravel-backup": "7.0",
         "symfony/css-selector": "5.4.2",
         "symfony/deprecation-contracts": "2.5.0",
         "symfony/event-dispatcher": "5.4.0",

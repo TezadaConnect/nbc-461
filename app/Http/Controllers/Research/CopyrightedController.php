@@ -12,17 +12,15 @@ use App\Http\Controllers\{
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
     DB,
-    Storage,
 };
 use App\Models\{
     Research,
+    Researcher,
     ResearchCopyright,
     ResearchDocument,
     FormBuilder\DropdownOption,
     FormBuilder\ResearchForm,
     Maintenance\Quarter,
-    Maintenance\College,
-    Maintenance\Department,
 };
 use App\Services\CommonService;
 use Exception;
@@ -31,10 +29,12 @@ class CopyrightedController extends Controller
 {
     protected $storageFileController;
     private $commonService;
+    protected $researchController;
 
-    public function __construct(StorageFileController $storageFileController, CommonService $commonService){
+    public function __construct(StorageFileController $storageFileController, CommonService $commonService, ResearchController $researchController){
         $this->storageFileController = $storageFileController;
         $this->commonService = $commonService;
+        $this->researchController = $researchController;
     }
 
     /**
@@ -46,66 +46,33 @@ class CopyrightedController extends Controller
     {
         $this->authorize('viewAny', ResearchCopyright::class);
 
-        $firstResearch = Research::where('research_code', $research->research_code)->first();
-        
-        $researchFields = DB::select("CALL get_research_fields_by_form_id('7')");
+        $copyrightFields = DB::select("CALL get_research_fields_by_form_id('7')");
 
-        $researchDocuments = ResearchDocument::where('research_code', $research->research_code)->where('research_form_id', 7)->get()->toArray();
-        $research= Research::where('research_code', $research->research_code)->where('user_id', auth()->id())
-                ->join('dropdown_options', 'dropdown_options.id', 'research.status')
-                ->select('research.*', 'dropdown_options.name as status_name')->first();
+        $copyrightDocuments = ResearchDocument::where('research_id', $research->id)->where('research_form_id', 7)->get()->toArray();
+        $copyrightRecord = ResearchCopyright::where('research_id', $research->id)->first();
 
-
-        $values = ResearchCopyright::where('research_code', $research->research_code)->first();
-        if (($research->id != $firstResearch['id']) && $values == null) {
-            return redirect()->route('research.show', $research->id)->with('cannot_access', 'Not yet added by the lead researcher.');
-        }
-        if($values == null){
-            return redirect()->route('research.copyrighted.create', $research->id);
-        }
-        $values = array_merge($research->toArray(), $values->toArray());
-
-        $submissionStatus = array();
-        $submitRole = array();
-        $reportdata = new ReportDataController;
-            if (LockController::isLocked($values['id'], 7)) {
-                $submissionStatus[7][$values['id']] = 1;
-                $submitRole[$values['id']] = ReportDataController::getSubmitRole($values['id'], 7);
-            }
-            else
-                $submissionStatus[7][$values['id']] = 0;
-            if (empty($reportdata->getDocuments(7, $values['id'])))
-                $submissionStatus[7][$values['id']] = 2;
-
-        foreach($researchFields as $field){
-            if($field->field_type_name == "dropdown"){
-                $dropdownOptions = DropdownOption::where('id', $values[$field->name])->where('is_active', 1)->pluck('name')->first();
-                if($dropdownOptions == null)
-                    $dropdownOptions = "-";
-                $values[$field->name] = $dropdownOptions;
-            }
-            elseif($field->field_type_name == "college"){
-                if($values[$field->name] == '0'){
-                    $values[$field->name] = 'N/A';
-                }
-                else{
-                    $college = College::where('id', $values[$field->name])->pluck('name')->first();
-                    $values[$field->name] = $college;
-                }
-            }
-            elseif($field->field_type_name == "department"){
-                if($values[$field->name] == '0'){
-                    $values[$field->name] = 'N/A';
-                }
-                else{
-                    $department = Department::where('id', $values[$field->name])->pluck('name')->first();
-                    $values[$field->name] = $department;
-                }
+        if($copyrightRecord == null){
+            if($research->status >= 28)
+                return redirect()->route('research.copyrighted.create', $research->id);
+            else {
+                $value = null;
+                return view('research.copyrighted.index', compact('research', 'value'));
             }
         }
 
-        return view('research.copyrighted.index', compact('research', 'researchFields', 'values',
-            'researchDocuments', 'submissionStatus', 'submitRole', 'firstResearch'));
+        $copyrightValues = array_merge($research->toArray(), $copyrightRecord->toArray());
+
+        $submissionStatus[7][$copyrightValues['id']] = $this->commonService->getSubmissionStatus($copyrightValues['id'], 7)['submissionStatus'];
+        $submitRole[$copyrightValues['id']] = $this->commonService->getSubmissionStatus($copyrightValues['id'], 7)['submitRole'];
+
+        $values = $this->commonService->getDropdownValues($copyrightFields, $copyrightValues);
+
+        // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        // $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+
+        return view('research.copyrighted.index', compact('research', 'copyrightFields', 'values',
+            'copyrightDocuments', 'submissionStatus', 'submitRole'));
     }
 
     /**
@@ -159,29 +126,16 @@ class CopyrightedController extends Controller
 
         $date_parts = explode('-', $research->completion_date);
         $currentQuarterYear = Quarter::find(1);
-
-        $request->merge([
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-            'research_id' => $research->id,
-        ]);
-
-        $request->validate([
-            'copyright_year' => 'after_or_equal:'.$date_parts[0],
-        ]);
-
+        $request->merge(['research_id' => $research->id,]);
+        $request->validate(['copyright_year' => 'after_or_equal:'.$date_parts[0],]);
         $input = $request->except(['_token', '_method', 'document']);
-
         $copyright = ResearchCopyright::create($input);
-
-        LogActivity::addToLog('Had added a copyright for research "'.$research->title.'".');
 
         if(!empty($request->file(['document']))){      
             foreach($request->file(['document']) as $document){
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCR-", 'research.copyrighted.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 7,
                         'filename' => $fileName,
@@ -190,38 +144,12 @@ class CopyrightedController extends Controller
             }
         }
 
-        return redirect()->route('research.copyrighted.index', $research->id)->with('success', 'Research copyright has been added.');
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(0, null, $request);
 
-        // if($request->has('document')){
+        if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
+        \LogActivity::addToLog('Had added a copyright for research "'.$research->title.'".');
 
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'RCR-'.$request->input('research_code').'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
-    
-        //                 ResearchDocument::create([
-        //                     'research_code' => $request->input('research_code'),
-        //                     'research_id' => $research->id,
-        //                     'research_form_id' => 7,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
-
-            
-        // }
+        return redirect()->route('research.index')->with('success', 'Research copyright has been added.');
     }
 
 
@@ -247,7 +175,7 @@ class CopyrightedController extends Controller
         $currentQuarter = Quarter::find(1)->current_quarter;
         $this->authorize('update', ResearchCopyright::class);
 
-        if (auth()->id() !== $research->user_id)
+        if (Researcher::where('research_id', $research->id)->first()->is_registrant == 0)
             abort(403);
 
         if(LockController::isLocked($copyrighted->id, 7)){
@@ -270,9 +198,14 @@ class CopyrightedController extends Controller
             }
         }
 
-        $researchDocuments = ResearchDocument::where('research_code', $research['research_code'])->where('research_form_id', 7)->get()->toArray();
+        $researchDocuments = ResearchDocument::where('research_id', $research['id'])->where('research_form_id', 7)->get()->toArray();
 
         $value = array_merge($research->toArray(), $copyrighted->toArray());
+
+        // $noRequisiteRecords[1] = $this->researchController->getNoRequisites($research)['presentationRecord'];
+        // $noRequisiteRecords[2] = $this->researchController->getNoRequisites($research)['publicationRecord'];
+        // $noRequisiteRecords[3] = $this->researchController->getNoRequisites($research)['copyrightRecord'];
+
         return view('research.copyrighted.edit', compact('research', 'researchFields', 'value', 'researchDocuments', 'dropdown_options', 'currentQuarter'));
     }
 
@@ -293,20 +226,9 @@ class CopyrightedController extends Controller
             return view('inactive');
 
         $date_parts = explode('-', $research->completion_date);
-
-        $request->merge([
-            'report_quarter' => $currentQuarterYear->current_quarter,
-            'report_year' => $currentQuarterYear->current_year,
-        ]);
-        
-        $request->validate([
-            'copyright_year' => 'after_or_equal:'.$date_parts[0],
-        ]);
-
+        $request->validate(['copyright_year' => 'after_or_equal:'.$date_parts[0],]);
         $input = $request->except(['_token', '_method', 'document']);
-
         $copyrighted->update(['description' => '-clear']);
-
         $copyrighted->update($input);
 
         LogActivity::addToLog('Had updated a copyright of research "'.$research->title.'".');
@@ -315,7 +237,6 @@ class CopyrightedController extends Controller
                 $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), "RCR-", 'research.copyrighted.index');
                 if(is_string($fileName)) {
                     ResearchDocument::create([
-                        'research_code' => $request->input('research_code'),
                         'research_id' => $research->id,
                         'research_form_id' => 7,
                         'filename' => $fileName,
@@ -323,39 +244,14 @@ class CopyrightedController extends Controller
                 } else return $fileName;
             }
         }
-        return redirect()->route('research.copyrighted.index', $research->id)->with('success', 'Research copyright has been updated.');
 
-        // if($request->has('document')){
+        $imageRecord = ResearchDocument::where('research_id', $research->id)->get();
 
-        //     try {
-        //         $documents = $request->input('document');
-        //         foreach($documents as $document){
-        //             $temporaryFile = TemporaryFile::where('folder', $document)->first();
-        //             if($temporaryFile){
-        //                 $temporaryPath = "documents/tmp/".$document."/".$temporaryFile->filename;
-        //                 $info = pathinfo(storage_path().'/documents/tmp/'.$document."/".$temporaryFile->filename);
-        //                 $ext = $info['extension'];
-        //                 $fileName = 'RCR-'.$request->input('research_code').'-'.$this->storageFileController->abbrev($request->input('description')).'-'.now()->timestamp.uniqid().'.'.$ext;
-        //                 $newPath = "documents/".$fileName;
-        //                 Storage::move($temporaryPath, $newPath);
-        //                 Storage::deleteDirectory("documents/tmp/".$document);
-        //                 $temporaryFile->delete();
+        $imageChecker =  $this->commonService->imageCheckerWithResponseMsg(1, $imageRecord, $request);
 
-        //                 ResearchDocument::create([
-        //                     'research_code' => $request->input('research_code'),
-        //                     'research_id' => $research->id,
-        //                     'research_form_id' => 7,
-        //                     'filename' => $fileName,
-        //                 ]);
-        //             }
-        //         }
-        //     } catch (Exception $th) {
-        //         return redirect()->back()->with('error', 'Request timeout, Unable to upload, Please try again!' );
-        //     }
+        if($imageChecker) return redirect()->route('research.index')->with('warning', 'Need to attach supporting documents to enable submission');
 
-            
-        // }
-
+        return redirect()->route('research.index')->with('success', 'Research copyright has been updated.');
     }
 
     /**

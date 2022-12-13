@@ -216,7 +216,6 @@ class AppServiceProvider extends ServiceProvider
 
         Blade::if('BothFacultyAdmin', function () {          
             $userRoles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-
             if(in_array(1, $userRoles) && in_array(3, $userRoles))
                 return 1;
             else
