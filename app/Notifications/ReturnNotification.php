@@ -30,10 +30,10 @@ class ReturnNotification extends Notification
      */
     public function via($notifiable)
     {
-        if($this->notificationData['databaseOnly'] == 1)
-            return ['database'];
-        else
-            // return ['database'];
+        // if($this->notificationData['databaseOnly'] == 1)
+        //     return ['database'];
+        // else
+        //     // return ['database'];
             return ['mail', 'database'];
     }
 
