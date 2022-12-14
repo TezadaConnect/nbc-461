@@ -109,7 +109,7 @@ class CommonService
         try {
             if ($request->has($requestName)) {
                 $datastring = file_get_contents($request->file([$requestName]));
-                $mimetype = $request->file($requestName)->getMimeType();
+                $mimetype = $request->file([$requestName])->getMimeType();
                 $imagedata = unpack("H*hex", $datastring);
                 $imagedata = '0x' . strtoupper($imagedata['hex']);
                 return [
