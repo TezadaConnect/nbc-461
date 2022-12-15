@@ -185,16 +185,11 @@ class AttendanceFunctionController extends Controller
 
         $attendance = AttendanceFunction::create($input);
 
-        if($request->has('document')){
-            $documents = $request->input('document');
-            foreach($documents as $document){
-                $fileName = $this->commonService->fileUploadHandler($document, $this->storageFileController->abbrev($request->input('description')), 'AF-', 'attendance-function.index');
-                if(is_string($fileName)) {
-                    AttendanceFunctionDocument::create(['attendance_function_id' => $attendance->id, 'filename' => $fileName]);
-                } else {
-                    AttendanceFunctionDocument::where('attendance_function_id', $attendance->id)->delete();
-                    return $fileName;
-                }
+        if(!empty($request->file(['document']))){      
+            foreach($request->file(['document']) as $document){
+                $fileName = $this->commonService->fileUploadHandler($document, $request->input("description"), 'AF-', 'attendance-function.index');
+                if(is_string($fileName)) AttendanceFunctionDocument::create(['attendance_function_id' => $attendance->id, 'filename' => $fileName]);
+                else return $fileName;
             }
         }
             
