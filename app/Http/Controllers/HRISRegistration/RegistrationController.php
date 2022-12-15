@@ -37,7 +37,7 @@ class RegistrationController extends Controller
 
         $userLocal =  User::where('email', $request->email)->first();
 
-        if (!in_array($request->email, ['j1delacruz@pup.edu.ph', 'j2delacruz@pup.edu.ph', 'j3delacruz@pup.edu.ph'])) {
+        if (!in_array($request->email, ['j1delacruz@pup.edu.ph', 'j2delacruz@pup.edu.ph', 'j3delacruz@pup.edu.ph', 'kdpan@pup.edu.ph'])) {
             return redirect()->route('researchredirect');
         }
 
