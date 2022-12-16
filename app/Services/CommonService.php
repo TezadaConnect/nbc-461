@@ -472,7 +472,6 @@ class CommonService
         $newListStatus = [];
         foreach ($data as $item) {
             if ($this->reportStatusChecker($item, $type) != null) {
-                $item->report_details = json_decode($item->report_details);
                 array_push($newListStatus, $this->reportStatusChecker($item, $type));
             }
         }
