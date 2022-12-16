@@ -178,8 +178,8 @@ class DashboardController extends Controller
             $countRegisteredUsers[6] = '';
             $countExpectedTotal[6] = '';
             $countReceived[6] = '';
-            $college[6] = "";
-            $college[12] = "";
+            $college[6] = array();
+            $college[12] = array();
 
             if (in_array(12, $roles)) {
                 $college[12] = College::join('associates', 'colleges.id', 'associates.college_id')->where('associates.user_id', auth()->id())->where('associates.deleted_at', null)->get();
@@ -221,8 +221,8 @@ class DashboardController extends Controller
             $countRegisteredUsers[7] = '';
             $countExpectedTotal[7] = '';
             $countReceived[7] = '';
-            $sector[7] = "";
-            $sector[13] = "";
+            $sector[7] = array();
+            $sector[13] = array();
 
             if (in_array(13, $roles)) {
                 $sector[13] = Associate::join('sectors', 'associates.sector_id', 'sectors.id')->where('associates.user_id', auth()->id())->where('associates.deleted_at', null)->get();
