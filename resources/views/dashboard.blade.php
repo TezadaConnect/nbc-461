@@ -64,14 +64,19 @@
                                 <div class="db-card">
                                     @if (in_array(12, $roles))
                                     <h5 class="card-header text-center">Associate/Assistant <br> Dean/Director</h5>
+                                    <div class="card-body d-flex justify-content-center">
+                                        @foreach ($college[12] as $value)
+                                            @include('dashboard.director', ['countToReview' => $countToReview[12][$value->college_id], 'collegeID' => $value->college_id, 'collegeCode' => $value->code])
+                                        @endforeach
+                                    </div>
                                     @else
                                     <h5 class="card-header text-center">Dean/Director</h5>
-                                    @endif
                                     <div class="card-body d-flex justify-content-center">
                                         @foreach ($college[6] as $value)
                                             @include('dashboard.director', ['countToReview' => $countToReview[6][$value->college_id], 'collegeID' => $value->college_id, 'collegeCode' => $value->code])
                                         @endforeach
                                     </div>
+                                    @endif
                                 </div>
                             </div>
                             @endif
