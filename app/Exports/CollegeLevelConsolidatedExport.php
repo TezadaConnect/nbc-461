@@ -32,9 +32,13 @@ class CollegeLevelConsolidatedExport implements FromView, WithEvents
         $this->yearGenerate = $yearGenerate;
         $this->collegeID = $collegeID;
 
+        $this->signature = "";
+        $this->arrangedName = "";
         $user = Dean::where('deans.college_id', $this->collegeID)->join('users', 'users.id', 'deans.user_id')->select('users.*')->first();
-        $this->signature = $user->signature;
-        $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
+        if($user != null){
+            $this->signature = $user->signature;
+            $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
+        }
         $this->collegeIDName = $collegeName;
     }
 
