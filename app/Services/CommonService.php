@@ -526,8 +526,8 @@ class CommonService
 
     public function getCollegeDepartmentNames($reports){
         //get_department_and_college_name
-        $college_names;
-        $department_names;
+        $college_names = [];
+        $department_names = [];
         // =========================================================================================
         // TODO: Filter on colleges and department base on extensionist table or Researcher table
         // ==========================================================================================
