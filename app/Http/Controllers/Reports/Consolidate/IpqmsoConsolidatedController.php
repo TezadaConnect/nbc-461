@@ -97,33 +97,42 @@ class IpqmsoConsolidatedController extends Controller
         if (!($authorize)) {
             abort(403, 'Unauthorized action.');
         }
-        if ($year == "default") {
-            return redirect()->route('reports.consolidate.ipqmso');
-        } else {
-            $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-            $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
-            $ipqmso_accomps =
-                Report::where('reports.report_year', $year)
-                ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
-                ->select(
-                    'reports.*',
-                    'report_categories.name as report_category',
-                    'users.last_name',
-                    'users.first_name',
-                    'users.middle_name',
-                    'users.suffix'
-                )
-                ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
-                ->join('users', 'users.id', 'reports.user_id')
-                ->get();
-            foreach ($ipqmso_accomps as $item) $item->report_details = json_decode($item->report_details);
-            $college_names = $this->commonService->getCollegeDepartmentNames($ipqmso_accomps)['college_names'];
-            $department_names = $this->commonService->getCollegeDepartmentNames($ipqmso_accomps)['department_names'];
-            $sectors = Sector::all();
-            $employees = User::all();
-            $departments = Department::all();
-            $colleges = College::get();
+        $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
+        $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
+        $ipqmso_accomps =
+            Report::where('reports.report_year', $year)
+            ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
+            ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
+            ->join('users', 'users.id', 'reports.user_id')
+            ->select(
+                'reports.*',
+                'report_categories.name as report_category',
+                'users.last_name',
+                'users.first_name',
+                'users.middle_name',
+                'users.suffix'
+            )
+            ->get();
+        //get_department_and_college_name
+        $college_names = [];
+        $department_names = [];
+        foreach ($ipqmso_accomps as $row) {
+            $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
+            $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
+            $row->report_details = json_decode($row->report_details, false);
+            if ($temp_college_name == null) {
+                $college_names[$row->id] = '-';
+            } else
+                $college_names[$row->id] = $temp_college_name->name;
+            if ($temp_department_name == null)
+                $department_names[$row->id] = '-';
+            else
+                $department_names[$row->id] = $temp_department_name->name;
         }
+        $sectors = Sector::all();
+        $employees = User::all();
+        $departments = Department::all();
+        $colleges = College::get();
 
         return view(
             'reports.consolidate.ipqmso',
@@ -131,7 +140,6 @@ class IpqmsoConsolidatedController extends Controller
                 'roles',
                 'ipqmso_accomps',
                 'department_names',
-                'college_names',
                 'year',
                 'quarter',
                 'quarter2',
@@ -169,9 +177,22 @@ class IpqmsoConsolidatedController extends Controller
             ->where('reports.report_quarter', $quarter)
             ->get();
         //Get college tagged in each report
-        $college_names = $this->commonService->getCollegeDepartmentNames($ipqmso_accomps)['college_names'];
         //Get department tagged in each report
-        $department_names = $this->commonService->getCollegeDepartmentNames($ipqmso_accomps)['department_names'];
+        $college_names = [];
+        $department_names = [];
+        foreach ($ipqmso_accomps as $row) {
+            $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
+            $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
+            $row->report_details = json_decode($row->report_details, false);
+            if ($temp_college_name == null) {
+                $college_names[$row->id] = '-';
+            } else
+                $college_names[$row->id] = $temp_college_name->name;
+            if ($temp_department_name == null)
+                $department_names[$row->id] = '-';
+            else
+                $department_names[$row->id] = $temp_department_name->name;
+        }
         $employees = User::all();
         $departments = Department::all();
         $colleges = College::get();
