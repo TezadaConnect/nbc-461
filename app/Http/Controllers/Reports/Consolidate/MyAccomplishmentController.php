@@ -71,10 +71,6 @@ class MyAccomplishmentController extends Controller
     public function individualReportYearFilter($year, $quarter, $quarter2) {
         $authorize = (new ManageConsolidatedReportAuthorizationService())->authorizeManageConsolidatedIndividualReports();
         if (!($authorize)) { abort(403, 'Unauthorized action.'); }
-        $currentQY = Quarter::find(1);
-        $quarter = $currentQY->current_quarter;
-        $quarter2 = $currentQY->current_quarter;
-        $year = $currentQY->current_year;
         /************/
         $report_categories = ReportCategory::all();
         if ($year == "default") { return redirect()->route('submissions.myaccomp.index'); }
@@ -83,11 +79,11 @@ class MyAccomplishmentController extends Controller
             $report_categories = ReportCategory::all();
             $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
             $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
-            $my_accomplishments = Report::where('reports.report_year', $this->getQuarterYear()['year'])
-                    ->whereBetween('reports.report_quarter', [$this->quarter, $this->quarter2])
+            $my_accomplishments = Report::where('reports.report_year', $year)
+                    ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
                     ->where('reports.user_id', auth()->id())
                     ->select('reports.*', 'report_categories.name as report_category')
-                    ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
+                    ->join('report_categories', 'reportsQ.report_category_id', 'report_categories.id')
                     ->orderBy('reports.updated_at', 'DESC')
                     ->get(); //get my individual accomplishment
 

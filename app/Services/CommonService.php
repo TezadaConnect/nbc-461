@@ -108,16 +108,25 @@ class CommonService
     {
         try {
             if ($request->has($requestName)) {
-                $datastring = file_get_contents($request->file([$requestName]));
-                $mimetype = $request->file([$requestName])->getMimeType();
-                $imagedata = unpack("H*hex", $datastring);
-                $imagedata = '0x' . strtoupper($imagedata['hex']);
-                return [
-                    'isError' => false,
-                    'image' => $imagedata,
-                    'description' => $description,
-                    'mimetype' => $mimetype,
-                ];
+                if($requestName != ""){
+                    $datastring = file_get_contents($request->file([$requestName]));
+                    $mimetype = $request->file([$requestName])->getMimeType();
+                    $imagedata = unpack("H*hex", $datastring);
+                    $imagedata = '0x' . strtoupper($imagedata['hex']);
+                    return [
+                        'isError' => false,
+                        'image' => $imagedata,
+                        'description' => $description,
+                        'mimetype' => $mimetype,
+                    ];
+                } else{
+                    return [
+                        'isError' => false,
+                        'image' => null,
+                        'description' => null,
+                        'mimetype' => null,
+                    ];
+                }
             } else {
                 return [
                     'isError' => false,
