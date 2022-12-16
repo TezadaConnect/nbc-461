@@ -69,6 +69,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                             @if(in_array(6, $roles))
                             <div class="db-col mb-2">
                                 <div class="db-card">
