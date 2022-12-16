@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\{
+    Chairperson,
     User,
     Report,
     FacultyResearcher,
@@ -32,7 +33,7 @@ class DepartmentLevelConsolidatedExport implements FromView, WithEvents
         $this->yearGenerateLevel = $yearGenerateLevel;
         $this->departmentID = $departmentID;
 
-        $user = User::where('id', auth()->id())->first();
+        $user = Chairperson::where('chairpeople.department_id', $this->departmentID)->join('users', 'users.id', 'chairpeople.user_id')->select('users.*')->first();
         $this->signature = $user->signature;
         $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
         $this->departmentName = $departmentName;

@@ -41,9 +41,9 @@ class GenerateController extends Controller
             if($request->input("level") == "individual"){
                 // $source_type = "individual";
                 if (in_array($request->generatePerson, ['ipo', 'vp', 'dean/director', 'chair/chief'])){
-                    $data = User::where('id', $request->employee)->select('users.last_name as name')->first();
+                    $data = User::where('id', $request->employee)->select('users.last_name as name', 'users.id')->first();
                 } else
-                    $data = User::where('id', $id)->select('users.last_name as name')->first();
+                    $data = User::where('id', $id)->select('users.last_name as name', 'users.id')->first();
             }
             elseif($request->input("level") == "department"){
                 // $source_type = "department";
@@ -69,9 +69,9 @@ class GenerateController extends Controller
         elseif($request->input("type") == "admin"){
             if($request->input("level") == "individual"){
                 if (in_array($request->generatePerson, ['ipo', 'vp', 'dean/director', 'chair/chief'])){
-                    $data = User::where('id', $request->employee)->select('users.last_name as name')->first();
+                    $data = User::where('id', $request->employee)->select('users.last_name as name', 'users.id')->first();
                 } else
-                    $data = User::where('id', $id)->select('users.last_name as name')->first();
+                    $data = User::where('id', $id)->select('users.last_name as name', 'users.id')->first();
             }
             elseif($request->input("level") == "department"){
                 if (in_array($request->generatePerson, ['ipo', 'vp', 'dean/director'])){
@@ -145,7 +145,7 @@ class GenerateController extends Controller
                     $quarterGenerate,
                     $quarterGenerate2,
                     $cbco,
-                    $id, //userID
+                    $data->id, //userID
                     $getCollege,
                     $getSector,
                     $director,

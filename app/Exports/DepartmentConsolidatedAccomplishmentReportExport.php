@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\{
+    Chairperson,
     User,
     Report,
 };
@@ -23,7 +24,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 class DepartmentConsolidatedAccomplishmentReportExport implements FromView, WithEvents
 {
     function __construct($level, $type, $yearGenerate, $quarterGenerate,
-        $quarterGenerate2, $departmentID, $getDepartment) {
+        $quarterGenerate2, $departmentID, $getDepartment, $officeHeadId) {
         $this->level = $level;
         $this->type = $type;
         $this->yearGenerate = $yearGenerate;
@@ -31,7 +32,7 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
         $this->quarterGenerate2 = $quarterGenerate2;
         $this->departmentID = $departmentID;
 
-        $user = User::where('id', auth()->id())->first();
+        $user = Chairperson::where('chairpeople.department_id', $this->departmentID)->join('users', 'users.id', 'chairpeople.user_id')->select('users.*')->first();
         $this->signature = $user->signature;
         $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
         $this->departmentName = $getDepartment;
