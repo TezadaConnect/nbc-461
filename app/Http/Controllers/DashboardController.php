@@ -178,9 +178,11 @@ class DashboardController extends Controller
             $countRegisteredUsers[6] = '';
             $countExpectedTotal[6] = '';
             $countReceived[6] = '';
+            $college[6] = array();
+            $college[12] = array();
 
             if (in_array(12, $roles)) {
-                $college[6] = College::join('associates', 'colleges.id', 'associates.college_id')->where('associates.user_id', auth()->id())->where('associates.deleted_at', null)->get();
+                $college[12] = College::join('associates', 'colleges.id', 'associates.college_id')->where('associates.user_id', auth()->id())->where('associates.deleted_at', null)->get();
             }
 
             if (in_array(6, $roles)) {
@@ -199,22 +201,39 @@ class DashboardController extends Controller
                 $tempvalues[$value->college_id] = $tempcount;
                 
             }
+            $tempcount2 = 0;
+            $tempvalues2 = [];
+            foreach ($college[12] as $value){
+                $tempcount = Report::whereNull('dean_approval')
+                    ->where('chairperson_approval', 1)
+                    ->where('college_id', $value->college_id)
+                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_year', $currentQuarterYear->current_year)
+                    ->count();
+                $tempvalues2[$value->college_id] = $tempcount2;
+                
+            }
             $countToReview[6] = $tempvalues;
+            $countToReview[12] = $tempvalues2;
         } 
         if (in_array(7, $roles) || in_array(13, $roles)) {
             $department[7] = '';
             $countRegisteredUsers[7] = '';
             $countExpectedTotal[7] = '';
             $countReceived[7] = '';
+            $sector[7] = array();
+            $sector[13] = array();
 
             if (in_array(13, $roles)) {
-                $sector[7] = Associate::join('sectors', 'associates.sector_id', 'sectors.id')->where('associates.user_id', auth()->id())->where('associates.deleted_at', null)->get();
+                $sector[13] = Associate::join('sectors', 'associates.sector_id', 'sectors.id')->where('associates.user_id', auth()->id())->where('associates.deleted_at', null)->get();
             }
 
             if (in_array(7, $roles)) {
                 $sector[7] = SectorHead::leftjoin('sectors', 'sector_heads.sector_id', 'sectors.id')->where('sector_heads.user_id', auth()->id())->where('sector_heads.deleted_at', null)->get();
             }
             
+            $tempcount = 0;
+            $tempvalues = [];
             foreach ($sector[7] as $value){
                 $tempcount = Report::whereNull('sector_approval')
                     ->whereIn('dean_approval', [1,2])
@@ -223,10 +242,21 @@ class DashboardController extends Controller
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->count();
                 $tempvalues[$value->sector_id] = $tempcount; 
-                
-
             }
             $countToReview[7] = $tempvalues;
+
+            $tempcount2 = 0;
+            $tempvalues2 = [];
+            foreach ($sector[13] as $value){
+                $tempcount = Report::whereNull('sector_approval')
+                    ->whereIn('dean_approval', [1,2])
+                    ->where('sector_id', $value->sector_id)
+                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_year', $currentQuarterYear->current_year)
+                    ->count();
+                $tempvalues2[$value->sector_id] = $tempcount2; 
+            }
+            $countToReview[13] = $tempvalues2;
         } 
         if (in_array(8, $roles)) {
             $department[8] = '';
