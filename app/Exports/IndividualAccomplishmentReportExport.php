@@ -39,7 +39,7 @@ class IndividualAccomplishmentReportExport implements FromView, WithEvents
         $this->director = $director;
         $this->sectorHead = $sectorHead;
 
-        $user = User::where('id', auth()->id())->first();
+        $user = User::where('id', $userID)->first();
         $this->signature = $user->signature;
         $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
         $this->directorName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($director, "Dean/Director");
