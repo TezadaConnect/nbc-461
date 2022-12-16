@@ -113,8 +113,22 @@ class IpqmsoConsolidatedController extends Controller
                 'users.suffix'
             )
             ->get();
-        $college_names = $this->commonService->getCollegeDepartmentNames($ipqmso_accomps)['college_names'];
-        $department_names = $this->commonService->getCollegeDepartmentNames($ipqmso_accomps)['department_names'];
+        //get_department_and_college_name
+        $college_names = [];
+        $department_names = [];
+        foreach ($ipqmso_accomps as $row) {
+            $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
+            $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
+            $row->report_details = json_decode($row->report_details, false);
+            if ($temp_college_name == null) {
+                $college_names[$row->id] = '-';
+            } else
+                $college_names[$row->id] = $temp_college_name->name;
+            if ($temp_department_name == null)
+                $department_names[$row->id] = '-';
+            else
+                $department_names[$row->id] = $temp_department_name->name;
+        }
         $sectors = Sector::all();
         $employees = User::all();
         $departments = Department::all();
@@ -163,9 +177,22 @@ class IpqmsoConsolidatedController extends Controller
             ->where('reports.report_quarter', $quarter)
             ->get();
         //Get college tagged in each report
-        $college_names = $this->commonService->getCollegeDepartmentNames($ipqmso_accomps)['college_names'];
         //Get department tagged in each report
-        $department_names = $this->commonService->getCollegeDepartmentNames($ipqmso_accomps)['department_names'];
+        $college_names = [];
+        $department_names = [];
+        foreach ($ipqmso_accomps as $row) {
+            $temp_college_name = College::select('name')->where('id', $row->college_id)->first();
+            $temp_department_name = Department::select('name')->where('id', $row->department_id)->first();
+            $row->report_details = json_decode($row->report_details, false);
+            if ($temp_college_name == null) {
+                $college_names[$row->id] = '-';
+            } else
+                $college_names[$row->id] = $temp_college_name->name;
+            if ($temp_department_name == null)
+                $department_names[$row->id] = '-';
+            else
+                $department_names[$row->id] = $temp_department_name->name;
+        }
         $employees = User::all();
         $departments = Department::all();
         $colleges = College::get();
