@@ -34,13 +34,13 @@ class CollegeConsolidatedAccomplishmentReportExport implements FromView, WithEve
         $this->collegeID = $collegeID;
         $this->collegeName = $collegeName;
 
+        $this->signature = "";
+        $this->arrangedName = "";
         $user = Dean::where('deans.college_id', $this->collegeID)->join('users', 'users.id', 'deans.user_id')->select('users.*')->first();
-        if (isset($user))
+        if ($user != null){
             $this->signature = $user->signature;
-        else
-            $this->signature = '';
-
-        $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
+            $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
+        }
     }
 
     public function view(): View

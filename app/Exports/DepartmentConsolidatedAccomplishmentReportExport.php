@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\{
+    Chairperson,
     User,
     Report,
 };
@@ -31,9 +32,13 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
         $this->quarterGenerate2 = $quarterGenerate2;
         $this->departmentID = $departmentID;
 
-        $user = User::where('id', auth()->id())->first();
-        $this->signature = $user->signature;
-        $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
+        $this->signature = "";
+        $this->arrangedName = "";
+        $user = Chairperson::where('chairpeople.department_id', $this->departmentID)->join('users', 'users.id', 'chairpeople.user_id')->select('users.*')->first();
+        if($user != null){
+            $this->signature = $user->signature;
+            $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
+        }
         $this->departmentName = $getDepartment;
     }
 

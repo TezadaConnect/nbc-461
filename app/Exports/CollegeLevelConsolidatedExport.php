@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\{
+    Dean,
     User,
     Report,
 };
@@ -31,9 +32,13 @@ class CollegeLevelConsolidatedExport implements FromView, WithEvents
         $this->yearGenerate = $yearGenerate;
         $this->collegeID = $collegeID;
 
-        $user = User::where('id', auth()->id())->first();
-        $this->signature = $user->signature;
-        $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
+        $this->signature = "";
+        $this->arrangedName = "";
+        $user = Dean::where('deans.college_id', $this->collegeID)->join('users', 'users.id', 'deans.user_id')->select('users.*')->first();
+        if($user != null){
+            $this->signature = $user->signature;
+            $this->arrangedName = (new NameConcatenationService())->getConcatenatedNameByUserAndRoleName($user, " ");
+        }
         $this->collegeIDName = $collegeName;
     }
 

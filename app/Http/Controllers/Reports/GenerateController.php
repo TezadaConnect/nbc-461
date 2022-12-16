@@ -41,9 +41,9 @@ class GenerateController extends Controller
             if($request->input("level") == "individual"){
                 // $source_type = "individual";
                 if (in_array($request->generatePerson, ['ipo', 'vp', 'dean/director', 'chair/chief'])){
-                    $data = User::where('id', $request->employee)->select('users.last_name as name')->first();
+                    $data = User::where('id', $request->employee)->select('users.last_name as name', 'users.id')->first();
                 } else
-                    $data = User::where('id', $id)->select('users.last_name as name')->first();
+                    $data = User::where('id', $id)->select('users.last_name as name', 'users.id')->first();
             }
             elseif($request->input("level") == "department"){
                 // $source_type = "department";
@@ -69,9 +69,9 @@ class GenerateController extends Controller
         elseif($request->input("type") == "admin"){
             if($request->input("level") == "individual"){
                 if (in_array($request->generatePerson, ['ipo', 'vp', 'dean/director', 'chair/chief'])){
-                    $data = User::where('id', $request->employee)->select('users.last_name as name')->first();
+                    $data = User::where('id', $request->employee)->select('users.last_name as name', 'users.id')->first();
                 } else
-                    $data = User::where('id', $id)->select('users.last_name as name')->first();
+                    $data = User::where('id', $id)->select('users.last_name as name', 'users.id')->first();
             }
             elseif($request->input("level") == "department"){
                 if (in_array($request->generatePerson, ['ipo', 'vp', 'dean/director'])){
@@ -132,7 +132,10 @@ class GenerateController extends Controller
         if ($level == "individual") {
             if ($type == "admin" || $type == "academic") {
                 $cbco = $request->input('cbco');
-                $fileSuffix = strtoupper($request->input("type")).'-QAR-'.$college->code.'-'.$data->name.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
+                if($quarterGenerate == $quarterGenerate2)
+                    $fileSuffix = strtoupper($request->input("type")).'-QAR-'.$college->code.'-'.$data->name.'-Q'.$quarterGenerate.'-Y'.$yearGenerate;
+                else
+                    $fileSuffix = strtoupper($request->input("type")).'-QAR-'.$college->code.'-'.$data->name.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
                 /* */
                 $director = Dean::join('users', 'users.id', 'deans.user_id')->where('deans.college_id', $cbco)->first('users.*');
                 $getCollege = College::where('colleges.id', $cbco)->first('colleges.*');
@@ -145,7 +148,7 @@ class GenerateController extends Controller
                     $quarterGenerate,
                     $quarterGenerate2,
                     $cbco,
-                    $id, //userID
+                    $data->id, //userID
                     $getCollege,
                     $getSector,
                     $director,
@@ -155,7 +158,10 @@ class GenerateController extends Controller
             }
         } 
         elseif ($level == "department_wide") {
-            $fileSuffix = 'DEPT-WIDE-QAR-'.$data->code.'-Q'.$request->input('dw_quarter').'-Q'.$request->input('dw_quarter2').'-Y'.$request->input('dw_year');
+            if($quarterGenerate == $quarterGenerate2)
+                $fileSuffix = 'DEPT-WIDE-QAR-'.$data->code.'-Q'.$request->input('dw_quarter').'-Y'.$request->input('dw_year');
+            else
+                $fileSuffix = 'DEPT-WIDE-QAR-'.$data->code.'-Q'.$request->input('dw_quarter').'-Q'.$request->input('dw_quarter2').'-Y'.$request->input('dw_year');
             return Excel::download(new DepartmentLevelConsolidatedExport(
                 $level,
                 $type,
@@ -167,7 +173,10 @@ class GenerateController extends Controller
                 ),
                 $fileSuffix.'.xlsx');
         } elseif ($level == "college_wide") {
-            $fileSuffix = 'COLLEGE-WIDE-QAR-'.$data->code.'-Q'.$request->input('cw_quarter').'-Q'.$request->input('cw_quarter2').'-Y'.$request->input('cw_year');
+            if($request->input('cw_quarter') == $request->input('cw_quarter2'))
+                $fileSuffix = 'COLLEGE-WIDE-QAR-'.$data->code.'-Q'.$request->input('cw_quarter').'-Y'.$request->input('cw_year');
+            else
+                $fileSuffix = 'COLLEGE-WIDE-QAR-'.$data->code.'-Q'.$request->input('cw_quarter').'-Q'.$request->input('cw_quarter2').'-Y'.$request->input('cw_year');
             return Excel::download(new CollegeLevelConsolidatedExport(
                 $level,
                 $type,
@@ -180,10 +189,17 @@ class GenerateController extends Controller
                 $fileSuffix.'.xlsx');
         }
         elseif ($level == "department") {
-            if ($request->input("type") == "academic")
-                $fileSuffix = 'DEPT-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
-            elseif ($request->input("type") == "admin")
-                $fileSuffix = 'SECTION-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
+            if ($request->input("type") == "academic"){
+                if($quarterGenerate == $quarterGenerate2)
+                    $fileSuffix = 'DEPT-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Y'.$yearGenerate;
+                else $fileSuffix = 'DEPT-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
+            }
+            elseif ($request->input("type") == "admin"){
+                if($quarterGenerate == $quarterGenerate2)
+                    $fileSuffix = 'SECTION-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Y'.$yearGenerate;
+                else $fileSuffix = 'SECTION-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
+
+            }
             return Excel::download(new DepartmentConsolidatedAccomplishmentReportExport(
                 $level,
                 $type,
@@ -196,10 +212,17 @@ class GenerateController extends Controller
                 $fileSuffix.'.xlsx');
         }
         elseif ($level == "college") {
-            if ($request->input("type") == "academic")
-                $fileSuffix = 'COLLEGE-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
-            elseif ($request->input("type") == "admin")
-                $fileSuffix = 'OFFICE-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;  
+            if ($request->input("type") == "academic"){
+                if($quarterGenerate == $quarterGenerate2)
+                    $fileSuffix = 'COLLEGE-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Y'.$yearGenerate;
+                else $fileSuffix = 'COLLEGE-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
+            }
+            
+            elseif ($request->input("type") == "admin"){
+                if($quarterGenerate == $quarterGenerate2)
+                    $fileSuffix = 'OFFICE-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Y'.$yearGenerate;  
+                else $fileSuffix = 'OFFICE-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;  
+            }
             
             /* */
             return Excel::download(new CollegeConsolidatedAccomplishmentReportExport(
@@ -226,8 +249,10 @@ class GenerateController extends Controller
             elseif(in_array('all', $url))
                 $asked = 'ipo';
 
-            $fileSuffix = strtoupper($type).'-SECTOR-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
-
+            if($quarterGenerate == $quarterGenerate2)
+                $fileSuffix = strtoupper($type).'-SECTOR-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Y'.$yearGenerate;
+            else
+                $fileSuffix = strtoupper($type).'-SECTOR-QAR-'.$data->code.'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
             return Excel::download(new SectorAccomplishmentReportExport(
                 $type,
                 $yearGenerate,
@@ -240,7 +265,10 @@ class GenerateController extends Controller
         }
         elseif($level == 'ipo'){
             $type = $request->type;
-            $fileSuffix = 'IPO-LEVEL-QAR-'.strtoupper($type).'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
+            if($quarterGenerate == $quarterGenerate2)
+                $fileSuffix = 'IPO-LEVEL-QAR-'.strtoupper($type).'-Q'.$quarterGenerate.'-Y'.$yearGenerate;
+            else
+                $fileSuffix = 'IPO-LEVEL-QAR-'.strtoupper($type).'-Q'.$quarterGenerate.'-Q'.$quarterGenerate2.'-Y'.$yearGenerate;
 
             return Excel::download(new IPOAccomplishmentReportExport(
                 $type,
