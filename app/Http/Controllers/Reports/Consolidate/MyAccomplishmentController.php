@@ -73,30 +73,27 @@ class MyAccomplishmentController extends Controller
         if (!($authorize)) { abort(403, 'Unauthorized action.'); }
         /************/
         $report_categories = ReportCategory::all();
-        if ($year == "default") { return redirect()->route('submissions.myaccomp.index'); }
-        else {
-            $user = User::find(auth()->id());
-            $report_categories = ReportCategory::all();
-            $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
-            $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
-            $my_accomplishments = Report::where('reports.report_year', $year)
-                    ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
-                    ->where('reports.user_id', auth()->id())
-                    ->select('reports.*', 'report_categories.name as report_category')
-                    ->join('report_categories', 'reportsQ.report_category_id', 'report_categories.id')
-                    ->orderBy('reports.updated_at', 'DESC')
-                    ->get(); //get my individual accomplishment
+        $user = User::find(auth()->id());
+        $report_categories = ReportCategory::all();
+        $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
+        $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
+        $my_accomplishments = Report::where('reports.report_year', $year)
+                ->whereBetween('reports.report_quarter', [$quarter, $quarter2])
+                ->where('reports.user_id', auth()->id())
+                ->select('reports.*', 'report_categories.name as report_category')
+                ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
+                ->orderBy('reports.updated_at', 'DESC')
+                ->get(); //get my individual accomplishment
 
-            //Get department tagged in each report
-            $department_names = $this->commonService->getCollegeDepartmentNames($my_accomplishments)['department_names'];
-            //Get distinct colleges based on the assignment of employee
-            $collegeList = Employee::where('user_id', auth()->id())->join('colleges', 'colleges.id', 'employees.college_id')->select('colleges.*')->distinct()->get();
-            return view(
-                'reports.consolidate.myaccomplishments', compact(
-                    'roles','my_accomplishments', 'department_names',
-                    'year', 'quarter', 'quarter2', 'report_categories', 'user', 'collegeList',
-                    'assignments'
-                ));
-        }
+        //Get department tagged in each report
+        $department_names = $this->commonService->getCollegeDepartmentNames($my_accomplishments)['department_names'];
+        //Get distinct colleges based on the assignment of employee
+        $collegeList = Employee::where('user_id', auth()->id())->join('colleges', 'colleges.id', 'employees.college_id')->select('colleges.*')->distinct()->get();
+        return view(
+            'reports.consolidate.myaccomplishments', compact(
+                'roles','my_accomplishments', 'department_names',
+                'year', 'quarter', 'quarter2', 'report_categories', 'user', 'collegeList',
+                'assignments'
+            ));
     }
 }
