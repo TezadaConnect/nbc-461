@@ -51,7 +51,8 @@ class SectorController extends Controller
         $reportsToReview = collect();
         $currentQuarterYear = Quarter::find(1);
 
-        foreach ($assignments[7] as $row){
+        $roleId = 7;
+        foreach ($assignments[$roleId] as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
                 // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
                 ->whereIn('reports.report_quarter', [3, 4])
@@ -62,6 +63,7 @@ class SectorController extends Controller
                 ->where('reports.sector_id', $row->sector_id)->whereIn('dean_approval', [1, 2])
                 ->where('sector_approval', null)->orderBy('reports.created_at', 'DESC')->get();
             $reportsToReview = $reportsToReview->concat($tempReports);
+            $roleId = 13;
         }
 
         $college_names = [];
