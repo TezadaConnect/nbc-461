@@ -80,7 +80,7 @@
                     @if ($assignments[12] != null)
                         @forelse ( $assignments[12] as $row)
                             <a href="{{ route('reports.consolidate.college', $row->college_id) }}" class="submission-menu  {{ isset($id) ? ($row->college_id == $id && (request()->routeIs('reports.consolidate.college') || request()->routeIs('reports.consolidate.college.*')) ? 'active' : '') : '' }} ">
-                                Dean/Director - {{ $row->code }}
+                                Assistant/Associate to Dean/Director - {{ $row->code }}
                             </a><br>
                         @empty
                         @endforelse
@@ -100,7 +100,7 @@
                     @if ($assignments[13] != null)
                         @forelse ( $assignments[13] as $row)
                             <a href="{{ route('reports.consolidate.sector', $row->sector_id) }}" class="submission-menu {{ isset($sector->id) ? ($row->sector_id == $sector->id && (request()->routeIs('reports.consolidate.sector') || request()->routeIs('reports.consolidate.sector.*')) ? 'active' : '') : '' }}">
-                                VP - {{ $row->code }}
+                                Assistant to VP - {{ $row->code }}
                             </a><br>
                         @empty
                         @endforelse
