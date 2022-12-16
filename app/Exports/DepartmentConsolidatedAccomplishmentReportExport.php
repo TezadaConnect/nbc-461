@@ -24,7 +24,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 class DepartmentConsolidatedAccomplishmentReportExport implements FromView, WithEvents
 {
     function __construct($level, $type, $yearGenerate, $quarterGenerate,
-        $quarterGenerate2, $departmentID, $getDepartment, $officeHeadId) {
+        $quarterGenerate2, $departmentID, $getDepartment) {
         $this->level = $level;
         $this->type = $type;
         $this->yearGenerate = $yearGenerate;
