@@ -32,6 +32,7 @@
         var extension = files[0].type
         if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml"){
             alert("Invalid file type! Only allows JPG/JPEG, PNG, and PDF file formats.");
+            $('#document').val("");
         }
     });
     $('#documentSO').on('change', function(event){
@@ -39,6 +40,7 @@
         var extension = files[0].type
         if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml"){
             alert("Invalid file type! Only allows JPG/JPEG, PNG, and PDF file formats.");
+            $('#documentSO').val("");
         }
     });
     $('#documentCert').on('change', function(event){
@@ -46,6 +48,7 @@
         var extension = files[0].type
         if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml"){
             alert("Invalid file type! Only allows JPG/JPEG, PNG, and PDF file formats.");
+            $('#documentCert').val("");
         }
     });
     $('#documentPic').on('change', function(event){
@@ -53,6 +56,7 @@
         var extension = files[0].type
         if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml"){
             alert("Invalid file type! Only allows JPG/JPEG, PNG, and PDF file formats.");
+            $('#documentPic').val("");
         }
     });
 </script>
