@@ -50,11 +50,12 @@ class DepartmentConsolidatedController extends Controller
                 ->get();
 
         $department = Department::find($id); //Get the dept. record.
+        $college_names = $this->commonService->getCollegeDepartmentNames($department_accomps)['college_names'];
         $colleges = College::all(); //Get all colleges as options for exporting individual QAR
         $employees = DepartmentEmployee::where('department_employees.department_id', $id)->join('users', 'users.id', 'department_employees.user_id')->get();
         return view(
                     'reports.consolidate.department',
-                    compact('roles', 'department_accomps', 'department',
+                    compact('roles', 'department_accomps', 'department', 'college_names',
                     'year', 'quarter', 'quarter2', 'user', 'id', 'assignments', 'employees', 'colleges')
                 );
     }
@@ -85,10 +86,11 @@ class DepartmentConsolidatedController extends Controller
             $department = Department::find($dept); //Get the dept. record
             $id = $dept; //Labeled as ID to be passed in Generate Controller.
             $colleges = College::all(); //Get all colleges as options for exporting individual QAR
+            $college_names = $this->commonService->getCollegeDepartmentNames($department_accomps)['college_names'];
             $employees = DepartmentEmployee::where('department_employees.department_id', $id)->join('users', 'users.id', 'department_employees.user_id')->get();
             return view(
                 'reports.consolidate.department',
-                compact('roles', 'department_accomps', 'department', 
+                compact('roles', 'department_accomps', 'department', 'college_names',
                 'year', 'quarter', 'quarter2', 'user', 'id', 'assignments', 'colleges', 'employees')
             );
         }

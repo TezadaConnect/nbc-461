@@ -52,7 +52,7 @@ class ResearchConsolidatedController extends Controller
         // $cluster = DropdownOption::find($id); 
         $cluster = College::find($id); 
         return view('reports.consolidate.research', compact('roles','department_accomps', 'cluster', 'year', 'id', 'assignments',
-        ));
+        'department_names'));
     }
 
     public function departmentResReportYearFilter($clusterID, $year) {
