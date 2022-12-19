@@ -27,6 +27,13 @@
 </div>
 
 <script>
+    $('#document').on('change', function(event){
+        var files = event.target.files
+        var extension = files[0].type
+        if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml"){
+            alert("Invalid file type! Only allows JPG/JPEG, PNG, and PDF file formats.");
+        }
+    });
     $('#documentSO').on('change', function(event){
         var files = event.target.files
         var extension = files[0].type
