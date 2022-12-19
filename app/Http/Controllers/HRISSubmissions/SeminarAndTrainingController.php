@@ -182,14 +182,9 @@ class SeminarAndTrainingController extends Controller
         }
 
         // dd($datastringSO);
-        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, 'documentSO', "SPECIAL ORDER (S.O.) DOCUMENT");
-        $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
-        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, 'documentPic', "COMPILED PHOTOS");
-
-        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, 'documentSO', "SPECIAL ORDER (S.O.) DOCUMENT");
-        $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
-        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, 'documentPic', "COMPILED PHOTOS");
-
+        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, "documentSO", "SPECIAL ORDER (S.O.) DOCUMENT");
+        $documentCert = $this->commonService->fileUploadHandlerForExternal($request, "documentCert", "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
+        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, "documentPic", "COMPILED PHOTOS");
         $value = array(
             0, //EmployeeTrainingProgramID
             $emp_code, //EmpCode
@@ -480,9 +475,9 @@ class SeminarAndTrainingController extends Controller
             $is_paid = 'N';
         }
 
-        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, 'documentSO', "SPECIAL ORDER (S.O.) DOCUMENT");
-        $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
-        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, 'documentPic', "COMPILED PHOTOS");
+        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, "documentSO", "SPECIAL ORDER (S.O.) DOCUMENT");
+        $documentCert = $this->commonService->fileUploadHandlerForExternal($request, "documentCert", "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
+        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, "documentPic", "COMPILED PHOTOS");
 
         $value = array(
             $id, //EmployeeTrainingProgramID
@@ -595,9 +590,9 @@ class SeminarAndTrainingController extends Controller
             $is_paid = 'N';
         }
 
-        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, 'documentSO', "SPECIAL ORDER (S.O.) DOCUMENT");
+        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, "documentSO", "SPECIAL ORDER (S.O.) DOCUMENT");
         $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
-        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, 'documentPic', "COMPILED PHOTOS");
+        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, "documentPic", "COMPILED PHOTOS");
 
         $value = array(
             $id, //EmployeeTrainingProgramID
@@ -737,7 +732,7 @@ class SeminarAndTrainingController extends Controller
             'total_hours' => $seminar->NumberOfHours,
             'documentSO' => $seminar->AttachmentSO,
             'documentCert' => $seminar->AttachmentCert,
-            'documentPic' => $seminar->AttachmentPic,
+            "documentPic" => $seminar->AttachmentPic,
             'description' => ($seminar->DescriptionSO . ', ' . $seminar->DescriptionCert . ', ' . $seminar->DescriptionPic) ?? "N/A",
             'id' => $seminar->EmployeeTrainingProgramID,
             'mimeTypeSO' => $seminar->MimeTypeSO,
@@ -967,9 +962,9 @@ class SeminarAndTrainingController extends Controller
         // $imagedataPic ?? null, //AttachmentPic
         // $mimetypePic ?? null, //MimeTypePic
 
-        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, 'documentSO', "SPECIAL ORDER (S.O.) DOCUMENT");
-        $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
-        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, 'documentPic', "COMPILED PHOTOS");
+        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, "documentSO", "SPECIAL ORDER (S.O.) DOCUMENT");
+        $documentCert = $this->commonService->fileUploadHandlerForExternal($request, "documentCert", "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
+        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, "documentPic", "COMPILED PHOTOS");
 
         $value = array(
             $id, //EmployeeTrainingProgramID
@@ -1127,9 +1122,9 @@ class SeminarAndTrainingController extends Controller
         // $imagedataPic ?? null, //AttachmentPic
         // $mimetypePic ?? null, //MimeTypePic
 
-        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, 'documentSO', "SPECIAL ORDER (S.O.) DOCUMENT");
-        $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
-        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, 'documentPic', "COMPILED PHOTOS");
+        $documentSO = $this->commonService->fileUploadHandlerForExternal($request, "documentSO", "SPECIAL ORDER (S.O.) DOCUMENT");
+        $documentCert = $this->commonService->fileUploadHandlerForExternal($request, "documentCert", "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
+        $documentPic = $this->commonService->fileUploadHandlerForExternal($request, "documentPic", "COMPILED PHOTOS");
 
         $value = array(
             $id, //EmployeeTrainingProgramID
