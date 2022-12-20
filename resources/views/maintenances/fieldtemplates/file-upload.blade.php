@@ -27,6 +27,7 @@
 </div>
 
 <script>
+    const acceptedFileTypes = ['image/jpeg', 'application/pdf', 'image/png', 'image/jpg', 'image/pjpeg', 'image/jfif', 'image/pjp', 'image/x-png'];
     var uploadField = document.getElementById("document");
     var uploadFieldSO = document.getElementById("documentSO");
     var uploadFieldCert = document.getElementById("documentCert");
@@ -56,7 +57,7 @@
     $('#document').on('change', function(event){
         var files = event.target.files
         var extension = files[0].type
-        if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml"){
+        if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml" || !acceptedFileTypes.includes(extension)){
             alert("Invalid file type! Only allows JPG/JPEG, PNG, and PDF file formats.");
             $('#document').val("");
         }
@@ -64,7 +65,7 @@
     $('#documentSO').on('change', function(event){
         var files = event.target.files
         var extension = files[0].type
-        if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml"){
+        if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml" || !acceptedFileTypes.includes(extension)){
             alert("Invalid file type! Only allows JPG/JPEG, PNG, and PDF file formats.");
             $('#documentSO').val("");
         }
@@ -72,7 +73,7 @@
     $('#documentCert').on('change', function(event){
         var files = event.target.files
         var extension = files[0].type
-        if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml"){
+        if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml" || !acceptedFileTypes.includes(extension)){
             alert("Invalid file type! Only allows JPG/JPEG, PNG, and PDF file formats.");
             $('#documentCert').val("");
         }
@@ -80,7 +81,7 @@
     $('#documentPic').on('change', function(event){
         var files = event.target.files
         var extension = files[0].type
-        if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml"){
+        if(extension == "text/html" || extension == "application/xhtml+xml" || extension == "application/xml" || !acceptedFileTypes.includes(extension)){
             alert("Invalid file type! Only allows JPG/JPEG, PNG, and PDF file formats.");
             $('#documentPic').val("");
         }
