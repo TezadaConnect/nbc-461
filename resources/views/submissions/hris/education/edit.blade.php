@@ -63,16 +63,6 @@
     </div>
     @push('scripts')
     <script>
-        var uploadField = document.getElementById("document");
-
-        uploadField.onchange = function() {
-            if(this.files[0].size > 500000){
-            alert("File is too big! File must not exceed to 500KB.");
-            this.value = "";
-            };
-        };
-    </script>
-    <script>
         $('input[name="is_graduated"]').on('change', function () {
             if ($(this).val() == 'Yes') {
                 $('#status').val(0);

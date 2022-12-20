@@ -83,16 +83,6 @@
             $('#to').datepicker('setStartDate', $('#from').val());
         });
     </script>
-    <script>
-        var uploadField = document.getElementById("document");
-
-        uploadField.onchange = function() {
-            if(this.files[0].size > 500000){
-            alert("File is too big! File must not exceed to 500KB.");
-            this.value = "";
-            };
-        };
-    </script>
     {{-- <script>
         var report_category_id = 27;
         $('#description').empty().append('<option selected="selected" disabled="disabled" value="">Choose...</option>');
