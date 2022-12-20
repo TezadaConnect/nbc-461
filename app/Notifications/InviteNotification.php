@@ -16,9 +16,8 @@ class InviteNotification extends Notification
      *
      * @param $notification_url
      */
-    public function __construct($notification_url)
+    public function __construct()
     {
-        $this->notification_url = $notification_url;
     }
 
     /**
@@ -43,7 +42,6 @@ class InviteNotification extends Notification
         return (new MailMessage)
                     ->greeting('Greetings!')
                     ->line('This is to invite you to join our platform '.config('app.name'))
-                    ->action('Click Here', $this->notification_url)
                     ->line('Thank you for joining us!');
     }
 

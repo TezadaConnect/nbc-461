@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Maintenance\Sector;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Notifications\InviteNotification;
 use App\Notifications\ResearchNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -73,6 +74,7 @@ class TestController extends Controller
         // }
 
         // return true;
-
+        $receiverData = User::find(auth()->id());
+        Notification::send($receiverData, new InviteNotification);
     }
 }
