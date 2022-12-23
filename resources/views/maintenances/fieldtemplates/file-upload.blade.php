@@ -40,6 +40,13 @@
         }
     };
 
+    uploadFieldSO.onchange = function() {
+        if(this.files[0].size > 500000){
+            alert("File is too big! File must not exceed to 500KB.");
+            this.value = "";
+        }
+    };
+
     uploadFieldCert.onchange = function() {
         if(this.files[0].size > 500000){
             alert("File is too big! File must not exceed to 500KB.");
