@@ -227,7 +227,7 @@ class SubmissionController extends Controller
         if($this->submitAlternate($report_category_id, $accomplishment_id, $research_code, $research_id) == 1)
             return redirect()->back()->with('success', 'Accomplishment submitted succesfully.');
         else
-            return redirect()->back()->with('cannot_access', 'Failed to submit the accomplishment. For chairperson/chief and dean/director, please edit the department of your accomplishment as instructed in the edit form.');
+            return redirect()->back()->with('cannot_access', 'Failed to submit the accomplishment. Make sure you submit in the respective module (Admin/Faculty Accomplishment). For chairperson/chief and dean/director, please edit the department of your accomplishment as instructed in the edit form.');
     }
 
     public function submitAlternate($report_category_id, $accomplishment_id, $research_code, $research_id){
@@ -425,7 +425,7 @@ class SubmissionController extends Controller
                         ]);
                     }
                 } else{
-                    return redirect()->back()->with('error', 'No office-employee credentials found.');
+                    return 0;
                 }
                 $successToSubmit++;
                 return 1;
@@ -668,7 +668,7 @@ class SubmissionController extends Controller
                         ]);
                     }
                 } else{
-                    return redirect()->back()->with('error', 'No office-employee credentials found.');
+                    return 0;
                 }
                 $successToSubmit++;
                 return 1;
