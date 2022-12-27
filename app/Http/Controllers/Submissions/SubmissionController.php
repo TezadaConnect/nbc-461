@@ -284,9 +284,9 @@ class SubmissionController extends Controller
                     ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->delete();
+                $type = '';
                 if (count($employee) == 2){
                     $getUserTypeFromSession = session()->get('user_type');
-                    $type = '';
                     if($getUserTypeFromSession == 'Faculty Employee')
                         $type = 'f';
                     elseif($getUserTypeFromSession == 'Admin Employee')
@@ -425,7 +425,7 @@ class SubmissionController extends Controller
                         ]);
                     }
                 } else{
-                    return redirect()->back()->with('error', 'Submit the accomplishment on the correct accomplishment module (Faculty/Admin Module).');
+                    return redirect()->back()->with('error', 'No office-employee credentials found.');
                 }
                 $successToSubmit++;
                 return 1;
@@ -528,9 +528,9 @@ class SubmissionController extends Controller
                     ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->delete();
+                $type = '';
                 if (count($employee) == 2){
                     $getUserTypeFromSession = session()->get('user_type');
-                    $type = '';
                     if($getUserTypeFromSession == 'Faculty Employee')
                         $type = 'f';
                     elseif($getUserTypeFromSession == 'Admin Employee')
@@ -668,7 +668,7 @@ class SubmissionController extends Controller
                         ]);
                     }
                 } else{
-                    return redirect()->back()->with('error', 'Submit the accomplishment on the correct accomplishment module (Faculty/Admin Module).');
+                    return redirect()->back()->with('error', 'No office-employee credentials found.');
                 }
                 $successToSubmit++;
                 return 1;
