@@ -201,7 +201,7 @@ class EducationController extends Controller
         }
 
         $document = $this->commonService->fileUploadHandlerForExternal($request, 'document');
-        $value = [
+        $value = array(
             0,                                  //EmployeeEducationBackgroundID
             $emp_code,                          //EmpCode
             $request->level,                    //EducationLevelID
@@ -228,7 +228,7 @@ class EducationController extends Controller
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email                        //TransAccount
-        ];
+        );
 
         $id = $db_ext->select(
             "

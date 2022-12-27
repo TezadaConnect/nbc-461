@@ -138,7 +138,7 @@ class AwardController extends Controller
 
         $document = $this->commonService->fileUploadHandlerForExternal($request, 'document');
 
-        $value = [
+        $value = array(
             0, //EmployeeOutstandingAchievementID
             $emp_code, //EmpCode
             $request->award, //Achievement
@@ -153,7 +153,7 @@ class AwardController extends Controller
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
-        ];
+        );
 
         $id = $db_ext->select(
             "
