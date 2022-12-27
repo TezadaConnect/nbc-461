@@ -424,6 +424,8 @@ class SubmissionController extends Controller
                             'report_year' => $currentQuarterYear->current_year,
                         ]);
                     }
+                } else{
+                    return redirect()->back()->with('error', 'Submit the accomplishment on the correct accomplishment module (Faculty/Admin Module).');
                 }
                 $successToSubmit++;
                 return 1;
@@ -665,6 +667,8 @@ class SubmissionController extends Controller
                             'report_year' => $currentQuarterYear->current_year,
                         ]);
                     }
+                } else{
+                    return redirect()->back()->with('error', 'Submit the accomplishment on the correct accomplishment module (Faculty/Admin Module).');
                 }
                 $successToSubmit++;
                 return 1;
