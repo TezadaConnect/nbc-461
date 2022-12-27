@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Report;
+use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Models\Maintenance\Sector;
 use Illuminate\Support\Facades\DB;
@@ -94,6 +96,37 @@ class RefreshController extends Controller
         }
 
         return redirect()->route('home');
+    }
+
+    public function removeDuplicateInEmployeesTable(){
+        $users = User::all();
+        // $trashedEmployees = Employee::onlyTrashed()->get();
+        // foreach($trashedEmployees as $row){
+        //     $row->restore();
+        // }
+        foreach($users as $user){
+            $duplicateFacultyRecords = Employee::select(DB::raw('count(college_id) as occurence, college_id'))
+            ->where('user_id', $user->id)
+            ->where('type', 'F')
+            ->groupBy('college_id')
+            ->get();
+
+            $duplicateAdminRecords = Employee::select(DB::raw('count(college_id) as occurence, college_id'))
+            ->where('user_id', $user->id)
+            ->where('type', 'A')
+            ->groupBy('college_id')
+            ->get();
+
+            foreach($duplicateFacultyRecords as $row){
+                $countFacultyRecordsToDelete = ($row->occurence)-1;
+                Employee::where('user_id', $user->id)->where('type', 'F')->where('college_id', $row->college_id)->orderBy('created_at', 'desc')->take($countFacultyRecordsToDelete)->delete();
+            }
+            foreach($duplicateAdminRecords as $row){
+                $countAdminRecordsToDelete = ($row->occurence)-1;
+                Employee::where('user_id', $user->id)->where('type', 'A')->where('college_id', $row->college_id)->orderBy('created_at', 'desc')->take($countAdminRecordsToDelete)->delete();
+            }
+        }
+        return redirect()->route('home')->with('success', 'Duplicates in employees table have been removed successfully.');
     }
 }
 
