@@ -29,7 +29,7 @@ class ExtensionConsolidatedController extends Controller
         $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
         $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
         $department_accomps =
-            Report::whereIn('reports.report_category_id', [9, 10, 11, 12, 13, 14, 23, 34, 35, 36, 37])
+            Report::whereIn('reports.report_category_id', [12, 13, 14, 22, 23, 37])
                 ->where('reports.format', 'f')
                 ->where('reports.report_year', $year)
                 ->where('reports.college_id', $id)
@@ -60,7 +60,7 @@ class ExtensionConsolidatedController extends Controller
             $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
             $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
             $department_accomps =
-                Report::whereIn('reports.report_category_id', [9, 10, 11, 12, 13, 14, 23, 34, 35, 36, 37])
+                Report::whereIn('reports.report_category_id', [12, 13, 14, 22, 23, 37])
                     ->where('reports.format', 'f')
                     ->where('reports.report_year', $year)
                     ->where('reports.college_id', $clusterID)
