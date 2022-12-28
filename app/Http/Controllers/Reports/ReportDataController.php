@@ -311,13 +311,13 @@ class ReportDataController extends Controller
         }
         elseif($report_category_id == 5){
             $research_code = ResearchCitation::where('id', $id)->pluck('research_code')->first();
-            $citation_id = ResearchCitation::where('research_id', $id)->pluck('id')->first();
-            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_citation_id', $citation_id)->where('research_form_id', 5)->pluck('filename')->all();
+            // $citation_id = ResearchCitation::where('research_id', $id)->pluck('id')->first();
+            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_citation_id', $id)->where('research_form_id', 5)->pluck('filename')->all();
         }
         elseif($report_category_id == 6){
             $research_code = ResearchUtilization::where('id', $id)->pluck('research_code')->first();
-            $utilization_id = ResearchUtilization::where('research_id', $id)->pluck('id')->first();
-            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_id', $id)->where('research_utilization_id', $utilization_id)->where('research_form_id', 6)->pluck('filename')->all();
+            // $utilization_id = ResearchUtilization::where('research_id', $id)->pluck('id')->first();
+            $report_docs = ResearchDocument::where('research_code', $research_code)->where('research_utilization_id', $id)->where('research_utilization_id', $utilization_id)->where('research_form_id', 6)->pluck('filename')->all();
         }
         elseif($report_category_id == 7){
             $research_code = ResearchCopyright::where('id', $id)->pluck('research_code')->first();
