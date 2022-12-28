@@ -130,7 +130,7 @@ class RefreshController extends Controller
     }
 
     public function removeLatestDuplicateInReportsTable(){
-        $reports = Report::where('report_quarter', 3)->select('report_category_id', 'report_reference_id')->get();
+        $reports = Report::whereNotIn('report_category_id', [1,2,3,4,5,6,7,12,24,28])->where('report_quarter', 3)->select('report_category_id', 'report_reference_id')->get();
         $reports->chunk(200, function ($reports) {
             foreach($reports as $row){
                 Report::where('report_category_id', $row->report_category_id)
