@@ -104,6 +104,7 @@ class SubmissionController extends Controller
             
             // if($research_nature_of_involvement != 11 && $research_nature_of_involvement != 224){
                 if($report_category_id == 1){
+                    $research_id = $accomplishment_id;
                     $research_code = Research::where('id', $accomplishment_id)->pluck('research_code')->first();
                     $leadsResearch = Research::where('research_code', $research_code)->pluck('id')->first();
                     if($leadsResearch != $accomplishment_id && $leadsResearch != null)
