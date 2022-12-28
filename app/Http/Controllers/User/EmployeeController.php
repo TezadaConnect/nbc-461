@@ -116,8 +116,11 @@ class EmployeeController extends Controller
                 \LogActivity::addToLog('Had added '.$officeName['name'].' as office to report with as a designee.');
             }
         }
-        if (DepartmentEmployee::where('user_id', auth()->id())->doesntExist())
+        if (DepartmentEmployee::where('user_id', auth()->id())->doesntExist()){
+            $user_role = UserRole::where('user_id', auth()->id())->whereIn('role_id', [1, 3])->first();
+            session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
             return redirect()->route('offices.addDepartment')->with('has_no_department', "Add departments/sections where you commit QAR.");
+        }
         if (session('url')){
             // how to logout using redirect
             $checkSched = (new RegistrationController)->scheduleCheck(auth()->id());
@@ -127,6 +130,8 @@ class EmployeeController extends Controller
             } 
             return redirect(session('url'));
         } else {
+            $user_role = UserRole::where('user_id', auth()->id())->whereIn('role_id', [1, 3])->first();
+            session(['user_type' => Role::where('id', $user_role->role_id)->first()->name]);
             return redirect()->route('account')->with('success', 'Your role and designation has been updated.');
         }
     }
