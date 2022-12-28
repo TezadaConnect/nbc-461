@@ -49,14 +49,17 @@
                                             {{-- <a class="btn btn-secondary btn-sm mr-1" href="{{ route('research.manage-researchers', $research->research_code) }}"></a>
                                         @endif --}}
                                         <!-- Submit buttons -->
-                                        @if ($submissionStatus[1][$value['id']] == 0)
-                                            <a href="{{ url('submissions/check/1/'.$research->id) }}" class="btn btn-sm btn-primary mr-3">Submit Registered Research</a>
-                                        @elseif ($submissionStatus[1][$value['id']] == 1)
-                                            <a href="{{ url('submissions/check/1/'.$research->id) }}" class="btn btn-sm btn-success mr-3">Registered Research Submitted {{ $submitRole[$research->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
-                                        @elseif ($submissionStatus[1][$value['id']] == 2)
-                                            <a href="{{ route('research.edit', $research->id) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center mr-3"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> No Document</a>
-                                        @endif 
-
+                                        @if($research->status == 27)
+                                            @if ($submissionStatus[1][$value['id']] == 0)
+                                                <a href="{{ url('submissions/check/1/'.$research->id) }}" class="btn btn-sm btn-primary mr-3">Submit Registered Research</a>
+                                            @elseif ($submissionStatus[1][$value['id']] == 1)
+                                                <a href="{{ url('submissions/check/1/'.$research->id) }}" class="btn btn-sm btn-success mr-3">Registered Research Submitted {{ $submitRole[$research->id] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
+                                            @elseif ($submissionStatus[1][$value['id']] == 2)
+                                                <a href="{{ route('research.edit', $research->id) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center mr-3"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> No Document</a>
+                                            @endif 
+                                        @elseif($research->status == 26)
+                                            <button type="button" class="btn btn-sm btn-warning mr-3">New Commitment status is not included in the submission but will be reflected on Research Coordinator.</button>
+                                        @endif
                                         @if ($research->nature_of_involvement != 224 && $research->id == $firstResearch['id'])
                                             <a href="{{ route('research.invite.index', $research->id) }}" class="btn btn-primary btn-sm mr-3"><i class="bi bi-person-plus-fill mr-1"></i> Tag Co-Researchers</a>
                                         @endif
