@@ -31,16 +31,14 @@ use App\Models\{
     Maintenance\College,
     Maintenance\Department,
 };
-use App\Services\CommonService;
 use Exception;
 
 class PresentationController extends Controller
 {
     protected $storageFileController;
 
-    public function __construct(StorageFileController $storageFileController, CommonService $commonService){
+    public function __construct(StorageFileController $storageFileController){
         $this->storageFileController = $storageFileController;
-        $this->commonService = $commonService;
     }
 
     /**

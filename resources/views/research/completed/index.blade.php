@@ -39,7 +39,7 @@
                                     @elseif ($submissionStatus[2][$value['id']] == 1)
                                         <a href="{{ url('submissions/check/2/'.$value['id']) }}" class="btn btn-sm btn-success mr-3">Completed Research Submitted {{ $submitRole[$value['id']] == 'f' ? 'as Faculty' : 'as Admin' }}</a>
                                     @elseif ($submissionStatus[2][$value['id']] == 2)
-                                        <a href="{{ route('research.complete', $value['id']) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center mr-3"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> No Document</a>
+                                        <a href="{{ route('research.complete', $research->id) }}#upload-document" class="btn btn-sm btn-warning d-inline-flex align-items-center mr-3"><i class="bi bi-exclamation-circle-fill text-danger mr-1"></i> No Document</a>
                                     @endif        
                                     @include('research.options', ['research_id' => $research->id, 'research_status' => $research->status, 'involvement' => $research->nature_of_involvement, 'research_code' => $research->research_code])
                                 </div>
