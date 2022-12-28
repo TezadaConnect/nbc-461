@@ -255,9 +255,7 @@ class SeminarAndTrainingController extends Controller
         );
 
         $hris_type = 4;
-        if ($request->classification >= 5) //>= 5 is for training{
-            
-        }
+        if ($request->classification >= 5) //>= 5 is for training
             $hris_type = 5;
 
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
