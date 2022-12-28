@@ -18,13 +18,10 @@ class LockController extends Controller
         if(Report::where('report_reference_id', $referenceID)
             ->where('report_category_id', $categoryID)
             ->where('user_id', auth()->id())
-            ->where('report_year', $currentQuarterYear->current_year)
-            ->where('report_quarter', $currentQuarterYear->current_quarter)->exists()){
+            ->exists()){
             $data = Report::where('report_reference_id', $referenceID)
                         ->where('report_category_id', $categoryID)
                         ->where('user_id', auth()->id())
-                        ->where('report_year', $currentQuarterYear->current_year)
-                        ->where('report_quarter', $currentQuarterYear->current_quarter)
                         ->first();
             
             $flag = 1;
