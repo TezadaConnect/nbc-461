@@ -128,5 +128,25 @@ class RefreshController extends Controller
         }
         return redirect()->route('home')->with('success', 'Duplicates in employees table have been removed successfully.');
     }
+
+    public function removeLatestDuplicateInReportsTable(){
+        for($quarter = 1; $quarter <= 4; $quarter++){
+            $reports = Report::select(DB::raw('count(*) as occurence, report_category_id, report_reference_id, user_id'))
+            ->where('report_quarter', $quarter)
+            ->groupBy('report_category_id', 'report_reference_id', 'user_id')
+            ->get();
+            dd($reports);
+            foreach($reports as $report){
+                $countRecordsToDelete = ($report->occurence)-1;
+                Report::where('report_quarter', $report->quarter)
+                ->where('report_category_id', $report->report_category_id)
+                ->where('report_reference_id', $report->report_reference_id)
+                ->where('user_id', $report->user_id)
+                ->take($countRecordsToDelete)->delete();
+
+            }
+        }
+        return redirect()->route('home')->with('success', 'Duplicates in reports table have been removed successfully.');
+    }
 }
 
