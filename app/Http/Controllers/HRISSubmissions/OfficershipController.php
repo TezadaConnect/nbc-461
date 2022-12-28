@@ -143,7 +143,7 @@ class OfficershipController extends Controller
         // }
 
         $document = $this->commonService->fileUploadHandlerForExternal($request, 'document');
-        $value = array(
+        $value = [
             0, //EmployeeOfficershipMembershipID
             $emp_code, //EmpCode
             $request->position, //Position
@@ -158,7 +158,7 @@ class OfficershipController extends Controller
             $document["image"], //Attachment
             $document['mimetype'], //MimeType
             $user->email
-        );
+        ];
 
         $id = $db_ext->select(
             "

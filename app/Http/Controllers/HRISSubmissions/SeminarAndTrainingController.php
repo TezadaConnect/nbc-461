@@ -185,7 +185,7 @@ class SeminarAndTrainingController extends Controller
         $documentSO = $this->commonService->fileUploadHandlerForExternal($request, "documentSO", "SPECIAL ORDER (S.O.) DOCUMENT");
         $documentCert = $this->commonService->fileUploadHandlerForExternal($request, "documentCert", "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
         $documentPic = $this->commonService->fileUploadHandlerForExternal($request, "documentPic", "COMPILED PHOTOS");
-        $value = array(
+        $value = [
             0, //EmployeeTrainingProgramID
             $emp_code, //EmpCode
             $request->title, //TrainingProgram
@@ -202,21 +202,17 @@ class SeminarAndTrainingController extends Controller
             $request->fund_source, //SourceOfFundID
             $request->budget, //Budget
             'image/pdf/files', //Remarks
-
             $documentSO['description'] ?? "N/A", //AttachmentDescSO
             $documentSO['image'], //AttachmentSO
             $documentSO['mimetype'], //MimeTypeSO
-
             $documentCert['description'] ?? "N/A", //AttachmentDescCert
             $documentCert['image'], //AttachmentCert
             $documentCert['mimetype'], //MimeTypeCert
-
             $documentPic['description'] ?? "N/A", //AttachmentDescPic
             $documentPic['image'], //AttachmentPic
             $documentPic['mimetype'], //MimeTypePic
-
             $user->email //TransAccount
-        );
+        ];
 
         // dd($value);
         $id = $db_ext->select(
@@ -259,7 +255,9 @@ class SeminarAndTrainingController extends Controller
         );
 
         $hris_type = 4;
-        if ($request->classification >= 5) //>= 5 is for training
+        if ($request->classification >= 5) //>= 5 is for training{
+            
+        }
             $hris_type = 5;
 
         $college_id = Department::where('id', $request->input('department_id'))->pluck('college_id')->first();
@@ -479,7 +477,7 @@ class SeminarAndTrainingController extends Controller
         $documentCert = $this->commonService->fileUploadHandlerForExternal($request, "documentCert", "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
         $documentPic = $this->commonService->fileUploadHandlerForExternal($request, "documentPic", "COMPILED PHOTOS");
 
-        $value = array(
+        $value = [
             $id, //EmployeeTrainingProgramID
             $emp_code, //EmpCode
             $request->title, //TrainingProgram
@@ -510,7 +508,7 @@ class SeminarAndTrainingController extends Controller
             $documentPic['mimetype'], //MimeTypePic
 
             $user->email //TransAccount
-        );
+        ];
 
         $db_ext->select(
             "
@@ -594,7 +592,7 @@ class SeminarAndTrainingController extends Controller
         $documentCert = $this->commonService->fileUploadHandlerForExternal($request, 'documentCert', "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
         $documentPic = $this->commonService->fileUploadHandlerForExternal($request, "documentPic", "COMPILED PHOTOS");
 
-        $value = array(
+        $value = [
             $id, //EmployeeTrainingProgramID
             $emp_code, //EmpCode
             $request->title, //TrainingProgram
@@ -625,7 +623,7 @@ class SeminarAndTrainingController extends Controller
             $documentPic['mimetype'], //MimeTypePic
 
             $user->email //TransAccount
-        );
+        ];
 
         $db_ext->select(
             "
@@ -966,7 +964,7 @@ class SeminarAndTrainingController extends Controller
         $documentCert = $this->commonService->fileUploadHandlerForExternal($request, "documentCert", "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
         $documentPic = $this->commonService->fileUploadHandlerForExternal($request, "documentPic", "COMPILED PHOTOS");
 
-        $value = array(
+        $value = [
             $id, //EmployeeTrainingProgramID
             $emp_code, //EmpCode
             $request->title, //TrainingProgram
@@ -997,7 +995,7 @@ class SeminarAndTrainingController extends Controller
             $documentPic['mimetype'], //MimeTypePic
 
             $user->email //TransAccount
-        );
+        ];
 
         // dd($value);
         $db_ext->select(
@@ -1126,7 +1124,7 @@ class SeminarAndTrainingController extends Controller
         $documentCert = $this->commonService->fileUploadHandlerForExternal($request, "documentCert", "CERTIFICATE OF PARTICIPATION/ATTENDANCE/COMPLETION");
         $documentPic = $this->commonService->fileUploadHandlerForExternal($request, "documentPic", "COMPILED PHOTOS");
 
-        $value = array(
+        $value = [
             $id, //EmployeeTrainingProgramID
             $emp_code, //EmpCode
             $request->title, //TrainingProgram
@@ -1157,7 +1155,7 @@ class SeminarAndTrainingController extends Controller
             $documentPic['mimetype'], //MimeTypePic
 
             $user->email //TransAccount
-        );
+        ];
 
         // dd($value);
         $db_ext->select(
