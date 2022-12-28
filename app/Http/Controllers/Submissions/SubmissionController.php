@@ -264,15 +264,15 @@ class SubmissionController extends Controller
                 }
                 $reportColumns = collect($report_controller->getColumnDataPerReportCategory($report_values_array[1]));
                 if($report_values_array[1] == 5){
-                    $reportValues = collect($report_controller->getTableDataPerColumnCategory($report_values_array[1], $report_values_array[2]));
+                    $reportValues = collect($report_controller->getTableDataPerColumnCategory($report_values_array[1], $report_values_array[3]));
                     $report_documents = $report_controller->getDocuments($report_values_array[1], $report_values_array[2]);
                 }
                 elseif($report_values_array[1] == 6){
-                    $reportValues = collect($report_controller->getTableDataPerColumnCategory($report_values_array[1], $report_values_array[2]));
+                    $reportValues = collect($report_controller->getTableDataPerColumnCategory($report_values_array[1], $report_values_array[3]));
                     $report_documents = $report_controller->getDocuments($report_values_array[1], $report_values_array[2]);
                 }
                 elseif(($report_values_array[1] <= 4 || $report_values_array[1] == 7 )){
-                    $reportValues = collect($report_controller->getTableDataPerColumnCategory($report_values_array[1], $report_values_array[2]));
+                    $reportValues = collect($report_controller->getTableDataPerColumnCategory($report_values_array[1], $report_values_array[3]));
                     $report_documents = $report_controller->getDocuments($report_values_array[1], $report_values_array[2]);
                 }
                 $report_details = array_combine($reportColumns->pluck('column')->toArray(), $reportValues->toArray());

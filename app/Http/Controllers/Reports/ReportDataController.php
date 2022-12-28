@@ -147,7 +147,8 @@ class ReportDataController extends Controller
                 if($column->column == 'college_id'){
                     $data = DB::table('research')->where($column->table.'.id', $id)
                         ->join('colleges', 'colleges.id', $column->table.'.college_id')
-                        ->where($column->table.'.user_id', auth()->id());
+                        ->where($column->table.'.user_id', auth()->id())
+                        ->pluck('colleges.name')->first();
                     // DB::table('researchers')->where('researchers.research_id', $id)
                     //     ->join('colleges', 'colleges.id', 'researchers.college_id')
                     //     ->where('researchers.user_id', auth()->id())
