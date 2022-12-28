@@ -130,10 +130,6 @@ class RefreshController extends Controller
     }
 
     public function removeLatestDuplicateInReportsTable(){
-        $reports = Report::select(DB::raw('count(*) as occurence, report_category_id, report_reference_id, user_id'))
-            ->groupBy('report_category_id', 'report_reference_id', 'user_id')
-            ->get();
-            dd($reports);
         for($quarter = 1; $quarter <= 4; $quarter++){
             $reports = Report::select(DB::raw('count(*) as occurence, report_category_id, report_reference_id, user_id'))
             ->where('report_quarter', $quarter)
