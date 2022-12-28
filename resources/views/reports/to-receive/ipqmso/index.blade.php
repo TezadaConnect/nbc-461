@@ -24,6 +24,13 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-6" style="display: none; padding-top: 20px;" id="actionButtons">
+                            <button id="acceptButton" data-toggle="modal" data-target="#selectApprove" class="btn btn-primary mr-2"><i class="bi bi-check2"></i> Accept</button>
+                            <button id="denyButton" data-toggle="modal" data-target="#selectDeny" class="btn btn-secondary"><i class="bi bi-slash-circle"></i> Return</a>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover" id="to_review_table">
