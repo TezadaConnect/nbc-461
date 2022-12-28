@@ -131,12 +131,38 @@ class RefreshController extends Controller
 
     public function removeLatestDuplicateInReportsTable(){
         $reports = Report::where('report_quarter', 3)->select('report_category_id', 'report_reference_id')->get();
-        foreach($reports as $row){
-            Report::where('report_category_id', $row->report_category_id)
-            ->where('report_reference_id', $row->report_reference_id)
-            ->where('report_quarter', 4)
-            ->delete();
-        }
+        $reports->chunk(200, function ($reports) {
+            foreach($reports as $row){
+                Report::where('report_category_id', $row->report_category_id)
+                ->where('report_reference_id', $row->report_reference_id)
+                ->where('report_quarter', 4)
+                ->delete();
+            }
+        });
+
+        $research = Report::whereIn('report_category_id', [1,2,3,4,5,6,7])->where('report_quarter', 3)->select('report_category_id', 'report_reference_id', 'report_details')->get();
+        $research->chunk(200, function ($research) {
+            foreach($research as $row){
+                Report::where('report_category_id', $row->report_category_id)
+                ->where('report_reference_id', $row->report_reference_id)
+                ->where('report_quarter', 4)
+                ->where('user_id', $row->user_id)
+                ->where('report_details->status', '!=', $row->report_details->status)
+                ->delete();
+            }
+        });
+
+        $extension = Report::where('report_category_id', 12)->where('report_quarter', 3)->select('report_category_id', 'report_reference_id', 'report_details')->get();
+        $extension->chunk(200, function ($extension) {
+            foreach($extension as $row){
+                Report::where('report_category_id', $row->report_category_id)
+                ->where('report_reference_id', $row->report_reference_id)
+                ->where('report_quarter', 4)
+                ->where('user_id', $row->user_id)
+                ->where('report_details->status', '!=', $row->report_details->status)
+                ->delete();
+            }
+        });
         return redirect()->route('home')->with('success', 'Duplicates in reports table have been removed successfully.');
     }
 }
