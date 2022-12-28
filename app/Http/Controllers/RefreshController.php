@@ -130,15 +130,13 @@ class RefreshController extends Controller
     }
 
     public function removeLatestDuplicateInReportsTable(){
-        $reports = Report::whereNotIn('report_category_id', [1,2,3,4,5,6,7,12])
-        ->where('report_quarter', 3)
-        ->except(['report_details', 'report_quarter', 'created_at', 'updated_at', 'deleted_at'])
-        ->groupBy('report_category_id', 'report_reference_id')->select('reports.*')
-        ->get();
-        foreach($reports as $report){
-            Report::where('id', $report->id)->where('report_quarter', 4)->delete();
+        $reports = Report::where('report_quarter', 3)->select('report_category_id', 'report_reference_id')->get();
+        foreach($reports as $row){
+            Report::where('report_category_id', $row->report_category_id)
+            ->where('report_reference_id', $row->report_reference_id)
+            ->where('report_quarter', 4)
+            ->delete();
         }
-
         return redirect()->route('home')->with('success', 'Duplicates in reports table have been removed successfully.');
     }
 }
