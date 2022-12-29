@@ -130,8 +130,7 @@ class RefreshController extends Controller
     }
 
     public function removeLatestDuplicateInReportsTable(){
-        $reports = Report::whereNotIn('report_category_id', [1,2,3,4,5,6,7,12,24,28])->where('report_quarter', 3)->select('report_category_id', 'report_reference_id')->get();
-        $reports->chunk(200, function ($reports) {
+        Report::whereNotIn('report_category_id', [1,2,3,4,5,6,7,12,24,28])->where('report_quarter', 3)->chunk(200, function ($reports) {
             foreach($reports as $row){
                 Report::where('report_category_id', $row->report_category_id)
                 ->where('report_reference_id', $row->report_reference_id)
@@ -140,30 +139,27 @@ class RefreshController extends Controller
             }
         });
 
-        $research = Report::whereIn('report_category_id', [1,2,3,4,5,6,7])->where('report_quarter', 3)
-        ->select('report_category_id', 'report_reference_id', 'report_details', 'report_code')
-        ->get();
-        $research->chunk(200, function ($research) {
+        Report::whereIn('report_category_id', [1,2,3,4,7])->where('report_quarter', 3)->chunk(200, function ($research) {
             foreach($research as $row){
+                $details = json_decode($row->report_details);
+                // dd($details->status);
                 Report::where('report_category_id', $row->report_category_id)
                 ->where('report_reference_id', $row->report_reference_id)
                 ->where('report_quarter', 4)
                 ->where('report_code', $row->report_code)
-                ->where('report_details->status', '!=', $row->report_details->status)
+                ->where('report_details->status', '!=', $details->status)
                 ->delete();
             }
         });
 
-        $extension = Report::where('report_category_id', 12)->where('report_quarter', 3)
-        ->select('report_category_id', 'report_reference_id', 'report_details', 'user_id')
-        ->get();
-        $extension->chunk(200, function ($extension) {
+        Report::where('report_category_id', 12)->where('report_quarter', 3)->chunk(200, function ($extension) {
             foreach($extension as $row){
+                $details = json_decode($row->report_details);
                 Report::where('report_category_id', $row->report_category_id)
                 ->where('report_reference_id', $row->report_reference_id)
                 ->where('report_quarter', 4)
                 ->where('user_id', $row->user_id)
-                ->where('report_details->status', '!=', $row->report_details->status)
+                ->where('report_details->status', '!=', $details->status)
                 ->delete();
             }
         });
