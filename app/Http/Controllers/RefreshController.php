@@ -171,6 +171,7 @@ class RefreshController extends Controller
         Report::whereIn('report_quarter', [3,4])->where('report_year', 2022)->chunk(200, function ($reports) {
             foreach($reports as $row){
                 $details = json_decode($row->report_details);
+                dd($details);
                 if($row->report_category_id == 1){
                     if($details->status != "New Commitment"){
                         $date = Carbon::createFromFormat("F d, Y", $details->start_date)->format('Y-m-d');
@@ -179,15 +180,13 @@ class RefreshController extends Controller
                             Report::find($row->id)->delete();
                         }
                     }
-                }
-                //  elseif($row->report_category_id == 2){
-                //     $date = Carbon::createFromFormat("F d, Y", $details->completion_date)->format('Y-m-d');
-                //     $date = Carbon::parse($date);
-                //     if($date->quarter != $row->report_quarter && substr($date,0,4) != $row->report_year){
-                //         Report::find($row->id)->delete();
-                //     }
-                // } 
-                elseif($row->report_category_id == 3){
+                } elseif($row->report_category_id == 2){
+                    $date = Carbon::createFromFormat("F d, Y", $details->completion_date)->format('Y-m-d');
+                    $date = Carbon::parse($date);
+                    if($date->quarter != $row->report_quarter && substr($date,0,4) != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 3){
                     $date = Carbon::createFromFormat("F d, Y", $details->publish_date)->format('Y-m-d');
                     $date = Carbon::parse($date);
                     if($date->quarter != $row->report_quarter && substr($date,0,4) != $row->report_year){
