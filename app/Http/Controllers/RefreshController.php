@@ -182,7 +182,6 @@ class RefreshController extends Controller
                 } elseif($row->report_category_id == 2){
                     $date = Carbon::createFromFormat("F d, Y", $details->completion_date)->format('Y-m-d');
                     $date = Carbon::parse($date);
-                    dd(substr($date,0,4));
                     if($date->quarter != $row->report_quarter && substr($date,0,4) != $row->report_year){
                         Report::find($row->id)->delete();
                     }
