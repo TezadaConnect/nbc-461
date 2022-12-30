@@ -180,11 +180,12 @@ class RefreshController extends Controller
                         }
                     }
                 } elseif($row->report_category_id == 2){
-                    dd($details->completion_date);
-                    $date = Carbon::createFromFormat("F d, Y", $details->completion_date)->format('Y-m-d');
-                    $date = Carbon::parse($date);
-                    if($date->quarter != $row->report_quarter && substr($date,0,4) != $row->report_year){
-                        Report::find($row->id)->delete();
+                    if($details->completion_date != "-"){
+                        $date = Carbon::createFromFormat("F d, Y", $details->completion_date)->format('Y-m-d');
+                        $date = Carbon::parse($date);
+                        if($date->quarter != $row->report_quarter && substr($date,0,4) != $row->report_year){
+                            Report::find($row->id)->delete();
+                        }
                     }
                 } elseif($row->report_category_id == 3){
                     $date = Carbon::createFromFormat("F d, Y", $details->publish_date)->format('Y-m-d');
