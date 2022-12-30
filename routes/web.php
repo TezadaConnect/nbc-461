@@ -557,6 +557,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth'], fu
     Route::get('refresh/reports-alignment', [\App\Http\Controllers\RefreshController::class, 'reportsAlignment']);
     Route::get('refresh/employees-remove-duplicate', [\App\Http\Controllers\RefreshController::class, 'removeDuplicateInEmployeesTable']);
     Route::get('refresh/reports-remove-duplicate', [\App\Http\Controllers\RefreshController::class, 'removeLatestDuplicateInReportsTable']);
+    Route::get('refresh/reports-remove-untimely', [\App\Http\Controllers\RefreshController::class, 'removeUntimelyReportsInTable']);
     // forms
     // Route::post('/forms/save-arrange', [\App\Http\Controllers\FormBuilder\FormController::class, 'arrange'])->name('forms.arrange');
     // Route::resource('forms', \App\Http\Controllers\FormBuilder\FormController::class);

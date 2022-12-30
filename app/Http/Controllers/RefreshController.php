@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Report;
 use App\Models\User;
 use App\Models\Employee;
@@ -130,7 +131,7 @@ class RefreshController extends Controller
     }
 
     public function removeLatestDuplicateInReportsTable(){
-        Report::whereNotIn('report_category_id', [1,2,3,4,5,6,7,12,24,28])->where('report_quarter', 3)->chunk(200, function ($reports) {
+        Report::whereNotIn('report_category_id', [1,2,3,4,5,6,7,12,24,28,33])->where('report_quarter', 3)->chunk(200, function ($reports) {
             foreach($reports as $row){
                 Report::where('report_category_id', $row->report_category_id)
                 ->where('report_reference_id', $row->report_reference_id)
@@ -161,6 +162,152 @@ class RefreshController extends Controller
                 ->where('user_id', $row->user_id)
                 ->where('report_details->status', '!=', $details->status)
                 ->delete();
+            }
+        });
+        return redirect()->route('home')->with('success', 'Duplicates in reports table have been removed successfully.');
+    }
+
+    public function removeUntimelyReportsInTable(){
+        Report::whereIn('report_quarter', [3,4])->where('report_year', 2022)->chunk(200, function ($reports) {
+            foreach($reports as $row){
+                $details = json_decode($row->report_details);
+                if($row->report_category_id == 1){
+                    if($details->status != "New Commitment"){
+                        $date = Carbon::createFromFormat("F d, Y", $details->start_date)->format('Y-m-d');
+                        $date = Carbon::parse($date);
+                        if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                            Report::find($row->id)->delete();
+                        }
+                    }
+                } elseif($row->report_category_id == 2){
+                    $date = Carbon::createFromFormat("F d, Y", $details->completion_date)->format('Y-m-d');
+                    $date = Carbon::parse($details->completion_date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 3){
+                    $date = Carbon::createFromFormat("F d, Y", $details->publish_date)->format('Y-m-d');
+                    $date = Carbon::parse($details->publish_date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 4){
+                    $date = Carbon::createFromFormat("F d, Y", $details->date_presented)->format('Y-m-d');
+                    $date = Carbon::parse($details->date_presented);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 8){
+                    $date = Carbon::createFromFormat("F d, Y", $details->start_date)->format('Y-m-d');
+                    $date = Carbon::parse($details->start_date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 9){
+                    $date = Carbon::createFromFormat("F d, Y", $details->from)->format('Y-m-d');
+                    $date = Carbon::parse($details->from);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 10){
+                    $date = Carbon::createFromFormat("F d, Y", $details->from)->format('Y-m-d');
+                    $date = Carbon::parse($details->from);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 12){
+                    if($details->from != '-'){
+                    $date = Carbon::createFromFormat("F d, Y", $details->from)->format('Y-m-d');
+                    $date = Carbon::parse($details->from);
+                        if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                            Report::find($row->id)->delete();
+                        }
+                    }
+                } elseif($row->report_category_id == 13){
+                    $date = Carbon::createFromFormat("F d, Y", $details->start_date)->format('Y-m-d');
+                    $date = Carbon::parse($details->start_date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 14){
+                    $date = Carbon::createFromFormat("F d, Y", $details->start_date)->format('Y-m-d');
+                    $date = Carbon::parse($details->start_date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 15){
+                    $date = Carbon::createFromFormat("F d, Y", $details->date_started)->format('Y-m-d');
+                    $date = Carbon::parse($details->date_started);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 16){
+                    $date = Carbon::createFromFormat("F d, Y", $details->date_finished)->format('Y-m-d');
+                    $date = Carbon::parse($details->date_finished);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 18){
+                    $date = Carbon::createFromFormat("F d, Y", $details->date)->format('Y-m-d');
+                    $date = Carbon::parse($details->date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 19){
+                    $date = Carbon::createFromFormat("F d, Y", $details->start_date)->format('Y-m-d');
+                    $date = Carbon::parse($details->start_date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 20){
+                    $date = Carbon::createFromFormat("F d, Y", $details->start_date)->format('Y-m-d');
+                    $date = Carbon::parse($details->start_date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 21){
+                    $date = Carbon::createFromFormat("F d, Y", $details->date)->format('Y-m-d');
+                    $date = Carbon::parse($details->date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 22){
+                    $date = Carbon::createFromFormat("F d, Y", $details->date)->format('Y-m-d');
+                    $date = Carbon::parse($details->date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 29){
+                    $date = Carbon::createFromFormat("F d, Y", $details->from)->format('Y-m-d');
+                    $date = Carbon::parse($details->from);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id >= 30 && $row->report_category_id <= 32){
+                    $date = Carbon::createFromFormat("F d, Y", $details->actual_date)->format('Y-m-d');
+                    $date = Carbon::parse($details->actual_date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 33){
+                    $date = Carbon::createFromFormat("F d, Y", $details->end_date)->format('Y-m-d');
+                    $date = Carbon::parse($details->end_date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 35 || ($row->report_category_id >= 37 && $row->report_category_id <= 39)){
+                    $date = Carbon::createFromFormat("F d, Y", $details->from)->format('Y-m-d');
+                    $date = Carbon::parse($details->from);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                } elseif($row->report_category_id == 34 || $row->report_category_id == 36){
+                    $date = Carbon::createFromFormat("F d, Y", $details->start_date)->format('Y-m-d');
+                    $date = Carbon::parse($details->start_date);
+                    if($date->quarter != $row->report_quarter && $date->year != $row->report_year){
+                        Report::find($row->id)->delete();
+                    }
+                }
             }
         });
         return redirect()->route('home')->with('success', 'Duplicates in reports table have been removed successfully.');
