@@ -179,13 +179,15 @@ class RefreshController extends Controller
                             Report::find($row->id)->delete();
                         }
                     }
-                } elseif($row->report_category_id == 2){
-                    $date = Carbon::createFromFormat("F d, Y", $details->completion_date)->format('Y-m-d');
-                    $date = Carbon::parse($date);
-                    if($date->quarter != $row->report_quarter && substr($date,0,4) != $row->report_year){
-                        Report::find($row->id)->delete();
-                    }
-                } elseif($row->report_category_id == 3){
+                }
+                //  elseif($row->report_category_id == 2){
+                //     $date = Carbon::createFromFormat("F d, Y", $details->completion_date)->format('Y-m-d');
+                //     $date = Carbon::parse($date);
+                //     if($date->quarter != $row->report_quarter && substr($date,0,4) != $row->report_year){
+                //         Report::find($row->id)->delete();
+                //     }
+                // } 
+                elseif($row->report_category_id == 3){
                     $date = Carbon::createFromFormat("F d, Y", $details->publish_date)->format('Y-m-d');
                     $date = Carbon::parse($date);
                     if($date->quarter != $row->report_quarter && substr($date,0,4) != $row->report_year){
