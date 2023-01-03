@@ -124,7 +124,7 @@
                                                     @endif
                                                 </td>
                                                 <td class="report-view button-view text-center" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">
-                                                    @if (($row->report_category_id >= 12 && $row->report_category_id <= 14) || ($row->report_category_id >= 34 && $row->report_category_id <= 37) || $row->report_category_id == 22 || $row->report_category_id == 23)
+                                                    @if (($row->report_category_id >= 12 && $row->report_category_id <= 14) || ($row->report_category_id >= 22 && $row->report_category_id <= 23) || $row->report_category_id == 37)  {{-- Extensionist --}}
                                                         @if ($row->extensionist_approval === null)
                                                             @if ($row->format == 'f')
                                                                 Receiving...
@@ -158,7 +158,7 @@
                                                                     <span class="text-success font-weight-bold">Reviewed</span>
                                                                 @endif
                                                             @endif
-                                                        @elseif (($row->report_category_id >= 12 && $row->report_category_id <= 14) || ($row->report_category_id >= 34 && $row->report_category_id <= 37) || $row->report_category_id == 22 || $row->report_category_id == 23)
+                                                        @elseif (($row->report_category_id >= 12 && $row->report_category_id <= 14) || ($row->report_category_id >= 22 && $row->report_category_id <= 23) || $row->report_category_id == 37)  {{-- Extensionist --}}
                                                             @if ($row->chairperson_approval === null)
                                                                 @if ($row->department_id == $row->college_id)
                                                                     N/A
@@ -200,7 +200,7 @@
                                                             @else
                                                                 <span class="text-success font-weight-bold">Viewed</span>
                                                             @endif
-                                                        @elseif (($row->report_category_id >= 12 && $row->report_category_id <= 14) || ($row->report_category_id >= 34 && $row->report_category_id <= 37) || $row->report_category_id == 22 || $row->report_category_id == 23)
+                                                        @elseif (($row->report_category_id >= 12 && $row->report_category_id <= 14) || ($row->report_category_id >= 22 && $row->report_category_id <= 23) || $row->report_category_id == 37)  {{-- Extensionist --}}
                                                             @if ($row->chairperson_approval === null)
                                                                 N/A
                                                             @elseif ($row->chairperson_approval === 0)
@@ -289,7 +289,7 @@
                                                         @else
                                                             -
                                                         @endif
-                                                    @elseif (($row->report_category_id >= 12 && $row->report_category_id <= 14) || ($row->report_category_id >= 34 && $row->report_category_id <= 37) || $row->report_category_id == 22 || $row->report_category_id == 23)
+                                                    @elseif (($row->report_category_id >= 12 && $row->report_category_id <= 14) || ($row->report_category_id >= 22 && $row->report_category_id <= 23) || $row->report_category_id == 37)  {{-- Extensionist --}}
                                                         @if (
                                                             $row->extensionist_approval === 0 ||
                                                             $row->chairperson_approval === 0 ||
