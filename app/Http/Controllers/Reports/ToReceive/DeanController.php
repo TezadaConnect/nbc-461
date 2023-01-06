@@ -58,26 +58,14 @@ class DeanController extends Controller
         // ->whereNull('reports.dean_approval')
         // ->select('reports.*')
         // ->orderBy('reports.created_at', 'DESC')->get());
-        dd($tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
-        ->where('reports.college_id', 18)
-        ->where('reports.chairperson_approval', 1)
-        ->where('reports.dean_approval', null)
-        ->select('reports.*', 'departments.name as department_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name')
-        ->join('departments', 'reports.department_id', 'departments.id')
-        ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
-        ->join('users', 'reports.user_id', 'users.id')
-        ->orderBy('reports.created_at', 'DESC')->get());
         $officeCredential = collect($assignments[6])->merge($assignments[12]);
         foreach ($officeCredential as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
-            ->where('reports.college_id', $row->college_id)
-            ->where('reports.chairperson_approval', 1)
-            ->where('reports.dean_approval', null)
-            ->select('reports.*', 'departments.name as department_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name')
-            ->join('departments', 'reports.department_id', 'departments.id')
-            ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
-            ->join('users', 'reports.user_id', 'users.id')
-            ->orderBy('reports.created_at', 'DESC')->get();
+        ->where('reports.college_id', 18)
+        ->where('reports.chairperson_approval', 1)
+        ->whereNull('reports.dean_approval')
+        ->select('reports.*')
+        ->orderBy('reports.created_at', 'DESC')->get();
 
             $tempDepartment_list = Department::where('college_id', $row->college_id)
                 ->orderBy('departments.name')
@@ -89,7 +77,7 @@ class DeanController extends Controller
             $department_list = $department_list->concat($tempDepartment_list);
         }
         $tempReports = collect();
-
+dd($reportsToReview);
         foreach($reportsToReview as $report){
             if ($report->format == 'f') {
                 if($report->report_category_id >= 1 && $report->report_category_id <= 8){
