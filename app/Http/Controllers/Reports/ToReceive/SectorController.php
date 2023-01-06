@@ -51,7 +51,7 @@ class SectorController extends Controller
         $reportsToReview = collect();
         $currentQuarterYear = Quarter::find(1);
 
-        $officeCredential = collect($assignments[7])->concat($assignments[13]);
+        $officeCredential = collect($assignments[7])->merge($assignments[13]);
         foreach ($officeCredential as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
                 // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
