@@ -52,13 +52,11 @@ class DeanController extends Controller
         $department_list = collect();
         $currentQuarterYear = Quarter::find(1);
 
-        $officeCredential = $assignments[6];
-        dd($officeCredential);
-        foreach ($officeCredential as $row){
+        $officeCredential = collect($assignments[6])->merge($assignments[12]);
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
                 // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
                 ->whereIn('reports.report_quarter', [3,4])
-                ->where('reports.college_id', $row->college_id)
+                ->whereIn('reports.college_id', $officeCredential)
                 ->where('chairperson_approval', 1)
                 ->where('dean_approval', null)
                 ->select('reports.*', 'departments.name as department_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
@@ -75,9 +73,7 @@ class DeanController extends Controller
 
             $reportsToReview = $reportsToReview->concat($tempReports);
             $department_list = $department_list->concat($tempDepartment_list);
-        }
         $tempReports = collect();
-dd($reportsToReview);
 
         foreach($reportsToReview as $report){
             if ($report->format == 'f') {
@@ -117,6 +113,7 @@ dd($reportsToReview);
             else
                 $department_names[$row->id] = $temp_department_name;
         }
+
         return view('reports.to-receive.deans.index', compact('reportsToReview', 'roles', 'college_names', 'department_names', 'department_list', 'assignments'));
     }
 
