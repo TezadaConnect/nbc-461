@@ -76,7 +76,7 @@ class DeanController extends Controller
             $department_list = $department_list->concat($tempDepartment_list);
         }
         $tempReports = collect();
-dd($reportsToReview);
+dd($officeCredential);
         foreach($reportsToReview as $report){
             if ($report->format == 'f') {
                 if($report->report_category_id >= 1 && $report->report_category_id <= 8){
