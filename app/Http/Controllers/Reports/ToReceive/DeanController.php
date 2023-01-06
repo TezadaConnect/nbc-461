@@ -114,7 +114,7 @@ class DeanController extends Controller
             else
                 $department_names[$row->id] = $temp_department_name;
         }
-
+dd($reportsToReview);
         return view('reports.to-receive.deans.index', compact('reportsToReview', 'roles', 'college_names', 'department_names', 'department_list', 'assignments'));
     }
 
