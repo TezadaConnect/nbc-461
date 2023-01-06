@@ -53,7 +53,7 @@ class DeanController extends Controller
         $currentQuarterYear = Quarter::find(1);
 
         dd($tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
-        ->where('reports.college_id', $row->college_id)
+        ->where('reports.college_id', 18)
         ->where('reports.chairperson_approval', 1)
         ->where('reports.dean_approval', null)
         ->select('reports.*', 'departments.name as department_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
