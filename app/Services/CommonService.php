@@ -262,36 +262,32 @@ class CommonService
 
         if (in_array(5, $roles)) {
             $assignment[5] = Chairperson::where('chairpeople.user_id', auth()->id())->select('chairpeople.department_id', 'departments.code')
-                ->join('departments', 'departments.id', 'chairpeople.department_id')->pluck('chairpeople.department_id')->all();
+                ->join('departments', 'departments.id', 'chairpeople.department_id')->get();
         }
         if (in_array(6, $roles)) {
             $assignment[6] = Dean::where('deans.user_id', auth()->id())->select('deans.college_id', 'colleges.code')
-                ->join('colleges', 'colleges.id', 'deans.college_id')->pluck('deans.college_id')->all();
+                ->join('colleges', 'colleges.id', 'deans.college_id')->get();
         }
         if (in_array(7, $roles)) {
             $assignment[7] = SectorHead::where('sector_heads.user_id', auth()->id())->select('sector_heads.sector_id', 'sectors.code')
-                ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->pluck('sector_heads.sector_id')->all();
+                ->join('sectors', 'sectors.id', 'sector_heads.sector_id')->get();
         }
         if (in_array(10, $roles)) {
-            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->pluck('faculty_researchers.college_id')->all();
+            $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('colleges', 'colleges.id', 'faculty_researchers.college_id')->get();
             // $assignment[10] = FacultyResearcher::where('faculty_researchers.user_id', auth()->id())->join('dropdown_options', 'dropdown_options.id', 'faculty_researchers.cluster_id')->get();
         }
         if (in_array(11, $roles)) {
             $assignment[11] = FacultyExtensionist::where('faculty_extensionists.user_id', auth()->id())
                 ->select('faculty_extensionists.college_id', 'colleges.code')
-                ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->pluck('faculty_extensionists.college_id')->all();
+                ->join('colleges', 'colleges.id', 'faculty_extensionists.college_id')->get();
         }
         if (in_array(12, $roles)) {
             $assignment[12] = Associate::where('associates.user_id', auth()->id())->select('associates.college_id', 'colleges.code')
-                ->whereNotNull('associates.college_id')
-                ->whereNull('associates.sector_id')
-                ->join('colleges', 'colleges.id', 'associates.college_id')->pluck('associates.college_id')->all();
+                ->join('colleges', 'colleges.id', 'associates.college_id')->get();
         }
         if (in_array(13, $roles)) {
             $assignment[13] = Associate::where('associates.user_id', auth()->id())->select('associates.sector_id', 'sectors.code')
-            ->whereNotNull('associates.sector_id')
-                ->whereNull('associates.college_id')
-                ->join('sectors', 'sectors.id', 'associates.sector_id')->pluck('associates.sector_id')->all();
+                ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
         }
 
         return $assignment;
