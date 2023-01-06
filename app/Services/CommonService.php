@@ -284,12 +284,14 @@ class CommonService
         if (in_array(12, $roles)) {
             $assignment[12] = Associate::where('associates.user_id', auth()->id())->select('associates.college_id', 'colleges.code')
                 ->whereNotNull('associates.college_id')
+                ->whereNull('associates.sector_id')
                 ->join('colleges', 'colleges.id', 'associates.college_id')->get();
         }
         if (in_array(13, $roles)) {
             $assignment[13] = Associate::where('associates.user_id', auth()->id())->select('associates.sector_id', 'sectors.code')
             ->whereNotNull('associates.sector_id')
-            ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
+                ->whereNull('associates.college_id')
+                ->join('sectors', 'sectors.id', 'associates.sector_id')->get();
         }
 
         return $assignment;
