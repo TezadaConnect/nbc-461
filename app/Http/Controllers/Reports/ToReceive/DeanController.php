@@ -51,28 +51,17 @@ class DeanController extends Controller
         $reportsToReview = collect();
         $department_list = collect();
         $currentQuarterYear = Quarter::find(1);
-
-        dd($tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
-        ->whereIn('reports.report_quarter', [3,4])
-        ->where('reports.college_id', 18)
-        ->where('chairperson_approval', 1)
-        ->where('dean_approval', null)
-        
-        ->select('reports.*')
-        ->orderBy('reports.created_at', 'DESC')->get());
         $officeCredential = collect($assignments[6])->merge($assignments[12]);
         foreach ($officeCredential as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
-            ->whereIn('reports.report_quarter', [3,4])
-            ->where('reports.college_id', 18)
-            ->where('chairperson_approval', 1)
-            ->where('dean_approval', null)
+            ->where('reports.college_id', $row->college_id)
+            ->where('reports.chairperson_approval', 1)
+            ->where('reports.dean_approval', null)
+            ->select('reports.*', 'departments.name as department_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
             ->join('departments', 'reports.department_id', 'departments.id')
             ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
             ->join('users', 'reports.user_id', 'users.id')
-            ->select('reports.*', 'departments.name as department_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name')
             ->orderBy('reports.created_at', 'DESC')->get();
-
             $tempDepartment_list = Department::where('college_id', $row->college_id)
                 ->orderBy('departments.name')
                 ->select('departments.id', 'departments.name', 'colleges.name as college_name')
