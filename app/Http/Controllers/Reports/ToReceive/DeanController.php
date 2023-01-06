@@ -65,7 +65,7 @@ class DeanController extends Controller
                 ->join('users', 'reports.user_id', 'users.id')
                 ->orderBy('reports.created_at', 'DESC')->get();
 
-            $tempDepartment_list = Department::where('college_id', $row->college_id)
+            $tempDepartment_list = Department::whereIn('college_id', $officeCredential)
                 ->orderBy('departments.name')
                 ->select('departments.id', 'departments.name', 'colleges.name as college_name')
                 ->join('colleges', 'colleges.id', 'departments.college_id')
