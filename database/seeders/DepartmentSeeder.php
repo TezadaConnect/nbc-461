@@ -55,15 +55,5 @@ class DepartmentSeeder extends Seeder
                 }
             }
         }
-        $sectors = $db_ext->select(" EXEC GetDepartment 'Y'");
-
-        foreach ($sectors as $sector){
-            Department::create([
-                'id'=> $sector->DepartmentID,
-                'name' => $sector->Department,
-                'code' => $sector->DepartmentCode,
-                'college_id' => $sector->DepartmentID
-            ]);
-        }
     }
 }
