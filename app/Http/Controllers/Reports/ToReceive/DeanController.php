@@ -53,7 +53,6 @@ class DeanController extends Controller
         $currentQuarterYear = Quarter::find(1);
 
         $officeCredential = collect($assignments[6])->merge($assignments[12])->unique();
-        dd($officeCredential);
         foreach ($officeCredential as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
                 // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
@@ -77,7 +76,7 @@ class DeanController extends Controller
             $department_list = $department_list->concat($tempDepartment_list);
         }
         $tempReports = collect();
-
+dd($reportsToReview);
         foreach($reportsToReview as $report){
             if ($report->format == 'f') {
                 if($report->report_category_id >= 1 && $report->report_category_id <= 8){
