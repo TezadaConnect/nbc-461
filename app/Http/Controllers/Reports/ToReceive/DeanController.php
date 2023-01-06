@@ -53,7 +53,7 @@ class DeanController extends Controller
         $currentQuarterYear = Quarter::find(1);
 
         $officeCredential = $assignments[6];
-        foreach ($officeCredential as $row){
+        foreach ($assignments[6] as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
                 // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
                 ->whereIn('reports.report_quarter', [3,4])
