@@ -53,7 +53,6 @@ class DeanController extends Controller
         $currentQuarterYear = Quarter::find(1);
 
         $officeCredential = collect($assignments[6])->merge($assignments[12]);
-        foreach ($officeCredential as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
                 // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
                 ->whereIn('reports.report_quarter', [3,4])
@@ -66,7 +65,7 @@ class DeanController extends Controller
                 ->join('users', 'reports.user_id', 'users.id')
                 ->orderBy('reports.created_at', 'DESC')->get();
 
-            $tempDepartment_list = Department::where('college_id', $row->college_id)
+            $tempDepartment_list = Department::where('college_id', 18)
                 ->orderBy('departments.name')
                 ->select('departments.id', 'departments.name', 'colleges.name as college_name')
                 ->join('colleges', 'colleges.id', 'departments.college_id')
@@ -74,7 +73,6 @@ class DeanController extends Controller
 
             $reportsToReview = $reportsToReview->concat($tempReports);
             $department_list = $department_list->concat($tempDepartment_list);
-        }
         $tempReports = collect();
 
         foreach($reportsToReview as $report){
