@@ -57,11 +57,7 @@ class DeanController extends Controller
         ->where('reports.college_id', 18)
         ->where('chairperson_approval', 1)
         ->where('dean_approval', null)
-        ->select('reports.*', 'departments.name as department_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
-        ->join('departments', 'reports.department_id', 'departments.id')
-        ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
-        ->join('users', 'reports.user_id', 'users.id')
-        ->orderBy('reports.created_at', 'DESC')->get());
+        ->select('reports.*')->get());
         $officeCredential = collect($assignments[6])->concat($assignments[12]);
         foreach ($officeCredential as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
