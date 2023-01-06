@@ -76,6 +76,8 @@ class DeanController extends Controller
             $department_list = $department_list->concat($tempDepartment_list);
         }
         $tempReports = collect();
+dd($reportsToReview);
+
         foreach($reportsToReview as $report){
             if ($report->format == 'f') {
                 if($report->report_category_id >= 1 && $report->report_category_id <= 8){
@@ -114,7 +116,6 @@ class DeanController extends Controller
             else
                 $department_names[$row->id] = $temp_department_name;
         }
-dd($reportsToReview);
         return view('reports.to-receive.deans.index', compact('reportsToReview', 'roles', 'college_names', 'department_names', 'department_list', 'assignments'));
     }
 
