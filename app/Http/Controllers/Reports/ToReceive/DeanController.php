@@ -48,7 +48,6 @@ class DeanController extends Controller
         $roles = UserRole::where('user_id', auth()->id())->pluck('role_id')->all();
 
         $assignments = $this->commonService->getAssignmentsByCurrentRoles($roles);
-        dd($assignments);
         $reportsToReview = collect();
         $department_list = collect();
         $currentQuarterYear = Quarter::find(1);
