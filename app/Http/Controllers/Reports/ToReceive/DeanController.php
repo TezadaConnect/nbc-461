@@ -56,10 +56,7 @@ class DeanController extends Controller
         ->where('reports.college_id', 18)
         ->where('reports.chairperson_approval', 1)
         ->whereNull('reports.dean_approval')
-        ->select('reports.*', 'departments.name as department_name', 'report_categories.name as report_category', 'users.last_name', 'users.first_name','users.middle_name', 'users.suffix')
-        ->join('departments', 'reports.department_id', 'departments.id')
-        ->join('report_categories', 'reports.report_category_id', 'report_categories.id')
-        ->join('users', 'reports.user_id', 'users.id')
+        ->select('reports.*')
         ->orderBy('reports.created_at', 'DESC')->get());
         $officeCredential = collect($assignments[6])->merge($assignments[12]);
         foreach ($officeCredential as $row){
