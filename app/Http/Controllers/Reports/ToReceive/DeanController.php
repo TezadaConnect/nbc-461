@@ -56,7 +56,7 @@ class DeanController extends Controller
         foreach ($officeCredential as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
                 // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
-                ->whereIn('reports.report_quarter', [3,4])
+                ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
                 ->where('reports.college_id', $row->college_id)
                 ->where('chairperson_approval', 1)
                 ->where('dean_approval', null)

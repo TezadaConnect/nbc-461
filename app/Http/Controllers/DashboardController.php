@@ -49,13 +49,13 @@ class DashboardController extends Controller
         }
         $currentQuarterYear = Quarter::find(1);
         $countAccomplishmentsSubmitted = Report::where('user_id', auth()->id())
-                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->whereNotNull('college_id')
                     ->whereNotNull('department_id')
                     ->count();
         $countAccomplishmentsReturned = Report::where('user_id', auth()->id())
-                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->where(function ($query) {
                         $query->where('researcher_approval', 0)
@@ -114,7 +114,7 @@ class DashboardController extends Controller
                     ->where('college_id', $value->college_id)
                     // ->where('research_cluster_id', $value->cluster_id)
                     ->whereIn('report_category_id', [1, 2, 3, 4, 5, 6, 7])
-                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->count();
                 $tempvalues[$value->college_id] = $tempcount;
@@ -140,7 +140,7 @@ class DashboardController extends Controller
                     ->whereNull('extensionist_approval')
                     ->where('college_id', $value->college_id)
                     ->whereIn('report_category_id', [12, 13, 14, 22, 23, 34, 35, 36, 37])
-                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->count();
                 $tempvalues[$value->college_id] = $tempcount;
@@ -163,7 +163,7 @@ class DashboardController extends Controller
                 $tempcount = Report::whereNull('chairperson_approval')
                     ->where('department_id', $value->department_id)
                     ->whereIn('report_category_id', [9, 10, 11, 15, 16, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 38])
-                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->count();
                 $tempvalues[$value->department_id] = $tempcount;
@@ -195,7 +195,7 @@ class DashboardController extends Controller
                 $tempcount = Report::whereNull('dean_approval')
                     ->where('chairperson_approval', 1)
                     ->where('college_id', $value->college_id)
-                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->count();
                 $tempvalues[$value->college_id] = $tempcount;
@@ -207,7 +207,7 @@ class DashboardController extends Controller
                 $tempcount2 = Report::whereNull('dean_approval')
                     ->where('chairperson_approval', 1)
                     ->where('college_id', $value->college_id)
-                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->count();
                 $tempvalues2[$value->college_id] = $tempcount2;
@@ -238,7 +238,7 @@ class DashboardController extends Controller
                 $tempcount = Report::whereNull('sector_approval')
                     ->whereIn('dean_approval', [1,2])
                     ->where('sector_id', $value->sector_id)
-                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->count();
                 $tempvalues[$value->sector_id] = $tempcount; 
@@ -251,7 +251,7 @@ class DashboardController extends Controller
                 $tempcount2 = Report::whereNull('sector_approval')
                     ->whereIn('dean_approval', [1,2])
                     ->where('sector_id', $value->sector_id)
-                    ->whereIn('report_quarter', [3,4])
+                    ->where('report_quarter', $currentQuarterYear->current_quarter)
                     ->where('report_year', $currentQuarterYear->current_year)
                     ->count();
                 $tempvalues2[$value->sector_id] = $tempcount2; 
@@ -265,16 +265,16 @@ class DashboardController extends Controller
             $countRegisteredUsers[8] = '';
             $countReceived[8] = Report::where('report_year', $currentQuarterYear->current_year)
                 ->where('ipqmso_approval', 1)
-                ->whereIn('report_quarter', [3,4])
+                ->where('report_quarter', $currentQuarterYear->current_quarter)
                 ->count();
             $countExpectedTotal[8] = Report::
                 where('report_year', $currentQuarterYear->current_year)
-                ->whereIn('report_quarter', [3,4])
+                ->where('report_quarter', $currentQuarterYear->current_quarter)
                 ->count();
             $countToReview[8] = Report::whereNull('ipqmso_approval')
                 ->where('report_year', $currentQuarterYear->current_year)
                 ->whereIn('sector_approval', [1,2])
-                ->whereIn('report_quarter', [3,4])
+                ->where('report_quarter', $currentQuarterYear->current_quarter)
                 ->count();
         } 
         if (in_array(9, $roles)) {

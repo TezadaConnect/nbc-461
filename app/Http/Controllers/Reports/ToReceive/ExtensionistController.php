@@ -48,7 +48,7 @@ class ExtensionistController extends Controller
         foreach ($assignments[11] as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
                 // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
-                ->whereIn('reports.report_quarter', [3,4])
+                ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
                 ->where('reports.format', 'f')
                 ->whereIn('reports.report_category_id', [12, 13, 14, 22, 23, 37])
                 ->where('college_id', $row->college_id)->where('extensionist_approval', null)

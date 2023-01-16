@@ -49,7 +49,7 @@ class ResearcherController extends Controller
         foreach ($assignments[10] as $row){
             $tempReports = Report::where('reports.report_year', $currentQuarterYear->current_year)
                 // ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
-                ->whereIn('reports.report_quarter', [3,4])
+                ->where('reports.report_quarter', $currentQuarterYear->current_quarter)
                 ->where('reports.format', 'f')
                 ->whereIn('reports.report_category_id', [1, 2, 3, 4, 5, 6, 7])
                 // ->where('reports.research_cluster_id', $row->cluster_id)->where('researcher_approval', null)
