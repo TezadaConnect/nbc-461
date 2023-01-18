@@ -9,7 +9,7 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body text-center">
-                    <h4>Page Not Available</h4>
+                    <h4>Page is under maintenance mode.</h4>
                     <a href="{{ url()->previous() }}" class="text-link">Return to Previous Page</a>
                 </div>
             </div>
