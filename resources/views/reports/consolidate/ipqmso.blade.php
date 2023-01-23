@@ -101,6 +101,7 @@
                                                     <th rowspan="2">Employee</th>
                                                     <th rowspan="2">College/Branch/ Campus/Office</th>
                                                     <th rowspan="2">Department/ Section</th>
+                                                    <th rowspan="2">Date Submitted</th>
                                                     <th class="text-center" colspan="6">Status</th>
                                                     <th rowspan="2"></th>
                                                 </tr>
@@ -170,6 +171,7 @@
                                                     <td class="report-view button-view" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">{{ $row->last_name.', '.$row->first_name.(($row->middle_name === null) ? '' : ' '.$row->middle_name).(($row->suffix === null) ? '' : ' '.$row->suffix) }}</td>
                                                     <td class="report-view button-view" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">{{ $college_names[$row->id] ?? '-' }}</td>
                                                     <td class="report-view button-view" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">{{ $department_names[$row->id] ?? '-' }}</td>
+                                                    <td class="report-view button-view" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">{{ date( "F j, Y", strtotime($row->report_date)) }}</td>
                                                     <td class="report-view button-view text-center" data-toggle="modal" data-target="#viewReport" data-url="{{ route('document.view', ':filename') }}" data-id="{{ $row->id }}" data-report-category="{{ $row->report_category }}">
                                                         @if ($row->report_category_id >= 1 && $row->report_category_id <= 8)  {{-- Researcher --}}
                                                             @if ($row->researcher_approval === null)
