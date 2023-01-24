@@ -143,10 +143,10 @@ class ResearchAccomplishmentReportExport implements FromView, WithEvents
                         $columnTWO = Coordinate::stringFromColumnIndex(3);
                         $length = count($table_columns[$format->id]);
                         if ($length == null){
-                            $length = 4;
+                            $length = 6;
                         }
                         else{
-                            $length = $length+6;
+                            $length = $length+8;
                         }
                         $letter = Coordinate::stringFromColumnIndex($length);
 

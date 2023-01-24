@@ -32,6 +32,9 @@ $table_format_json = json_encode($table_format, JSON_FORCE_OBJECT);
                         @foreach ($table_columns[$format->id] as $column)
                             <th>{{ $column['name'] }}</th>
                         @endforeach
+                        <th>Supporting Documents</th>
+                        <th>Date Submitted</th>
+                        <th>Date Received by IPO</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,7 +61,8 @@ $table_format_json = json_encode($table_format, JSON_FORCE_OBJECT);
                                 @endif
                             @endforeach
                             <td><a href="{{ route('report.generate.document-view', $content['id']) }}" target="_blank">View Documents</a></td>
-                            <td></td>
+                            <td>{{ date( "F d, Y", strtotime($content['report_date'])) }}</td>
+                            <td>{{ date( "F d, Y", strtotime($content['updated_at'])) }}</td>
                         </tr>
                             
                     @empty

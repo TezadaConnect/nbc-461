@@ -250,10 +250,10 @@ class DepartmentConsolidatedAccomplishmentReportExport implements FromView, With
                     elseif($format->is_table == '1') {
                         $length = count($tableColumns[$format->id]);
                         if ($length == null){
-                            $length = 4;
+                            $length = 6;
                         }
                         else{
-                            $length = $length+4;
+                            $length = $length+8;
                         }
                         $letter = Coordinate::stringFromColumnIndex($length);
 

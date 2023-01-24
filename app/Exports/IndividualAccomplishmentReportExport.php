@@ -291,10 +291,10 @@ class IndividualAccomplishmentReportExport implements FromView, WithEvents
                     elseif($format->is_table == '1') {
                         $length = count($tableColumns[$format->id]);
                         if ($length == null){
-                            $length = 2;
+                            $length = 4;
                         }
                         else{
-                            $length = $length+2;
+                            $length = $length+6;
                         }
                         $letter = Coordinate::stringFromColumnIndex($length);
 
