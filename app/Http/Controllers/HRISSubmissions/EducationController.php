@@ -64,7 +64,6 @@ class EducationController extends Controller
 
         $submissionStatus = array();
         $submitRole = array();
-        $isReturnRequested = array();
 
         foreach ($educationFinal as $education) {
             $id = HRIS::where('hris_id', $education->EmployeeEducationBackgroundID)->where('hris_type', 1)->where('user_id', $user->id)->pluck('hris_id')->first();
@@ -78,14 +77,9 @@ class EducationController extends Controller
                 if ($educationData[0]->Attachment == null)
                     $submissionStatus[24][$education->EmployeeEducationBackgroundID] = 2;
             }
-
-            $rep = Report::where('report_reference_id',$education->EmployeeEducationBackgroundID)->where('deleted_at', NULL)->pluck('return_request')->first();
-            if($rep != '') {
-                $isReturnRequested[$education->EmployeeEducationBackgroundID] = $rep;
-            }
         }
 
-        return view('submissions.hris.education.index', compact('educationFinal', 'savedReports', 'currentQuarterYear', 'submissionStatus', 'submitRole','isReturnRequested'));
+        return view('submissions.hris.education.index', compact('educationFinal', 'savedReports', 'currentQuarterYear', 'submissionStatus', 'submitRole'));
     }
 
     public function create()

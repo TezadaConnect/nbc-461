@@ -87,11 +87,6 @@
                                                                             <button type="button" value="{{ $award->EmployeeOutstandingAchievementID }}" class="btn btn-sm btn-danger d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-award="{{ $award->Achievement }}">Delete</button>
                                                                         @elseif ($submissionStatus[27][$award->EmployeeOutstandingAchievementID] == 1 )
                                                                             <button type="button" class="btn btn-sm btn-danger d-inline-flex align-items-center" onclick="cantdelete()">Delete</button>
-                                                                            @if(isset($isReturnRequested[$award->EmployeeOutstandingAchievementID]))
-                                                                                <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center" data-reportref = "{{ $award->EmployeeOutstandingAchievementID }}" data-reqres="{{$isReturnRequested[$award->EmployeeOutstandingAchievementID]}}" onclick="retrequested(this)">Return Status</button>
-                                                                            @else
-                                                                                <button type="button" class="btn btn-sm btn-warning d-inline-flex align-items-center" onclick="returnrequest({{ $award->EmployeeOutstandingAchievementID }})">Request Return</button>
-                                                                            @endif
                                                                         @endif
                                                                     @endif
                                                                 @endif
@@ -159,73 +154,6 @@
                     title: 'Cannot be deleted once submitted.',
                     text: 'Please request to return the accomplishment if you wish to delete it.'
                 });
-            };
-
-            function returnrequest(refid){
-                Swal.fire({
-                    title: 'Request To Return',
-                    html: `<input type="textarea" id="returnrequestreason" class="swal2-input" placeholder="Reason for Request">`,
-                    confirmButtonColor: '#4CAF50',
-                    confirmButtonText: 'Submit Request',
-                    showCancelButton: true,
-                    focusConfirm: false,
-                    preConfirm: () => {
-                        let reason = document.getElementById('returnrequestreason').value;
-                        if (reason) {
-                            // let reason = document.getElementById('returnrequestreason').value;
-                            /* $.ajaxSetup({
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content');
-                                }
-                            }); */
-                            $.ajax({
-                                type: 'POST',
-                                url: "{{route('submissions.development.returnrequest')}}",
-                                data: {"_token": "{{csrf_token()}}",
-                                    "reason": jQuery('#returnrequestreason').val(),
-                                    "reprefid": refid,
-                                },
-                                success: function (resp) {
-                                    if (resp.success) {
-                                        swal.fire("Return Requested!", "", "success");
-                                        location.reload();
-                                    } else {
-                                        swal.fire("Error!", 'Something went wrong.', "error");
-                                    }
-                                },
-                                error: function (resp) {
-                                    swal.fire("Error!", resp.message, "error");
-                                }
-                            });
-                        } else {
-                                    Swal.showValidationMessage('Please specify reason');
-                        }
-                    }
-                });
-            }; 
-
-            function retrequested(element){
-                let reasonreq = element.dataset.reqres; 
-                let reportrefid = element.dataset.reportref; 
-                if(reasonreq.includes("Request Denied:")){
-                    //call return request
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Return Request Denied',
-                        text: reasonreq,
-                        confirmButtonText: 'Request Again',
-                        showCancelButton: true,
-                        preConfirm: () => {
-                            returnrequest(reportrefid);
-                        },
-                    });
-                }else{
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Return Already Requested',
-                        text: element.dataset.reqres,
-                    });
-                }
             };
 
             // auto hide alert
