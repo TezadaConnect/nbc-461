@@ -2,21 +2,25 @@
 
 Created on 02/07/2023
 
+
 **Installing PHP**
 
 1.  Go to [**www.apachefriends.org/download.html**](http://www.apachefriends.org/download.html)
 2.  Download the **8.0** version
 3.  Open the file and follow the installation wizard for complete instructions
 
+
 **Installing OpenVPN**
 
 1.  Needs authorization. Please refer to the development team for the OpenVPN access documentation.
+
 
 **Installing Composer**
 
 1.  Go to getcomposer.org/download/
 2.  Download the file and install
 3.  Run composer -v to check if successfully installed
+
 
 **Running Apache and MySQL Server in XAMPP**
 
@@ -28,6 +32,7 @@ Created on 02/07/2023
 1.  Make sure Apache and MySQL turned Green as same as shown below
 
 ![Graphical user interface, application Description automatically generated](media/f31746ff4ca29cf407e026dd8819b2ac.png)
+
 
 **Downloading Microsoft Drivers for PHP for SQL Server**
 
@@ -42,6 +47,7 @@ This is to enable connection to the external database from PUP which uses SQL se
     **extension=pdo_sqlsrv_80_ts_x64**
 
     **extension=sqlsrv_80_ts_x64**
+
 
 **Downloading the Repository/Project**
 
@@ -64,15 +70,18 @@ Clone the Repository
 
 5.  Click **Clone**
 
+
 **Installing Dependencies**
 
 1.  Open the Terminal/PowerShell/Command Prompt in the **root** directory of the project/repository. You can do this by opening the root directory of the project and right click on the empty area and Click **Open Terminal**. You can also do this in a code editor and run in its Terminal, if applicable
 2.  When the Terminal is open, type and run the following command: **composer install**
 3.  Wait for the process to be completed
 
+
 **Configuring ENV file**
 
 1.  Needs authorization. Please refer to the development team for the ENV file configuration
+
 
 **Creating Database**
 
@@ -80,10 +89,12 @@ This project uses MySQL in managing the database.
 
 1.  Use the MySQL credentials based on ENV file
 
+
 **Migrating the Database**
 
 1.  Open the Terminal/PowerShell/Command Prompt in the **root** directory of the project/repository. You can do this by opening the root directory of the project and right click on the empty area and Click **Open Terminal**. You can also do this in a code editor and run in its Terminal, if applicable
 2.  When the Terminal is open, type and run the following command: **php artisan migrate**
+
 
 **Seeding the Database**
 
@@ -93,11 +104,15 @@ This project has pre-defined data items stored in the database.
 2.  When the Terminal is open, type and run the following command: **php artisan db:seed**
 3.  Wait for the seeding to be completed
 
+
 **Running the Project/Repository**
 
 1.  Open the Terminal/PowerShell/Command Prompt in the root directory of the project/repository. You can do this by opening the root directory of the project and right click on the empty area and Click **Open Terminal**. You can also do this in a code editor and run in its Terminal, if applicable
 2.  When the Terminal is open, type and run the following command: **php artisan serve**
 3.  Open your browser and go to **http:://127.0.0.1:8000**
+
+See the whole document:
+https://docs.google.com/document/d/1MVcaCiUGMV34vqhuQKlaFm_ij2eihB77/edit?usp=share_link&ouid=106767701194907342086&rtpof=true&sd=true
 
 
 
