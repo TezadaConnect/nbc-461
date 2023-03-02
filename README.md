@@ -2,27 +2,23 @@
 
 Created on 02/07/2023
 
-
-**Installing PHP**
+Installing PHP
 
 1.  Go to [**www.apachefriends.org/download.html**](http://www.apachefriends.org/download.html)
 2.  Download the **8.0** version
 3.  Open the file and follow the installation wizard for complete instructions
 
-
-**Installing OpenVPN**
+Installing OpenVPN
 
 1.  Needs authorization. Please refer to the development team for the OpenVPN access documentation.
 
-
-**Installing Composer**
+Installing Composer
 
 1.  Go to getcomposer.org/download/
 2.  Download the file and install
 3.  Run composer -v to check if successfully installed
 
-
-**Running Apache and MySQL Server in XAMPP**
+Running Apache and MySQL Server in XAMPP
 
 1.  Open XAMPP Control Panel
 2.  Find the Apache and MySQL rows and click Start as show in the image below
@@ -33,23 +29,24 @@ Created on 02/07/2023
 
 ![Graphical user interface, application Description automatically generated](media/f31746ff4ca29cf407e026dd8819b2ac.png)
 
+Downloading Microsoft Drivers for PHP for SQL Server
 
-**Downloading Microsoft Drivers for PHP for SQL Server**
+This is to enable connection to the external database from PUP which uses SQL server. If you already have installed ODBC Driver for SQL Server already, you may skip the steps 1-3. Additionally, if you have installed Microsoft drivers for PHP for SQL Server found in your **php** \< **ext** folder, you may skip the steps 4-7.
 
-This is to enable connection to the external database from PUP which uses SQL server. If you already have Microsoft drivers for PHP for SQL Server found in your **php** \< **ext** folder, you may skip the steps 1-4.
-
-1.  Go to https://learn.microsoft.com/en-us/sql/connect/php/download-drivers-php-sql-server?view=sql-server-ver16
-2.  Click [**Download Microsoft Drivers for PHP for SQL Server (Windows)**](https://go.microsoft.com/fwlink/?linkid=2199011) **(v. 5.10 is the latest)**
-3.  **Unzip the file and copy the two (2) files: php_pdo_sqlsrv_80_ts_x64 and php_sqlsrv_80_ts_x64**
-4.  **Paste the two files in your php \< ext folder**
-5.  **Add the following extensions in php.ini and save:**
+1.  Go to <https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver16>
+2.  Click [**Download Microsoft ODBC Driver 17 for SQL Server (x64)**](https://go.microsoft.com/fwlink/?linkid=2223304)
+3.  Open the file and follow the installation wizard for complete instructions
+4.  Go to https://learn.microsoft.com/en-us/sql/connect/php/download-drivers-php-sql-server?view=sql-server-ver16
+5.  Click [**Download Microsoft Drivers for PHP for SQL Server (Windows)**](https://go.microsoft.com/fwlink/?linkid=2199011) **(v. 5.10 is the latest)**
+6.  **Unzip the file and copy the two (2) files: php_pdo_sqlsrv_80_ts_x64 and php_sqlsrv_80_ts_x64**
+7.  **Paste the two files in your php \< ext folder**
+8.  **Add the following extensions in php.ini and save:**
 
     **extension=pdo_sqlsrv_80_ts_x64**
 
     **extension=sqlsrv_80_ts_x64**
 
-
-**Downloading the Repository/Project**
+Downloading the Repository/Project
 
 There are two ways to download the project/repository: Manual download or Clone using GitHub Desktop.
 
@@ -70,33 +67,28 @@ Clone the Repository
 
 5.  Click **Clone**
 
-
-**Installing Dependencies**
+Installing Dependencies
 
 1.  Open the Terminal/PowerShell/Command Prompt in the **root** directory of the project/repository. You can do this by opening the root directory of the project and right click on the empty area and Click **Open Terminal**. You can also do this in a code editor and run in its Terminal, if applicable
 2.  When the Terminal is open, type and run the following command: **composer install**
 3.  Wait for the process to be completed
 
-
-**Configuring ENV file**
+Configuring ENV file
 
 1.  Needs authorization. Please refer to the development team for the ENV file configuration
 
-
-**Creating Database**
+Creating Database
 
 This project uses MySQL in managing the database.
 
 1.  Use the MySQL credentials based on ENV file
 
-
-**Migrating the Database**
+Migrating the Database
 
 1.  Open the Terminal/PowerShell/Command Prompt in the **root** directory of the project/repository. You can do this by opening the root directory of the project and right click on the empty area and Click **Open Terminal**. You can also do this in a code editor and run in its Terminal, if applicable
 2.  When the Terminal is open, type and run the following command: **php artisan migrate**
 
-
-**Seeding the Database**
+Seeding the Database
 
 This project has pre-defined data items stored in the database.
 
@@ -104,12 +96,12 @@ This project has pre-defined data items stored in the database.
 2.  When the Terminal is open, type and run the following command: **php artisan db:seed**
 3.  Wait for the seeding to be completed
 
-
-**Running the Project/Repository**
+Running the Project/Repository
 
 1.  Open the Terminal/PowerShell/Command Prompt in the root directory of the project/repository. You can do this by opening the root directory of the project and right click on the empty area and Click **Open Terminal**. You can also do this in a code editor and run in its Terminal, if applicable
 2.  When the Terminal is open, type and run the following command: **php artisan serve**
 3.  Open your browser and go to **http:://127.0.0.1:8000**
+
 
 See the whole document:
 https://docs.google.com/document/d/1MVcaCiUGMV34vqhuQKlaFm_ij2eihB77/edit?usp=share_link&ouid=106767701194907342086&rtpof=true&sd=true
