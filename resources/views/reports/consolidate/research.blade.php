@@ -595,7 +595,7 @@
                 var selectedQuarter = $('#quarterFilter').val();
                 var selectedYear = $('#yearFilter').val();
                 $('#quarterGenerate').val(selectedQuarter);
-                $('#yearGenerate').val(selectedYear);
+                $('#year_generate').val(selectedYear);
                 $('#report_type').val('qar');
             });
             $('#btn-list').on('click', function() {
