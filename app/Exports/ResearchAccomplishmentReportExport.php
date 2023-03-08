@@ -52,7 +52,8 @@ class ResearchAccomplishmentReportExport implements FromView, WithEvents
             else {
                 if ($this->level == "research"){
                     $table_contents[$format->id] =
-                        Report::where('reports.research_cluster_id', $this->clusterID)
+                        Report::where('reports.college_id', $this->clusterID)
+                        // Report::where('reports.research_cluster_id', $this->clusterID)
                             ->where('reports.format', 'f')
                             ->where('reports.researcher_approval', 1)
                             ->where('reports.report_year', $this->year)
