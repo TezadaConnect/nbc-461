@@ -25,8 +25,8 @@
                                 <input type="hidden" name="year_generate" id="year_generate" class="form-control" >
                                 <input type="hidden" name="report_type" id="report_type" class="form-control">
                                 <button id="quarterYearFilter" type="button" class="btn btn-primary mr-2"><i class="bi bi-list-ol"></i> Generate Table</button>
-                                <!-- <button id="export" type="submit" class="btn btn-warning mr-2" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
-                                <button id="btn-list" type="submit" onclick="" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export List of Research</button> -->
+                                <button id="export" type="submit" class="btn btn-warning mr-2" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export QAR File</button>
+                                {{-- <button id="btn-list" type="submit" onclick="" class="btn btn-warning" data-target="#GenerateReport" data-toggle="modal"><i class="bi bi-filetype-xlsx"></i> Export List of Research</button> --}}
                             </form>
                         </div>
                         <hr>
